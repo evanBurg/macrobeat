@@ -1,0 +1,31 @@
+{
+    "short_name": "Kev Chat",
+    "name": "Info3069 Case 3 Chat App",
+    "icons": [
+    {
+    "src": "./img/logo.png",
+    "sizes": "48x48",
+    "type": "image/png"
+    },
+    {
+    "src": "./img/logo.png",
+    "sizes": "144x144",
+    "type": "image/png"
+    },
+    {
+    "src": "./img/logo.png",
+    "sizes": "192x192",
+    "type": "image/png"
+    },
+    {
+    "src": "./img/logo.png",
+    "sizes": "512x512",
+    "type": "image/png"
+    }
+    ],
+    "start_url": "./",
+    "display": "standalone",
+    "theme_color": "#94b0da",
+    "background_color": "#ffffff"
+   }
+   
