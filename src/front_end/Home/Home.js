@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { SegmentedControl } from "gestalt";
-import IconButton from "../Components/IconButton"
+import IconButton from "../Components/IconButton";
 
 const styles = {
   navbar: {
@@ -18,9 +18,6 @@ const styles = {
   }
 };
 
-
-
-
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -33,35 +30,50 @@ class Home extends Component {
 
   setTab = tab => this.setState({ tab });
 
+  getTab = () => {
+    switch (this.state.tab) {
+      case 0:
+        return <h1>Home</h1>;
+      case 1:
+        return <h1>Artists</h1>;
+      case 2:
+        return <h1>Albums</h1>;
+      case 3:
+        return <h1>Songs</h1>;
+      case 4:
+        return <h1>Search</h1>;
+    }
+  };
+
   navbarItems = () => [
     <IconButton
       label="Home"
       icon="fa fa-home"
-      color={this.state.tab === 0 ?  "black" : "#7d7d7d"} 
+      color={this.state.tab === 0 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(0)}
     />,
     <IconButton
       label="Artists"
       icon="fa fa-guitar"
-      color={this.state.tab === 1 ?  "black" : "#7d7d7d"} 
+      color={this.state.tab === 1 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(1)}
     />,
     <IconButton
       label="Albums"
       icon="fa fa-compact-disc"
-      color={this.state.tab === 2 ?  "black" : "#7d7d7d"} 
+      color={this.state.tab === 2 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(2)}
     />,
     <IconButton
       label="Songs"
       icon="fa fa-music"
-      color={this.state.tab === 3 ?  "black" : "#7d7d7d"} 
+      color={this.state.tab === 3 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(3)}
     />,
     <IconButton
       label="Search"
       icon="fa fa-search"
-      color={this.state.tab === 4 ?  "black" : "#7d7d7d"} 
+      color={this.state.tab === 4 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(4)}
     />
   ];
@@ -71,6 +83,7 @@ class Home extends Component {
 
     return (
       <React.Fragment>
+        {this.getTab()}
         <div style={styles.navbar}>
           <SegmentedControl
             items={this.navbarItems()}
