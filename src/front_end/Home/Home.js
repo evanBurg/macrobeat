@@ -1,20 +1,32 @@
 import React, { Component } from "react";
-import { SegmentedControl } from "gestalt";
-import IconButton from "../Components/IconButton";
+import {
+  Heading,
+  Avatar,
+  SearchField,
+  Box,
+  Collage,
+  Mask,
+  Image,
+  IconButton
+} from "gestalt";
+import MusicGroup from "../Components/MusicGroup";
 
 const styles = {
-  navbar: {
-    position: "fixed",
-    bottom: 4,
-    left: 0,
-    right: 0,
-    background: "white",
-    borderRadius: 5,
-    margin: 5,
-    padding: 5,
-    "-webkit-box-shadow": "9px 10px 18px -14px rgba(0,0,0,0.75)",
-    "-moz-box-shadow": "9px 10px 18px -14px rgba(0,0,0,0.75)",
-    boxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)"
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
+    justifyContent: "flex-start",
+    paddingBottom: 50
+  },
+  row: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-between",
+    verticalAlign: "middle",
+    alignItems: "center"
   }
 };
 
@@ -23,75 +35,302 @@ class Home extends Component {
     super(props);
 
     this.state = {
-      tab: 0,
-      user: null
+      search: ""
     };
   }
 
-  setTab = tab => this.setState({ tab });
-
-  getTab = () => {
-    switch (this.state.tab) {
-      case 0:
-        return <h1>Home</h1>;
-      case 1:
-        return <h1>Artists</h1>;
-      case 2:
-        return <h1>Albums</h1>;
-      case 3:
-        return <h1>Songs</h1>;
-      case 4:
-        return <h1>Search</h1>;
-    }
-  };
-
-  navbarItems = () => [
-    <IconButton
-      label="Home"
-      icon="fa fa-home"
-      color={this.state.tab === 0 ? "black" : "#7d7d7d"}
-      onClick={() => this.setTab(0)}
-    />,
-    <IconButton
-      label="Artists"
-      icon="fa fa-guitar"
-      color={this.state.tab === 1 ? "black" : "#7d7d7d"}
-      onClick={() => this.setTab(1)}
-    />,
-    <IconButton
-      label="Albums"
-      icon="fa fa-compact-disc"
-      color={this.state.tab === 2 ? "black" : "#7d7d7d"}
-      onClick={() => this.setTab(2)}
-    />,
-    <IconButton
-      label="Songs"
-      icon="fa fa-music"
-      color={this.state.tab === 3 ? "black" : "#7d7d7d"}
-      onClick={() => this.setTab(3)}
-    />,
-    <IconButton
-      label="Search"
-      icon="fa fa-search"
-      color={this.state.tab === 4 ? "black" : "#7d7d7d"}
-      onClick={() => this.setTab(4)}
-    />
-  ];
-
   render() {
-    let { tab } = this.state;
-
     return (
-      <React.Fragment>
-        {this.getTab()}
-        <div style={styles.navbar}>
-          <SegmentedControl
-            items={this.navbarItems()}
-            selectedItemIndex={tab}
-            onChange={({ activeIndex }) => this.setTab(activeIndex)}
+      <div style={styles.container}>
+        <div style={styles.row}>
+          <Box
+            display="flex"
+            flex="grow"
+            justifyContent="between"
+            paddingY={5}
+            paddingX={6}
+          >
+            <Heading size="sm">Home</Heading>
+            <Avatar
+              size="md"
+              name="User"
+              src="https://via.placeholder.com/150"
+            />
+          </Box>
+        </div>
+        <div style={styles.row}>
+          <Box
+            alignItems="center"
+            justifyContent="center"
+            display="flex"
+            flex="grow"
+            paddingY={5}
+          >
+            <SearchField
+              accessibilityLabel="Search library"
+              id="searchField"
+              onChange={({ value }) => this.setState({ search: value })}
+              placeholder="Search your library.."
+              value={this.state.search}
+              style={{ width: "100%" }}
+            />
+          </Box>
+        </div>
+        <div style={styles.row}>
+          <MusicGroup
+            label="Now playing"
+            onClick={() => console.log("Go to now playing...")}
+            images={[
+              {
+                color: "rgb(111, 91, 77)",
+                naturalHeight: 751,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock1.291c62ad.jpg"
+              },
+              {
+                color: "rgb(231, 186, 176)",
+                naturalHeight: 200,
+                naturalWidth: 98,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock2.c03f525f.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 300,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock3.2e15a8c4.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 517,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock4.0a629ab7.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 806,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock5.bfa01fba.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 200,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock6.e014b01c.jpg"
+              }
+            ]}
           />
         </div>
-      </React.Fragment>
+        <div style={styles.row}>
+          <MusicGroup
+            label="Recently played"
+            textRight={150}
+            onClick={() => console.log("Go to recent...")}
+            images={[
+              {
+                color: "rgb(111, 91, 77)",
+                naturalHeight: 751,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock1.291c62ad.jpg"
+              },
+              {
+                color: "rgb(231, 186, 176)",
+                naturalHeight: 200,
+                naturalWidth: 98,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock2.c03f525f.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 300,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock3.2e15a8c4.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 517,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock4.0a629ab7.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 806,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock5.bfa01fba.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 200,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock6.e014b01c.jpg"
+              }
+            ]}
+          />
+        </div>
+        <div style={styles.row}>
+          <MusicGroup
+            label="Albums"
+            textRight={164}
+            onClick={() => console.log("Go to albums...")}
+            images={[
+              {
+                color: "rgb(111, 91, 77)",
+                naturalHeight: 751,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock1.291c62ad.jpg"
+              },
+              {
+                color: "rgb(231, 186, 176)",
+                naturalHeight: 200,
+                naturalWidth: 98,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock2.c03f525f.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 300,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock3.2e15a8c4.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 517,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock4.0a629ab7.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 806,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock5.bfa01fba.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 200,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock6.e014b01c.jpg"
+              }
+            ]}
+          />
+        </div>
+        <div style={styles.row}>
+          <MusicGroup
+            label="Artists"
+            textRight={180}
+            onClick={() => console.log("Go to artists...")}
+            images={[
+              {
+                color: "rgb(111, 91, 77)",
+                naturalHeight: 751,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock1.291c62ad.jpg"
+              },
+              {
+                color: "rgb(231, 186, 176)",
+                naturalHeight: 200,
+                naturalWidth: 98,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock2.c03f525f.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 300,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock3.2e15a8c4.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 517,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock4.0a629ab7.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 806,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock5.bfa01fba.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 200,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock6.e014b01c.jpg"
+              }
+            ]}
+          />
+        </div>
+        <div style={styles.row}>
+          <MusicGroup
+            label="Songs"
+            textRight={187}
+            onClick={() => console.log("Go to songs...")}
+            images={[
+              {
+                color: "rgb(111, 91, 77)",
+                naturalHeight: 751,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock1.291c62ad.jpg"
+              },
+              {
+                color: "rgb(231, 186, 176)",
+                naturalHeight: 200,
+                naturalWidth: 98,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock2.c03f525f.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 300,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock3.2e15a8c4.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 517,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock4.0a629ab7.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 806,
+                naturalWidth: 564,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock5.bfa01fba.jpg"
+              },
+              {
+                color: "#000",
+                naturalHeight: 200,
+                naturalWidth: 200,
+                src:
+                  "https://pinterest.github.io/gestalt/static/media/stock6.e014b01c.jpg"
+              }
+            ]}
+          />
+        </div>
+      </div>
     );
   }
 }
