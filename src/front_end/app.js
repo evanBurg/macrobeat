@@ -5,6 +5,7 @@ import { SegmentedControl } from "gestalt";
 import IconButton from "./Components/IconButton";
 
 import Home from './Home/Home'
+import Page from "./Components/Page"
 
 const styles = {
   tabbar: {
@@ -39,13 +40,13 @@ class App extends Component {
       case 0:
         return <Home/>;
       case 1:
-        return <h1>Artists</h1>;
+        return <Page heading="Artists" />;
       case 2:
-        return <h1>Albums</h1>;
+        return <Page heading="Albums" />;
       case 3:
-        return <h1>Songs</h1>;
+        return <Page heading="Songs" />;
       case 4:
-        return <h1>Search</h1>;
+        return <Page heading="Search" />;
     }
   };
 

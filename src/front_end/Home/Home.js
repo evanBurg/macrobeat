@@ -1,34 +1,7 @@
 import React, { Component } from "react";
-import {
-  Heading,
-  Avatar,
-  SearchField,
-  Box,
-  Collage,
-  Mask,
-  Image,
-  IconButton
-} from "gestalt";
+import { Heading, Avatar, SearchField, Box } from "gestalt";
 import MusicGroup from "../Components/MusicGroup";
-
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    height: "100%",
-    justifyContent: "flex-start",
-    paddingBottom: 50
-  },
-  row: {
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-between",
-    verticalAlign: "middle",
-    alignItems: "center"
-  }
-};
+import { Page, Row } from "../Components/Page";
 
 class Home extends Component {
   constructor(props) {
@@ -41,24 +14,8 @@ class Home extends Component {
 
   render() {
     return (
-      <div style={styles.container}>
-        <div style={styles.row}>
-          <Box
-            display="flex"
-            flex="grow"
-            justifyContent="between"
-            paddingY={5}
-            paddingX={6}
-          >
-            <Heading size="sm">Home</Heading>
-            <Avatar
-              size="md"
-              name="User"
-              src="https://via.placeholder.com/150"
-            />
-          </Box>
-        </div>
-        <div style={styles.row}>
+      <Page heading="Home">
+        <Row>
           <Box
             alignItems="center"
             justifyContent="center"
@@ -75,8 +32,8 @@ class Home extends Component {
               style={{ width: "100%" }}
             />
           </Box>
-        </div>
-        <div style={styles.row}>
+        </Row>
+        <Row>
           <MusicGroup
             label="Now playing"
             onClick={() => console.log("Go to now playing...")}
@@ -125,8 +82,8 @@ class Home extends Component {
               }
             ]}
           />
-        </div>
-        <div style={styles.row}>
+        </Row>
+        <Row>
           <MusicGroup
             label="Recently played"
             textRight={150}
@@ -176,8 +133,8 @@ class Home extends Component {
               }
             ]}
           />
-        </div>
-        <div style={styles.row}>
+        </Row>
+        <Row>
           <MusicGroup
             label="Albums"
             textRight={164}
@@ -227,8 +184,8 @@ class Home extends Component {
               }
             ]}
           />
-        </div>
-        <div style={styles.row}>
+        </Row>
+        <Row>
           <MusicGroup
             label="Artists"
             textRight={180}
@@ -278,8 +235,8 @@ class Home extends Component {
               }
             ]}
           />
-        </div>
-        <div style={styles.row}>
+        </Row>
+        <Row>
           <MusicGroup
             label="Songs"
             textRight={187}
@@ -329,8 +286,8 @@ class Home extends Component {
               }
             ]}
           />
-        </div>
-      </div>
+        </Row>
+      </Page>
     );
   }
 }
