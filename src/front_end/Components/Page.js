@@ -1,5 +1,7 @@
 import React from "react";
 import { Heading, Avatar, Box } from "gestalt";
+import { AppContext } from "../app";
+import Loader from "react-loaders";
 
 const styles = {
   container: {
@@ -21,29 +23,41 @@ const styles = {
 };
 
 const Row = props => {
-  return <div style={{ ...props.style, ...styles.row }}>{props.children}</div>;
+  return <div style={{ ...styles.row, ...props.style }}>{props.children}</div>;
 };
 
 const Page = props => {
   return (
-    <div style={{ ...props.style, ...styles.container }}>
-      <Row>
-        <Box
-          display="flex"
-          flex="grow"
-          justifyContent="between"
-          paddingY={5}
-          paddingX={6}
-        >
-          <Heading size="sm">{props.heading}</Heading>
-          <Avatar size="md" name="User" src="https://via.placeholder.com/150" />
-        </Box>
-      </Row>
-      {props.children}
-    </div>
+    <AppContext.Consumer>
+      {context => (
+        <div style={{ ...styles.container, ...props.style }}>
+          <Row>
+            <Box
+              display="flex"
+              flex="grow"
+              justifyContent="between"
+              paddingY={5}
+              paddingX={6}
+            >
+              <Heading size="sm">{props.heading}</Heading>
+              {context.loading ? (
+                <Loader type="semi-circle-spin" color="black" />
+              ) : (
+                <Avatar
+                  size="md"
+                  name="User"
+                  src={context.user.img || "https://via.placeholder.com/150"}
+                />
+              )}
+            </Box>
+          </Row>
+          {props.children}
+        </div>
+      )}
+    </AppContext.Consumer>
   );
 };
 
-export {Row, Page};
+export { Row, Page };
 
 export default Page;
