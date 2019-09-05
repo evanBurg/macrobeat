@@ -47,7 +47,7 @@ const Page = props => {
                 <Avatar
                   size="md"
                   name="User"
-                  src={context.user.img || "https://via.placeholder.com/150"}
+                  src={context.User.img || "https://via.placeholder.com/150"}
                 />
               )}
             </Box>

@@ -61,9 +61,9 @@ class Albums extends Component {
                 <Masonry
                   flexible
                   comp={TallItem}
-                  items={Object.keys(context.library.Albums).map(
+                  items={Object.keys(context.Library.Albums).map(
                     albumName => {
-                      return context.library.Albums[albumName];
+                      return context.Library.Albums[albumName];
                     }
                   )}
                   minCols={1}

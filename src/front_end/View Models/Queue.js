@@ -21,7 +21,7 @@ class Queue {
     else return null;
   }
 
-  get Queue() {
+  get Array() {
     return this._Queue;
   }
 
@@ -31,19 +31,19 @@ class Queue {
 
   SkipTrack() {
     if (this._ActiveIndex + 1 <= this._Queue.length) {
-      this._ActiveIndex += 1;
+      console.log("Skip Forward")
     }
   }
 
   LastTrack() {
     if (this._ActiveIndex - 1 >= 0) {
-      this._ActiveIndex -= 1;
+      console.log("Skip Backward")
     }
   }
 
   set SetTrack(index){
     if (index >= 0 && index <= this._Queue.length) {
-        this._ActiveIndex = index;
+      console.log("Set Track ", index);
       }
   }
 }

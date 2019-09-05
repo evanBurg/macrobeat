@@ -61,9 +61,9 @@ class Artists extends Component {
                 <Masonry
                   flexible
                   comp={TallItem}
-                  items={Object.keys(context.library.Artists).map(
+                  items={Object.keys(context.Library.Artists).map(
                     artistName => {
-                      return context.library.Artists[artistName];
+                      return context.Library.Artists[artistName];
                     }
                   )}
                   minCols={2}

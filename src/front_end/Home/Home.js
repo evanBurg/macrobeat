@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import { Heading, Avatar, SearchField, Box } from "gestalt";
-import MusicGroup from "../Components/MusicGroup";
+import SongGroup from "../Components/SongGroup";
 import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import ItemGroup from "../Components/ItemGroup";
-
-const ranNum = (low, high) => Math.floor(Math.random() * high + low);
 
 class Home extends Component {
   constructor(props) {
@@ -15,11 +13,6 @@ class Home extends Component {
       search: ""
     };
   }
-
-  getRandomAlbum = context => {
-    let album = Object.keys(context.Albums)[ranNum(0, context.Albums.length)];
-    return context.Albums[album];
-  };
 
   render() {
     return (
@@ -45,34 +38,34 @@ class Home extends Component {
               </Box>
             </Row>
             <Row>
-              {false && (
-                <MusicGroup
+              {context.Queue && !context.Queue.Empty && (
+                <SongGroup
                   label="Now playing"
                   onClick={() => console.log("Go to now playing...")}
-                  images={[]}
+                  songs={context.Queue.Array.slice(0, 5)}
                 />
               )}
             </Row>
             <Row>
-              {false && (
-                <MusicGroup
+              {context.Library && context.Library.History.length > 0 && (
+                <SongGroup
                   label="Recently played"
                   textRight={150}
                   onClick={() => console.log("Go to recent...")}
-                  images={[]}
+                  songs={context.Library.History().slice(0, 5)}
                 />
               )}
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Artists</Heading>
-              <ItemGroup items={context.library ? context.library.Artists : {}} loading={context.loading} />
+              <ItemGroup items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Albums</Heading>
-              <ItemGroup wide items={context.library ? context.library.Albums : {}} loading={context.loading}/>
+              <ItemGroup wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
-              <ItemGroup songs items={context.library ? context.library.Songs : []} loading={context.loading}/>
+              <ItemGroup songs items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
             </Row>
           </Page>
         )}

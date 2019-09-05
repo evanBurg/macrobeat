@@ -61,9 +61,9 @@ class Songs extends Component {
                 <Masonry
                   flexible
                   comp={Item}
-                  items={Object.keys(context.library.Songs).map(
+                  items={Object.keys(context.Library.Songs).map(
                     songName => {
-                      return context.library.Songs[songName];
+                      return context.Library.Songs[songName];
                     }
                   )}
                   minCols={2}

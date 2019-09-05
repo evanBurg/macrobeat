@@ -14,14 +14,16 @@ import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
 
-import MdHome from 'react-ionicons/lib/MdHome'
-import MdMicrophone from 'react-ionicons/lib/MdMicrophone'
-import MdDisc from 'react-ionicons/lib/MdDisc'
-import MdMusicalNote from 'react-ionicons/lib/MdMusicalNote'
-import MdSearch from 'react-ionicons/lib/MdSearch'
-import IosArrowUp from 'react-ionicons/lib/IosArrowUp'
+import MdHome from "react-ionicons/lib/MdHome";
+import MdMicrophone from "react-ionicons/lib/MdMicrophone";
+import MdDisc from "react-ionicons/lib/MdDisc";
+import MdMusicalNote from "react-ionicons/lib/MdMusicalNote";
+import MdSearch from "react-ionicons/lib/MdSearch";
+import IosArrowUp from "react-ionicons/lib/IosArrowUp";
+import { AnimatePresence, motion } from "framer-motion";
 
 //"./View Models/YouTubeSearch.json"
+
 const Search = {
   source: "YouTube",
   items: [
@@ -726,13 +728,44 @@ const styles = {
 };
 
 const AppContext = React.createContext({
-  library: null,
-  user: {
+  Library: null,
+  User: {
     name: undefined,
-    user: undefined,
+    User: undefined,
     img: undefined
   }
 });
+
+const variants = {
+  hidden: {
+    opacity: 0,
+    scaleX: 0
+  },
+  visible: {
+    opacity: 1,
+    scaleX: 1
+  },
+  exit: {
+    opacity: 0,
+    scaleX: 1
+  }
+};
+
+const AnimateTabChange = props => (
+  <motion.div
+    onAnimationStart={props.animating}
+    variants={variants}
+
+    initial="hidden"
+    animate="visible"
+    exit="exit"
+    transition={{
+      duration: 0.2
+    }}
+  >
+    {props.children}
+  </motion.div>
+);
 
 class App extends Component {
   constructor(props) {
@@ -740,13 +773,15 @@ class App extends Component {
 
     this.state = {
       tab: 0,
-      user: {
+      User: {
         name: undefined,
         user: undefined,
         img: undefined
       },
-      library: null,
-      loading: false
+      Queue: null,
+      Library: null,
+      loading: false,
+      animating: false
     };
   }
 
@@ -757,13 +792,13 @@ class App extends Component {
     setTimeout(() => {
       const library = new Library(Search);
       this.setState({
-        library: library,
-        user: {
+        Library: library,
+        User: {
           name: "Evan Burgess",
           user: "Burgy",
           img: "https://i.imgur.com/nKuE1ep.jpg"
         },
-        queue: new Queue(library.Songs, 0)
+        Queue: new Queue(library.Songs, 0)
       });
 
       this.setState({ loading: false });
@@ -776,18 +811,46 @@ class App extends Component {
 
   setTab = tab => this.setState({ tab });
 
+  setAnimating = () => {
+    document.body.style.overflow = "hidden"
+
+    setTimeout(() => document.body.style.overflow = 'unset', 500)
+  }
+
   getTab = () => {
+
+
     switch (this.state.tab) {
       case 0:
-        return <Home />;
+        return (
+          <AnimateTabChange animating={this.setAnimating} key="home">
+            <Home />
+          </AnimateTabChange>
+        );
       case 1:
-        return <Artists />;
+        return (
+          <AnimateTabChange animating={this.setAnimating} key="artists">
+            <Artists />
+          </AnimateTabChange>
+        );
       case 2:
-        return <Albums />;
+        return (
+          <AnimateTabChange animating={this.setAnimating} key="albums">
+            <Albums />
+          </AnimateTabChange>
+        );
       case 3:
-        return <Songs />;
+        return (
+          <AnimateTabChange animating={this.setAnimating} key="songs">
+            <Songs />
+          </AnimateTabChange>
+        );
       case 4:
-        return <Page heading="Search" />;
+        return (
+          <AnimateTabChange animating={this.setAnimating} key="search">
+            <Page heading="Search" />
+          </AnimateTabChange>
+        );
     }
   };
 
@@ -830,24 +893,29 @@ class App extends Component {
   ];
 
   render() {
-    let { tab, user, library, loading, queue } = this.state;
+    let { tab, User, Library, loading, animating, Queue } = this.state;
 
     return (
-      <AppContext.Provider value={{ user, library, queue, loading }}>
-        {this.getTab()}
+      <AppContext.Provider value={{ User, Library, Queue, loading }}>
+        <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         <div style={styles.tabbar}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: 10
-          }}>
-            <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={{fontSize: '1em', fontWeight: '100'}}> Now Playing</h5>
-            <IosArrowUp
-              fontSize={'1em'}
-              color={'black'}
-            />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: 10
+            }}
+          >
+            <h5
+              className="lH1 dyH iFc SMy kON pBj IZT"
+              style={{ fontSize: "1em", fontWeight: "100" }}
+            >
+              {" "}
+              Now Playing
+            </h5>
+            <IosArrowUp fontSize={"1em"} color={"black"} />
           </div>
           <SegmentedControl
             items={this.navbarItems()}

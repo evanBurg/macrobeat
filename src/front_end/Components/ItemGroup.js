@@ -42,7 +42,7 @@ const styles = {
     width: "10em",
     minWidth: "10em",
     borderRadius: 15,
-    margin: 30,
+    margin: "30px 10px 30px 10px",
     padding: 25,
     backgroundSize: "cover",
     backgroundBlendMode: "multiply",
