@@ -43,10 +43,10 @@ class Albums extends Component {
                 paddingY={5}
               >
                 <SearchField
-                  accessibilityLabel="Search artists"
+                  accessibilityLabel="Search albums"
                   id="searchField"
                   onChange={({ value }) => this.setState({ search: value })}
-                  placeholder="Search artists.."
+                  placeholder="Search albums.."
                   value={this.state.search}
                   style={{ width: "100%" }}
                 />
