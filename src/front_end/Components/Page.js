@@ -10,7 +10,7 @@ const styles = {
     width: "100%",
     height: "100%",
     justifyContent: "flex-start",
-    paddingBottom: 50
+    paddingBottom: 70
   },
   row: {
     display: "flex",
