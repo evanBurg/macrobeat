@@ -36,10 +36,10 @@ const styles = {
     borderRadius: 15,
     margin: 30,
     padding: 25,
-    backgroundPosition: "center",
     backgroundSize: "cover",
     backgroundBlendMode: "multiply",
-    boxShadow: "0px 0px 27px -10px #000000"
+    boxShadow: "0px 0px 27px -10px #000000",
+    backgroundPosition: 'center'
   },
   text: {
     fontSize: "1em",
@@ -50,6 +50,13 @@ const styles = {
 const Item = props => {
   let style = JSON.parse(JSON.stringify(styles.item));
   style.background = `rgba(0, 0, 0, 0.45) url(${props.song ? props.item.Image.url : props.item.Image}`;
+  style.backgroundPosition = "center";
+  style.backgroundPositionX = "center";
+  style.backgroundPositionY = "center";
+
+  if(props.wide){
+    style.width = "20em"
+  }
 
   return (
     <div style={style}>
@@ -63,6 +70,12 @@ const Item = props => {
 const Song = props => {
   let style = JSON.parse(JSON.stringify(styles.item));
   style.background = `rgba(0, 0, 0, 0.45) url(${props.item.Image.url}`;
+  style.backgroundPositionX = "center";
+  style.backgroundPositionY = "center";
+
+  if(props.wide){
+    style.width = "15em"
+  }
 
   return (
     <div style={style}>
@@ -79,7 +92,7 @@ class ItemGroup extends Component {
   }
 
   render() {
-    let { items, songs, loading } = this.props;
+    let { items, songs, loading, wide } = this.props;
 
     if(loading){
       return <div style={styles.loaderContainer}>
@@ -94,7 +107,7 @@ class ItemGroup extends Component {
         <div style={styles.container}>
           <div style={styles.innerContainer}>
             {items.map((item, index) => (
-              <Item key={index} item={item} song />
+              <Song key={index} item={item} song wide={wide} />
             ))}
           </div>
         </div>
@@ -105,7 +118,7 @@ class ItemGroup extends Component {
       <div style={styles.container}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
-            <Item key={key} item={items[key]} />
+            <Item key={key} item={items[key]} wide={wide} />
           ))}
         </div>
       </div>
