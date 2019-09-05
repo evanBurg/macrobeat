@@ -910,11 +910,12 @@ class App extends Component {
             justifyContent: "space-between",
             alignItems: "flex-start",
             padding: nowPlayingOpen ? 0 : 10,
-            zIndex: nowPlayingOpen ? 21 : 20,
+            zIndex: nowPlayingOpen ? 22 : 20,
             height: "4.55em"
           }}
           animate={{
-            height: nowPlayingOpen ? "100%" : "4.55em"
+            height: nowPlayingOpen ? "100%" : "4.55em",
+            backgroundColor: nowPlayingOpen ? "#fff" : "#efefef"
           }}
         >
           {nowPlayingOpen ? (
@@ -927,7 +928,7 @@ class App extends Component {
               >
                 Now Playing
               </h5>
-              <IosArrowUp fontSize={"1em"} color={"black"} />
+              <IosArrowUp fontSize={"1em"} color={"black"} onClick={this.toggleNowPlaying} />
             </React.Fragment>
           )}
         </motion.div>
