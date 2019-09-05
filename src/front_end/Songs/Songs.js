@@ -4,7 +4,7 @@ import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import { StandaloneItem } from "../Components/ItemGroup";
 import Loader from "react-loaders";
-const TallItem = props => <StandaloneItem {...props} tall skinny />;
+const Item = props => <StandaloneItem {...props} song skinny />;
 
 const styles = {
   loaderContainer: {
@@ -20,7 +20,7 @@ const styles = {
   }
 };
 
-class Artists extends Component {
+class Songs extends Component {
   constructor(props) {
     super(props);
 
@@ -33,7 +33,7 @@ class Artists extends Component {
     return (
       <AppContext.Consumer>
         {context => (
-          <Page heading="Artists">
+          <Page heading="Songs">
             <Row>
               <Box
                 alignItems="center"
@@ -60,10 +60,10 @@ class Artists extends Component {
               ) : (
                 <Masonry
                   flexible
-                  comp={TallItem}
-                  items={Object.keys(context.library.Artists).map(
-                    artistName => {
-                      return context.library.Artists[artistName];
+                  comp={Item}
+                  items={Object.keys(context.library.Songs).map(
+                    songName => {
+                      return context.library.Songs[songName];
                     }
                   )}
                   minCols={2}
@@ -77,4 +77,4 @@ class Artists extends Component {
   }
 }
 
-export default Artists;
+export default Songs;

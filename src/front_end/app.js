@@ -10,6 +10,8 @@ import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
 import Artists from "./Artists/Artists";
+import Albums from "./Albums/Albums";
+import Songs from "./Songs/Songs";
 
 //"./View Models/YouTubeSearch.json"
 const Search = {
@@ -773,9 +775,9 @@ class App extends Component {
       case 1:
         return <Artists />;
       case 2:
-        return <Page heading="Albums" />;
+        return <Albums />;
       case 3:
-        return <Page heading="Songs" />;
+        return <Songs />;
       case 4:
         return <Page heading="Search" />;
     }

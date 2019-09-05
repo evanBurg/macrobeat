@@ -27,6 +27,14 @@ const styles = {
     justifyContent: "stretch",
     alignItems: "center"
   },
+  selfContainer: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center"
+  },
   item: {
     display: "inline-block",
     height: "10em",
@@ -58,14 +66,21 @@ const StandaloneItem = props => {
 
   if (props.wide) {
     style.width = `20em`;
+    style.minWidth = `20em`;
+  }
+
+  if(props.skinny){
+    style.width = `8em`;
+    style.minWidth = `8em`;
   }
 
   if (props.tall) {
     style.height = `18em`;
+    style.minHeight = `18em`;
   }
 
   return (
-    <div style={styles.innerContainer}>
+    <div style={styles.selfContainer}>
       <div style={style}>
         <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
           {props.data.Name}
@@ -85,7 +100,18 @@ const Item = props => {
   style.backgroundPositionY = "center";
 
   if (props.wide) {
-    style.width = "20em";
+    style.width = `20em`;
+    style.minWidth = `20em`;
+  }
+
+  if(props.skinny){
+    style.width = `8em`;
+    style.minWidth = `8em`;
+  }
+
+  if (props.tall) {
+    style.height = `18em`;
+    style.minHeight = `18em`;
   }
 
   return (
