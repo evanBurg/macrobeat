@@ -2,16 +2,24 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import "gestalt/dist/gestalt.css";
 import "loaders.css//loaders.css";
-import { SegmentedControl } from "gestalt";
+import { SegmentedControl, Text } from "gestalt";
 import IconButton from "./Components/IconButton";
 
 import Home from "./Home/Home";
 import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
+import Queue from "./View Models/Queue";
 import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
+
+import MdHome from 'react-ionicons/lib/MdHome'
+import MdMicrophone from 'react-ionicons/lib/MdMicrophone'
+import MdDisc from 'react-ionicons/lib/MdDisc'
+import MdMusicalNote from 'react-ionicons/lib/MdMusicalNote'
+import MdSearch from 'react-ionicons/lib/MdSearch'
+import IosArrowUp from 'react-ionicons/lib/IosArrowUp'
 
 //"./View Models/YouTubeSearch.json"
 const Search = {
@@ -706,13 +714,11 @@ const Search = {
 const styles = {
   tabbar: {
     position: "fixed",
-    bottom: 4,
+    background: "#efefef",
+    paddingBottom: 2.5,
+    bottom: 0,
     left: 0,
     right: 0,
-    background: "white",
-    borderRadius: 5,
-    margin: 5,
-    padding: 5,
     WebkitBoxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)",
     MozBoxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)",
     boxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)"
@@ -749,13 +755,15 @@ class App extends Component {
 
     //Replace with actual fetch
     setTimeout(() => {
+      const library = new Library(Search);
       this.setState({
-        library: new Library(Search),
+        library: library,
         user: {
           name: "Evan Burgess",
           user: "Burgy",
           img: "https://i.imgur.com/nKuE1ep.jpg"
-        }
+        },
+        queue: new Queue(library.Songs, 0)
       });
 
       this.setState({ loading: false });
@@ -787,47 +795,60 @@ class App extends Component {
     <IconButton
       label="Home"
       id="home"
-      icon="fa fa-home"
+      icon={MdHome}
       color={this.state.tab === 0 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(0)}
     />,
     <IconButton
       label="Artists"
       id="artists"
-      icon="fa fa-guitar"
+      icon={MdMicrophone}
       color={this.state.tab === 1 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(1)}
     />,
     <IconButton
       label="Albums"
       id="albums"
-      icon="fa fa-compact-disc"
+      icon={MdDisc}
       color={this.state.tab === 2 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(2)}
     />,
     <IconButton
       label="Songs"
       id="songs"
-      icon="fa fa-music"
+      icon={MdMusicalNote}
       color={this.state.tab === 3 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(3)}
     />,
     <IconButton
       label="Search"
       id="search"
-      icon="fa fa-search"
+      icon={MdSearch}
       color={this.state.tab === 4 ? "black" : "#7d7d7d"}
       onClick={() => this.setTab(4)}
     />
   ];
 
   render() {
-    let { tab, user, library, loading } = this.state;
+    let { tab, user, library, loading, queue } = this.state;
 
     return (
-      <AppContext.Provider value={{ user, library, loading }}>
+      <AppContext.Provider value={{ user, library, queue, loading }}>
         {this.getTab()}
         <div style={styles.tabbar}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 10
+          }}>
+            <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={{fontSize: '1em', fontWeight: '100'}}> Now Playing</h5>
+            <IosArrowUp
+              fontSize={'1em'}
+              color={'black'}
+            />
+          </div>
           <SegmentedControl
             items={this.navbarItems()}
             selectedItemIndex={tab}

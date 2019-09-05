@@ -2,6 +2,7 @@ import React from "react";
 import { Label } from "gestalt";
 
 export default props => {
+  const Icon = props.icon;
   return (
     <div
       onClick={props.onClick}
@@ -12,13 +13,11 @@ export default props => {
         justifyContent: "space-evenly"
       }}
     >
-      <i
-        className={props.icon}
+      <Icon
+        onClick={props.onClick}
         id={props.id}
-        style={{
-          fontSize: props.size || "2em",
-          color: props.color || "black"
-        }}
+        fontSize={props.size || "2em"}
+        color={props.color || "black"}
       />
       {props.label && <Label htmlFor={props.id}>{props.label}</Label>}
     </div>
