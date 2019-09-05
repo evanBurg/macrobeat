@@ -6,6 +6,7 @@ import { SegmentedControl, Text } from "gestalt";
 import IconButton from "./Components/IconButton";
 
 import Home from "./Home/Home";
+import NowPlaying from "./NowPlaying/NowPlaying";
 import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
@@ -717,6 +718,7 @@ const styles = {
   tabbar: {
     position: "fixed",
     background: "#efefef",
+    zIndex: 21,
     paddingBottom: 2.5,
     bottom: 0,
     left: 0,
@@ -755,7 +757,6 @@ const AnimateTabChange = props => (
   <motion.div
     onAnimationStart={props.animating}
     variants={variants}
-
     initial="hidden"
     animate="visible"
     exit="exit"
@@ -781,7 +782,8 @@ class App extends Component {
       Queue: null,
       Library: null,
       loading: false,
-      animating: false
+      animating: false,
+      nowPlayingOpen: false
     };
   }
 
@@ -812,19 +814,19 @@ class App extends Component {
   setTab = tab => this.setState({ tab });
 
   setAnimating = () => {
-    document.body.style.overflow = "hidden"
+    document.body.style.overflow = "hidden";
 
-    setTimeout(() => document.body.style.overflow = 'unset', 500)
-  }
+    setTimeout(() => (document.body.style.overflow = "unset"), 500);
+  };
+
+  toggleNowPlaying = () => this.setState(s => ({nowPlayingOpen: !s.nowPlayingOpen}))
 
   getTab = () => {
-
-
     switch (this.state.tab) {
       case 0:
         return (
           <AnimateTabChange animating={this.setAnimating} key="home">
-            <Home />
+            <Home toggleNowPlaying={this.toggleNowPlaying} />
           </AnimateTabChange>
         );
       case 1:
@@ -893,35 +895,56 @@ class App extends Component {
   ];
 
   render() {
-    let { tab, User, Library, loading, animating, Queue } = this.state;
+    let { tab, User, Library, loading, Queue, nowPlayingOpen } = this.state;
 
     return (
       <AppContext.Provider value={{ User, Library, Queue, loading }}>
-        <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
+        {!nowPlayingOpen && (
+          <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
+        )}
+        <motion.div
+          style={{
+            ...styles.tabbar,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            padding: nowPlayingOpen ? 0 : 10,
+            zIndex: nowPlayingOpen ? 21 : 20,
+            height: "4.55em"
+          }}
+          animate={{
+            height: nowPlayingOpen ? "100%" : "4.55em"
+          }}
+        >
+          {nowPlayingOpen ? (
+            <NowPlaying toggleNowPlaying={this.toggleNowPlaying} />
+          ) : (
+            <React.Fragment>
+              <h5
+                className="lH1 dyH iFc SMy kON pBj IZT"
+                style={{ fontSize: "1em", fontWeight: "100" }}
+              >
+                Now Playing
+              </h5>
+              <IosArrowUp fontSize={"1em"} color={"black"} />
+            </React.Fragment>
+          )}
+        </motion.div>
         <div style={styles.tabbar}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: 10
+          <motion.div
+            initial={{ scaleY: 0 }}
+            animate={{
+              scaleY: nowPlayingOpen ? 0 : 1,
+              opacity: nowPlayingOpen ? 0 : 1
             }}
           >
-            <h5
-              className="lH1 dyH iFc SMy kON pBj IZT"
-              style={{ fontSize: "1em", fontWeight: "100" }}
-            >
-              {" "}
-              Now Playing
-            </h5>
-            <IosArrowUp fontSize={"1em"} color={"black"} />
-          </div>
-          <SegmentedControl
-            items={this.navbarItems()}
-            selectedItemIndex={tab}
-            onChange={({ activeIndex }) => this.setTab(activeIndex)}
-          />
+            <SegmentedControl
+              items={this.navbarItems()}
+              selectedItemIndex={tab}
+              onChange={({ activeIndex }) => this.setTab(activeIndex)}
+            />
+          </motion.div>
         </div>
       </AppContext.Provider>
     );

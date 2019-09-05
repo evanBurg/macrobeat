@@ -41,7 +41,7 @@ class Home extends Component {
               {context.Queue && !context.Queue.Empty && (
                 <SongGroup
                   label="Now playing"
-                  onClick={() => console.log("Go to now playing...")}
+                  onClick={this.props.toggleNowPlaying}
                   songs={context.Queue.Array.slice(0, 5)}
                 />
               )}
