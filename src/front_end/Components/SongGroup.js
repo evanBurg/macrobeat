@@ -1,6 +1,11 @@
 import React from "react";
 import { Box, Collage, Image, Mask, IconButton, Heading } from "gestalt";
 
+const styles = {
+  nowPlaying: { textShadow: "rgb(0, 0, 0) 0px 0px 20px", margin: 10 },
+  playButton: { position: "absolute", bottom: -140, right: 10 }
+}
+
 export default props => {
   return (
     <Box
@@ -32,7 +37,7 @@ export default props => {
                 {index == 0 && (
                   <h4
                     className="lH1 dyH iFc SMy ut5 erh IZT"
-                    style={{ textShadow: "rgb(0, 0, 0) 0px 0px 20px", margin: 10 }}
+                    style={styles.nowPlaying}
                   >
                     {props.label}
                   </h4>
@@ -43,7 +48,7 @@ export default props => {
         }}
       />
       <div style={{ position: "relative" }}>
-        <div style={{ position: "absolute", bottom: -140, right: 10 }}>
+        <div style={styles.playButton}>
           <IconButton
             accessibilityLabel="Go to now playing"
             bgColor="white"

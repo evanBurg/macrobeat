@@ -47,7 +47,6 @@ const styles = {
     backgroundSize: "cover",
     backgroundBlendMode: "multiply",
     boxShadow: "0px 0px 27px -10px #000000",
-    backgroundPosition: "center"
   },
   text: {
     fontSize: "1em",
@@ -55,49 +54,11 @@ const styles = {
   }
 };
 
-const StandaloneItem = props => {
-  let style = JSON.parse(JSON.stringify(styles.item));
-  style.background = `rgba(0, 0, 0, 0.45) url(${
-    props.song ? props.data.Image.url : props.data.Image
-  }`;
-  style.backgroundPosition = "center";
-  style.backgroundPositionX = "center";
-  style.backgroundPositionY = "center";
-
-  if (props.wide) {
-    style.width = `20em`;
-    style.minWidth = `20em`;
-  }
-
-  if(props.skinny){
-    style.width = `8em`;
-    style.minWidth = `8em`;
-  }
-
-  if (props.tall) {
-    style.height = `18em`;
-    style.minHeight = `18em`;
-  }
-
-  return (
-    <div style={styles.selfContainer}>
-      <div style={style}>
-        <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
-          {props.data.Name}
-        </h5>
-      </div>
-    </div>
-  );
-};
-
 const Item = props => {
   let style = JSON.parse(JSON.stringify(styles.item));
-  style.background = `rgba(0, 0, 0, 0.45) url(${
+  style.background = `rgba(0, 0, 0, 0.45) center no-repeat url(${
     props.song ? props.item.Image.url : props.item.Image
   }`;
-  style.backgroundPosition = "center";
-  style.backgroundPositionX = "center";
-  style.backgroundPositionY = "center";
 
   if (props.wide) {
     style.width = `20em`;
@@ -123,6 +84,14 @@ const Item = props => {
   );
 };
 
+const StandaloneItem = props => {
+  return (
+    <div style={styles.selfContainer}>
+      <Item {...props} item={props.data}/>
+    </div>
+  );
+};
+
 class ItemGroup extends Component {
   constructor(props) {
     super(props);
@@ -139,25 +108,11 @@ class ItemGroup extends Component {
       );
     }
 
-    if (!items) items = songs ? [] : {};
-
-    if (songs) {
-      return (
-        <div style={styles.container}>
-          <div style={styles.innerContainer}>
-            {items.map((item, index) => (
-              <Item key={index} item={item} song wide={wide} />
-            ))}
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div style={styles.container}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
-            <Item key={key} item={items[key]} wide={wide} />
+            <Item key={key} item={items[key]} wide={wide} song={!!songs} />
           ))}
         </div>
       </div>

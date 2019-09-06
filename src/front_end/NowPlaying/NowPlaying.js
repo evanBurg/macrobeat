@@ -8,7 +8,11 @@ import { AppContext } from "../app";
 import Loader from "react-loaders";
 import { motion } from "framer-motion";
 
-let styles = {
+const maskClass = "Pj7 sLG XiG pJI INd m1e";
+const headingClass = "lH1 dyH iFc SMy kON pBj IZT";
+const textClass = "tBJ dyH iFc SMy yTZ DrD IZT swG";
+
+const styles = {
   container: {
     marginBottom: 10,
     display: "flex",
@@ -26,6 +30,11 @@ let styles = {
     alignItems: "center",
     marginBottom: "0.5em",
     marginTop: "0.5em"
+  },
+  headingText: {
+    fontSize: "1.9em",
+    fontWeight: "400",
+    color: "#083072"
   },
   infoContainer: {
     display: "flex",
@@ -65,41 +74,141 @@ let styles = {
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 15
-  }
+  },
+  waveFormContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around"
+  },
+  waveFormPoint: {
+    width: "0.4em",
+    borderRadius: 100,
+    backgroundColor: "#7b8494",
+    margin: "0.15em",
+    padding: "0.04em",
+    transition: "all 0.6s"
+  },
+  recordCenterContainer: {
+    width: 40,
+    height: 40,
+    left: "6.7em",
+    top: "6.7em",
+    position: "absolute",
+    zIndex: 23
+  },
+  recordCenter: {
+    backgroundColor: "rgb(255, 255, 255)",
+    width: 40,
+    height: 40
+  },
+  trackName: {
+    fontSize: "1.7em",
+    textAlign: "center",
+    fontWeight: "500",
+    padding: "0 0.8em 0.1em 0.8em",
+    color: "#000F45"
+  },
+  artistName: {
+    fontSize: "1.5em",
+    fontWeight: "100",
+    color: "#8397C5",
+    textAlign: "center",
+    padding: "0.3em"
+  },
+  timeText: {
+    color: "#c6cad4",
+    fontWeight: "500",
+    fontSize: "1em"
+  },
+  nextContainer: {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#efefef",
+    height: "4em",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  nextText: { color: "#3f4e75", fontWeight: "500", margin: "1em" }
 };
 
-const WaveForm = props => {
-  let points = [];
+class WaveForm extends Component {
+  state = {
+    points: [],
+    animating: false
+  };
 
-  for (let i = 0; i < props.columns; i++) {
-    points.push(
+  getRandomHeight = () => Math.floor(Math.random() * 50) + 10;
+
+  generatePoints = () => {
+    let points = [];
+
+    for (let i = 0; i < this.props.columns; i++) {
+      points.push(
+        <div
+          key={i}
+          style={{
+            height: `${this.getRandomHeight()}px`,
+            ...styles.waveFormPoint
+          }}
+        />
+      );
+    }
+
+    //Always make sure there is one of the full height so that the container doesnt change size
+    points[Math.round(points.length / 2)] = (
       <div
-        key={i}
+        key={"tall"}
         style={{
-          width: "0.4em",
-          height: `${Math.floor(Math.random() * 50) + 10}px`,
-          borderRadius: 100,
-          backgroundColor: "#7b8494",
-          margin: "0.15em",
-          padding: "0.04em"
+          height: `65px`,
+          ...styles.waveFormPoint
         }}
       />
     );
+
+    this.setState({ points });
+  };
+
+  interval = null;
+
+  startLoop = () => {
+    this.interval = setInterval(this.generatePoints, 600);
+  };
+
+  endLoop = () => {
+    clearInterval(this.interval);
+    this.generatePoints();
+  };
+
+  componentDidMount() {
+    this.generatePoints();
+    if (this.props.playing) {
+      this.startLoop();
+    }
   }
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-around"
-      }}
-    >
-      {points}
-    </div>
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.columns !== this.props.columns) {
+      this.generatePoints();
+    }
+
+    if (prevProps.playing !== this.props.playing) {
+      if (this.props.playing) {
+        this.startLoop();
+      } else {
+        this.endLoop();
+      }
+    }
+  }
+
+  render = () => (
+    <div style={styles.waveFormContainer}>{this.state.points}</div>
   );
-};
+}
 
 class Record extends Component {
   constructor(props) {
@@ -145,24 +254,8 @@ class Record extends Component {
 
     return (
       <div style={{ position: "relative", padding: "1em" }}>
-        <div
-          className="Pj7 sLG XiG pJI INd m1e"
-          style={{
-            width: 40,
-            height: 40,
-            left: "7.15em",
-            top: "7.15em",
-            position: "absolute",
-            zIndex: 23
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "rgb(255, 255, 255)",
-              width: 40,
-              height: 40
-            }}
-          />
+        <div className={maskClass} style={styles.recordCenterContainer}>
+          <div style={styles.recordCenter} />
         </div>
         <motion.div
           style={{
@@ -259,127 +352,83 @@ class NowPlaying extends Component {
   render() {
     return (
       <AppContext.Consumer>
-        {context => (
-          <div style={styles.container}>
-            <div style={styles.headerContainer}>
-              <div style={{ padding: "0.5em" }}>
-                <IosArrowLeft
-                  fontSize="1.75em"
-                  color="#083072"
-                  onClick={this.props.toggleNowPlaying}
-                />
-              </div>
-              <h5
-                className="lH1 dyH iFc SMy kON pBj IZT"
-                style={{
-                  fontSize: "1.9em",
-                  fontWeight: "400",
-                  color: "#083072"
-                }}
-              >
-                Now Playing
-              </h5>
-              <div style={{ padding: "0.5em" }}>
-                <MdList fontSize="1.75em" color="#083072" />
-              </div>
+        {context =>
+          context.loading ? (
+            <div style={styles.loaderContainer}>
+              <Loader type="ball-scale" color="black" />
             </div>
+          ) : (
             <div style={styles.container}>
-              <div style={styles.infoContainer}>
-                <Record image={this.getImage(context)} playing />
-                <h4
-                  className="lH1 dyH iFc SMy kON pBj IZT"
-                  style={{
-                    fontSize: "1.7em",
-                    textAlign: "center",
-                    fontWeight: "500",
-                    padding: "0 0.8em 0.1em 0.8em",
-                    color: "#000F45"
-                  }}
-                >
-                  {this.getTitle(context)}
-                </h4>
-                <h5
-                  className="lH1 dyH iFc SMy kON pBj IZT"
-                  style={{
-                    fontSize: "1.5em",
-                    fontWeight: "100",
-                    color: "#8397C5",
-                    textAlign: "center",
-                    padding: "0.3em"
-                  }}
-                >
-                  {this.getArtist(context)}
+              <div style={styles.headerContainer}>
+                <div style={{ padding: "0.5em" }}>
+                  <IosArrowLeft
+                    fontSize="1.75em"
+                    color="#083072"
+                    onClick={this.props.toggleNowPlaying}
+                  />
+                </div>
+                <h5 className={headingClass} style={styles.headingText}>
+                  Now Playing
                 </h5>
+                <div style={{ padding: "0.5em" }}>
+                  <MdList fontSize="1.75em" color="#083072" />
+                </div>
+              </div>
+              <div style={styles.container}>
+                <div style={styles.infoContainer}>
+                  <Record image={this.getImage(context)} playing />
+                  <h4 className={headingClass} style={styles.trackName}>
+                    {this.getTitle(context)}
+                  </h4>
+                  <h5 className={headingClass} style={styles.artistName}>
+                    {this.getArtist(context)}
+                  </h5>
 
-                <div style={styles.scrubbingContainer}>
-                  <div style={{ padding: "0.8em" }}>
-                    <div
-                      className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                      style={{ color: "#c6cad4", fontWeight: "500", fontSize: '1em' }}
-                    >
-                      0:00
+                  <div style={styles.scrubbingContainer}>
+                    <div style={{ padding: "0.8em" }}>
+                      <div className={textClass} style={styles.timeText}>
+                        0:00
+                      </div>
                     </div>
-                  </div>
-                  <WaveForm columns={22} />
-                  <div style={{ padding: "0.8em" }}>
-                    <div
-                      className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                      style={{ color: "#c6cad4", fontWeight: "500", fontSize: '0.7em' }}
-                    >
-                      4:52
+                    <WaveForm columns={22} playing />
+                    <div style={{ padding: "0.8em" }}>
+                      <div className={textClass} style={styles.timeText}>
+                        4:52
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div style={styles.controlsContainer}>
-                <MdSkipBackward
-                  fontSize="2.2em"
-                  color="#B9C1D1"
-                  onClick={this.props.toggleNowPlaying}
-                />
-                <MdPlay
-                  fontSize="4.75em"
-                  color="#929CAF"
-                  onClick={this.props.toggleNowPlaying}
-                />
-                <MdSkipForward
-                  fontSize="2.2em"
-                  color="#B9C1D1"
-                  onClick={this.props.toggleNowPlaying}
-                />
+                <div style={styles.controlsContainer}>
+                  <MdSkipBackward
+                    fontSize="2.2em"
+                    color="#B9C1D1"
+                    onClick={this.props.toggleNowPlaying}
+                  />
+                  <MdPlay
+                    fontSize="4.75em"
+                    color="#929CAF"
+                    onClick={this.props.toggleNowPlaying}
+                  />
+                  <MdSkipForward
+                    fontSize="2.2em"
+                    color="#B9C1D1"
+                    onClick={this.props.toggleNowPlaying}
+                  />
+                </div>
+              </div>
+              <div style={styles.nextContainer}>
+                <div className={textClass} style={styles.nextText}>
+                  Next Track
+                </div>
+
+                <div className={textClass} style={styles.nextText}>
+                  {this.getNext(context)}
+                </div>
               </div>
             </div>
-            <div
-              style={{
-                position: "fixed",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: "#efefef",
-                height: "4em",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-            >
-              <div
-                className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                style={{ color: "#3f4e75", fontWeight: "500", margin: "1em" }}
-              >
-                Next Track
-              </div>
-
-              <div
-                className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                style={{ color: "#3f4e75", fontWeight: "500", margin: "1em" }}
-              >
-                {this.getNext(context)}
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        }
       </AppContext.Consumer>
     );
   }

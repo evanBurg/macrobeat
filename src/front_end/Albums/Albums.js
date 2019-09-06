@@ -17,7 +17,9 @@ const styles = {
     verticalAlign: "middle",
     justifyContent: "center",
     alignItems: "center"
-  }
+  },
+  search: { width: "100%" },
+  row: { justifyContent: "center", alignItems: "center" }
 };
 
 class Albums extends Component {
@@ -48,11 +50,11 @@ class Albums extends Component {
                   onChange={({ value }) => this.setState({ search: value })}
                   placeholder="Search albums.."
                   value={this.state.search}
-                  style={{ width: "100%" }}
+                  style={styles.search}
                 />
               </Box>
             </Row>
-            <Row style={{ justifyContent: "center", alignItems: "center" }}>
+            <Row style={styles.row}>
               {context.loading ? (
                 <div style={styles.loaderContainer}>
                   <Loader type="ball-scale" color="black" />
