@@ -4,10 +4,9 @@ import MdList from "react-ionicons/lib/MdList";
 import MdSkipForward from "react-ionicons/lib/MdSkipForward";
 import MdSkipBackward from "react-ionicons/lib/MdSkipBackward";
 import MdPlay from "react-ionicons/lib/MdPlay";
-import { Text } from "gestalt";
 import { AppContext } from "../app";
-import ColorThief from "colorthief";
 import Loader from "react-loaders";
+import { motion } from "framer-motion";
 
 let styles = {
   container: {
@@ -26,7 +25,8 @@ let styles = {
     width: "100vw",
     textAlign: "center",
     alignItems: "center",
-    marginBottom: 15
+    marginBottom: "0.5em",
+    marginTop: "0.5em"
   },
   infoContainer: {
     display: "flex",
@@ -43,7 +43,8 @@ let styles = {
     justifyContent: "space-between",
     textAlign: "center",
     alignItems: "center",
-    marginBottom: 15
+    marginTop: "3.5em",
+    marginBottom: "2.5em"
   },
   controlsContainer: {
     display: "flex",
@@ -51,7 +52,9 @@ let styles = {
     width: "100vw",
     justifyContent: "space-around",
     textAlign: "center",
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: "1.5em",
+    marginBottom: "1.5em"
   },
   loaderContainer: {
     width: "100%",
@@ -67,14 +70,46 @@ let styles = {
   }
 };
 
+const WaveForm = props => {
+  let points = [];
+
+  for (let i = 0; i < props.columns; i++) {
+    points.push(
+      <div
+        key={i}
+        style={{
+          width: "0.4em",
+          height: `${Math.floor(Math.random() * 50) + 10}px`,
+          borderRadius: 100,
+          backgroundColor: "#7b8494",
+          margin: "0.15em",
+          padding: "0.04em"
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around"
+      }}
+    >
+      {points}
+    </div>
+  );
+};
+
 class Record extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: true,
-      colour: "#efefef",
-      thief: new ColorThief()
+      colour: "#efefef"
     };
   }
 
@@ -84,7 +119,7 @@ class Record extends Component {
     //Actual fetch
 
     this.setState({ loading: false });
-    return "rgb(44, 65, 167)";
+    return "rgba(183, 93, 41, 0.64)";
   };
 
   componentDidMount = async () => {
@@ -111,15 +146,16 @@ class Record extends Component {
     }
 
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", padding: "1.4em" }}>
         <div
           className="Pj7 sLG XiG pJI INd m1e"
           style={{
             width: 40,
             height: 40,
-            left: "5.6em",
-            top: "5.6em",
-            position: "absolute"
+            left: "7.15em",
+            top: "7.15em",
+            position: "absolute",
+            zIndex: 23
           }}
         >
           <div
@@ -130,15 +166,22 @@ class Record extends Component {
             }}
           />
         </div>
-        <div
+        <motion.div
           style={{
-            background: `url(${this.props.image})`,
-            backgroundSize: "cover",
-            boxShadow: `0px 0px 27px -10px ${this.state.color}`,
-            backgroundPosition: "center",
+            background: `url(${this.props.image}) center center no-repeat`,
+            boxShadow: `0px 0px 100px 10px ${this.state.color}`,
             height: 225,
             width: 225,
             borderRadius: 225 / 2
+          }}
+          initial={{ rotate: 0 }}
+          animate={{ rotate: this.props.playing ? 360 : 0 }}
+          transition={{
+            type: "tween",
+            loop: Infinity,
+            repeatDelay: 0,
+            duration: 4,
+            ease: "linear"
           }}
         />
       </div>
@@ -198,31 +241,62 @@ class NowPlaying extends Component {
     return context.Queue.CurrentSong.Artist;
   };
 
+  getNext = context => {
+    if (
+      !context ||
+      !context.Queue ||
+      context.Queue.Empty ||
+      !context.Queue.NextSong
+    ) {
+      return "";
+    }
+
+    if (context.Queue.NextSong.Name.length > 20) {
+      return context.Queue.NextSong.Name.substr(0, 17) + "...";
+    }
+
+    return context.Queue.CurrentSong.Name;
+  };
+
   render() {
     return (
       <AppContext.Consumer>
         {context => (
           <div style={styles.container}>
             <div style={styles.headerContainer}>
-              <IosArrowLeft
-                fontSize="1.75em"
-                color="black"
-                onClick={this.props.toggleNowPlaying}
-              />
+              <div style={{ padding: "0.5em" }}>
+                <IosArrowLeft
+                  fontSize="1.75em"
+                  color="#083072"
+                  onClick={this.props.toggleNowPlaying}
+                />
+              </div>
               <h5
                 className="lH1 dyH iFc SMy kON pBj IZT"
-                style={{ fontSize: "1.9em", fontWeight: "400" }}
+                style={{
+                  fontSize: "1.9em",
+                  fontWeight: "400",
+                  color: "#083072"
+                }}
               >
                 Now Playing
               </h5>
-              <MdList fontSize="1.75em" color="black" />
+              <div style={{ padding: "0.5em" }}>
+                <MdList fontSize="1.75em" color="#083072" />
+              </div>
             </div>
             <div style={styles.container}>
               <div style={styles.infoContainer}>
-                <Record image={this.getImage(context)} />
+                <Record image={this.getImage(context)} playing />
                 <h4
                   className="lH1 dyH iFc SMy kON pBj IZT"
-                  style={{ fontSize: "1.7em", textAlign: "center" }}
+                  style={{
+                    fontSize: "1.7em",
+                    textAlign: "center",
+                    fontWeight: "500",
+                    padding: "0 0.8em 0.1em 0.8em",
+                    color: "#000F45"
+                  }}
                 >
                   {this.getTitle(context)}
                 </h4>
@@ -231,38 +305,79 @@ class NowPlaying extends Component {
                   style={{
                     fontSize: "1.5em",
                     fontWeight: "100",
-                    textAlign: "center"
+                    color: "#8397C5",
+                    textAlign: "center",
+                    padding: "0.3em"
                   }}
                 >
                   {this.getArtist(context)}
                 </h5>
 
                 <div style={styles.scrubbingContainer}>
-                  <Text>0:00</Text>
-                  <img
-                    style={{ width: "50%" }}
-                    src="https://i.imgur.com/gTEOGFo.png"
-                  />
-                  <Text>4:52</Text>
+                  <div style={{ padding: "0.8em" }}>
+                    <div
+                      className="tBJ dyH iFc SMy yTZ DrD IZT swG"
+                      style={{ color: "#c6cad4", fontWeight: "500" }}
+                    >
+                      0:00
+                    </div>
+                  </div>
+                  <WaveForm columns={22} />
+                  <div style={{ padding: "0.8em" }}>
+                    <div
+                      className="tBJ dyH iFc SMy yTZ DrD IZT swG"
+                      style={{ color: "#c6cad4", fontWeight: "500" }}
+                    >
+                      4:52
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div style={styles.controlsContainer}>
                 <MdSkipBackward
-                  fontSize="1.75em"
-                  color="black"
+                  fontSize="2.2em"
+                  color="#B9C1D1"
                   onClick={this.props.toggleNowPlaying}
                 />
                 <MdPlay
-                  fontSize="1.75em"
-                  color="black"
+                  fontSize="4.75em"
+                  color="#929CAF"
                   onClick={this.props.toggleNowPlaying}
                 />
                 <MdSkipForward
-                  fontSize="1.75em"
-                  color="black"
+                  fontSize="2.2em"
+                  color="#B9C1D1"
                   onClick={this.props.toggleNowPlaying}
                 />
+              </div>
+            </div>
+            <div
+              style={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: "#efefef",
+                height: "4em",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between"
+              }}
+            >
+              <div
+                className="tBJ dyH iFc SMy yTZ DrD IZT swG"
+                style={{ color: "#3f4e75", fontWeight: "500", margin: "1em" }}
+              >
+                Next Track
+              </div>
+
+              <div
+                className="tBJ dyH iFc SMy yTZ DrD IZT swG"
+                style={{ color: "#3f4e75", fontWeight: "500", margin: "1em" }}
+              >
+                {this.getNext(context)}
               </div>
             </div>
           </div>
