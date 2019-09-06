@@ -19,9 +19,12 @@ import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
 import MdDisc from "react-ionicons/lib/MdDisc";
 import MdMusicalNote from "react-ionicons/lib/MdMusicalNote";
+import IosList from "react-ionicons/lib/IosList";
+import MdShareAlt from "react-ionicons/lib/MdShareAlt";
 import MdSearch from "react-ionicons/lib/MdSearch";
 import IosArrowUp from "react-ionicons/lib/IosArrowUp";
 import { AnimatePresence, motion } from "framer-motion";
+import ContextMenu from "./Components/ContextMenu";
 
 //"./View Models/YouTubeSearch.json"
 
@@ -103,7 +106,9 @@ class App extends Component {
       Library: null,
       loading: false,
       animating: false,
-      nowPlayingOpen: false
+      nowPlayingOpen: false,
+      contextOpen: false,
+      contextItems: [],
     };
   }
 
@@ -126,6 +131,16 @@ class App extends Component {
       this.setState({ loading: false });
     }, 2000);
   };
+  
+  componentDidUpdate(prevProps, prevState){
+    if(prevState.contextOpen !== this.state.contextOpen){
+      if(this.state.contextOpen){
+        document.body.style.overflow = "hidden"
+      }else{
+        document.body.style.overflow = "unset"
+      }
+    }
+  }
 
   componentDidMount() {
     this.getData();
@@ -215,14 +230,61 @@ class App extends Component {
     />
   ];
 
+  contextItems = {
+    song: [
+      {
+        title: "Play next",
+        onClick: () => console.log("Next"),
+        icon: MdMusicalNote
+      },
+      {
+        title: "Add to queue",
+        onClick: () => console.log("Queue"),
+        icon: IosList
+      },
+      {
+        title: "Go to artist",
+        onClick: () => console.log("Artist"),
+        icon: MdMicrophone
+      },
+      {
+        title: "Go to album",
+        onClick: () => console.log("Album"),
+        icon: MdDisc
+      },
+      {
+        title: "Share",
+        onClick: () => console.log("Share"),
+        icon: MdShareAlt
+      },
+    ]
+  }
+
+  openContextMenu = (item, type) => {
+    //attach item to command
+
+    let items = [];
+
+    if(this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
+
+    this.setState({
+      contextOpen: true,
+      contextItems: items,
+      contextSelection: item
+    });
+  }
+
+  closeContextMenu = () => this.setState({contextOpen: false, contextItems: []})
+
   render() {
-    let { tab, User, Library, loading, Queue, nowPlayingOpen } = this.state;
+    let { tab, User, Library, loading, Queue, nowPlayingOpen, contextOpen, contextItems, contextSelection } = this.state;
 
     return (
-      <AppContext.Provider value={{ User, Library, Queue, loading }}>
+      <AppContext.Provider value={{ User, Library, Queue, loading, contextOpen, openContextMenu: this.openContextMenu }}>
         {!nowPlayingOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         )}
+        <ContextMenu open={contextOpen} items={contextItems} close={this.closeContextMenu} selected={contextSelection}/>
         <motion.div
           style={{
             ...styles.tabbar,

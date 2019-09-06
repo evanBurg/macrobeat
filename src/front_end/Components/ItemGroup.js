@@ -46,7 +46,7 @@ const styles = {
     padding: 25,
     backgroundSize: "cover",
     backgroundBlendMode: "multiply",
-    boxShadow: "0px 0px 27px -10px #000000",
+    boxShadow: "0px 0px 27px -10px #000000"
   },
   text: {
     fontSize: "1em",
@@ -65,7 +65,7 @@ const Item = props => {
     style.minWidth = `20em`;
   }
 
-  if(props.skinny){
+  if (props.skinny) {
     style.width = `8em`;
     style.minWidth = `8em`;
   }
@@ -76,18 +76,29 @@ const Item = props => {
   }
 
   return (
-    <div style={style}>
-      <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
-        {props.item.Name}
-      </h5>
-    </div>
+    <AppContext.Consumer>
+      {ctx => (
+        <div
+          style={style}
+          onClick={
+            props.song
+              ? () => ctx.openContextMenu(props.item, "song")
+              : undefined
+          }
+        >
+          <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
+            {props.item.Name}
+          </h5>
+        </div>
+      )}
+    </AppContext.Consumer>
   );
 };
 
 const StandaloneItem = props => {
   return (
     <div style={styles.selfContainer}>
-      <Item {...props} item={props.data}/>
+      <Item {...props} item={props.data} />
     </div>
   );
 };
@@ -112,7 +123,7 @@ class ItemGroup extends Component {
       <div style={styles.container}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
-            <Item key={key} item={items[key]} wide={wide} song={!!songs} />
+            <Item key={key} item={items[key]} wide={wide} song={songs} />
           ))}
         </div>
       </div>
