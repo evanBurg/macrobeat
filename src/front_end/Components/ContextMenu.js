@@ -2,9 +2,15 @@ import React, { Component } from 'react';
 
 const styles = {
     container: {
-
+        backgroundColor: '#fff',
+        width: '100vw',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'right'
     },
     item: {
+        padding: 10,
 
     }
 }
