@@ -741,15 +741,12 @@ const AppContext = React.createContext({
 const variants = {
   hidden: {
     opacity: 0,
-    scaleX: 0
   },
   visible: {
     opacity: 1,
-    scaleX: 1
   },
   exit: {
     opacity: 0,
-    scaleX: 1
   }
 };
 
