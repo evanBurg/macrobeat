@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 let styles = {
   container: {
     marginBottom: 10,
-    marginTop: 10,
     display: "flex",
     flexDirection: "column",
     width: "100vw",
@@ -43,8 +42,8 @@ let styles = {
     justifyContent: "space-between",
     textAlign: "center",
     alignItems: "center",
-    marginTop: "3.5em",
-    marginBottom: "2.5em"
+    marginTop: "1.5em",
+    marginBottom: "1.5em"
   },
   controlsContainer: {
     display: "flex",
@@ -53,7 +52,6 @@ let styles = {
     justifyContent: "space-around",
     textAlign: "center",
     alignItems: "center",
-    marginTop: "1.5em",
     marginBottom: "1.5em"
   },
   loaderContainer: {
@@ -146,7 +144,7 @@ class Record extends Component {
     }
 
     return (
-      <div style={{ position: "relative", padding: "1.4em" }}>
+      <div style={{ position: "relative", padding: "1em" }}>
         <div
           className="Pj7 sLG XiG pJI INd m1e"
           style={{
@@ -217,8 +215,8 @@ class NowPlaying extends Component {
       return "";
     }
 
-    if (context.Queue.CurrentSong.Name.length > 40) {
-      return context.Queue.CurrentSong.Name.substr(0, 37) + "...";
+    if (context.Queue.CurrentSong.Name.length > 30) {
+      return context.Queue.CurrentSong.Name.substr(0, 27) + "...";
     }
 
     return context.Queue.CurrentSong.Name;
@@ -317,7 +315,7 @@ class NowPlaying extends Component {
                   <div style={{ padding: "0.8em" }}>
                     <div
                       className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                      style={{ color: "#c6cad4", fontWeight: "500" }}
+                      style={{ color: "#c6cad4", fontWeight: "500", fontSize: '1em' }}
                     >
                       0:00
                     </div>
@@ -326,7 +324,7 @@ class NowPlaying extends Component {
                   <div style={{ padding: "0.8em" }}>
                     <div
                       className="tBJ dyH iFc SMy yTZ DrD IZT swG"
-                      style={{ color: "#c6cad4", fontWeight: "500" }}
+                      style={{ color: "#c6cad4", fontWeight: "500", fontSize: '0.7em' }}
                     >
                       4:52
                     </div>
