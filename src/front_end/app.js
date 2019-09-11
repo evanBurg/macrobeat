@@ -136,7 +136,7 @@ class App extends Component {
     }, 2000);
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {Library
     if (prevState.contextOpen !== this.state.contextOpen) {
       if (this.state.contextOpen) {
         document.body.style.overflow = "hidden";
@@ -257,13 +257,13 @@ class App extends Component {
       {
         key: "artist",
         title: "Go to artist",
-        onClick: () => console.log("Artist"),
+        onClick: (item) => this.openCollection(this.state.Library.getArtist(item.Artist), 'artist'),
         icon: MdMicrophone
       },
       {
         key: "album",
         title: "Go to album",
-        onClick: () => console.log("Album"),
+        onClick: (item) => this.openCollection(this.state.Library.getAlbum(item.Album), 'album'),
         icon: MdDisc
       },
       {
@@ -289,7 +289,7 @@ class App extends Component {
       {
         key: "artist",
         title: "Go to artist",
-        onClick: () => console.log("Artist"),
+        onClick: (item) => this.openCollection(this.state.Library.getArtist(item.Artist), 'artist'),
         icon: MdMicrophone
       },
       {
@@ -347,6 +347,7 @@ class App extends Component {
     if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
 
     this.setState({
+      contextOpen: false,
       collectionOpen: true,
       collectionItem: item,
       collectionType: type

@@ -38,8 +38,20 @@ class Library {
     return this._Artists;
   }
 
+  getArtist(name) {
+    debugger;
+    if (this._Artists.hasOwnProperty(name)) return this._Artists[name];
+    else return null;
+  }
+
   get Albums() {
     return this._Albums;
+  }
+
+  getAlbum(name) {
+    debugger;
+    if (this._Albums.hasOwnProperty(name)) return this._Albums[name];
+    else return null;
   }
 
   get History() {

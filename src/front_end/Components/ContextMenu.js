@@ -124,7 +124,7 @@ const ContextItem = props => {
         whileTap="click"
         whileHover="click"
         style={styles.item}
-        onTap={props.onClick}
+        onTap={() => props.onClick(props.selected)}
       >
         <div style={styles.icon}>
           <Icon fontSize="1.3em" />
@@ -238,6 +238,7 @@ class ContextMenu extends Component {
               {selected && <Preview item={selected} type={type} />}
               {items.map(item => (
                 <ContextItem
+                  selected={selected}
                   key={item.key}
                   title={item.title}
                   icon={item.icon}
