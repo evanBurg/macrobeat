@@ -8,7 +8,7 @@ To setup:
 4. View the page at localhost:5000 in your web browser
 
 To develop:
-1. Make branch out of master starting with ticket number (Looks like 2071jd)
+1. Make branch out of master starting with ticket number (Looks like 2071jd, i.e: 2071jd-fix-search-bug)
 2. Make required changes
 3. Make pull request back to master
 (Note: 1 approval is required for merge)
