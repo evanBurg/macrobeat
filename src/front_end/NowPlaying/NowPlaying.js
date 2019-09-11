@@ -268,7 +268,7 @@ class Record extends Component {
             type: "tween",
             loop: Infinity,
             repeatDelay: 0,
-            duration: 4,
+            duration: 15,
             ease: "linear"
           }}
         />
