@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#94b0da"/>
+    <meta name="theme-color" content="#94b0da" />
     <link rel="icon" href="logo.png" type="image/png" />
     <link
       rel="stylesheet"
@@ -19,7 +19,14 @@
     />
     <style>
       body {
-        margin: 0
+        margin: 0;
+      }
+      * {
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        -ms-user-select: none;
       }
     </style>
     <title>Macrobeat</title>
@@ -43,7 +50,14 @@
     }
   </script>
   <body>
-    <div id="react-root"><noscript><h1 style="text-align: center;">If you are seeing this text, there was an issue loading the Javascript, try again!</h1></noscript></div>
+    <div id="react-root">
+      <noscript
+        ><h1 style="text-align: center;">
+          If you are seeing this text, there was an issue loading the
+          Javascript, try again!
+        </h1></noscript
+      >
+    </div>
     <script src="/js/home.js"></script>
   </body>
 </html>
