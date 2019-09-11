@@ -57,7 +57,7 @@ const styles = {
 const Item = props => {
   let style = JSON.parse(JSON.stringify(styles.item));
   style.background = `rgba(0, 0, 0, 0.45) center no-repeat url(${
-    props.song ? props.item.Image.url : props.item.Image
+    props.type === "song" ? props.item.Image.url : props.item.Image
   }`;
 
   if (props.wide) {
@@ -80,11 +80,7 @@ const Item = props => {
       {ctx => (
         <div
           style={style}
-          onClick={
-            props.song
-              ? () => ctx.openContextMenu(props.item, "song")
-              : undefined
-          }
+          onClick={() => ctx.openContextMenu(props.item, props.type)}
         >
           <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
             {props.item.Name}
@@ -109,7 +105,7 @@ class ItemGroup extends Component {
   }
 
   render() {
-    let { items, songs, loading, wide } = this.props;
+    let { items, type, loading, wide } = this.props;
 
     if (loading) {
       return (
@@ -123,7 +119,7 @@ class ItemGroup extends Component {
       <div style={styles.container}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
-            <Item key={key} item={items[key]} wide={wide} song={songs} />
+            <Item key={key} item={items[key]} wide={wide} type={type} />
           ))}
         </div>
       </div>

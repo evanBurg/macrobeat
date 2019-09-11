@@ -25,12 +25,11 @@ import MdSearch from "react-ionicons/lib/MdSearch";
 import IosArrowUp from "react-ionicons/lib/IosArrowUp";
 import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
+import { Header } from "./Components/WrapperComponents";
 
 //"./View Models/YouTubeSearch.json"
 
 const Search = require("./View Models/YouTubeSearch.json");
-
-const headingClass = "lH1 dyH iFc SMy kON pBj IZT";
 
 const styles = {
   tabbar: {
@@ -131,7 +130,7 @@ class App extends Component {
       this.setState({ loading: false });
     }, 2000);
   };
-  
+
   componentDidUpdate(prevProps, prevState){
     if(prevState.contextOpen !== this.state.contextOpen){
       if(this.state.contextOpen){
@@ -257,7 +256,46 @@ class App extends Component {
         onClick: () => console.log("Share"),
         icon: MdShareAlt
       },
-    ]
+    ],
+    album: [
+      {
+        title: "Play album next",
+        onClick: () => console.log("Next"),
+        icon: MdMusicalNote
+      },
+      {
+        title: "Add all songs to queue",
+        onClick: () => console.log("Queue"),
+        icon: IosList
+      },
+      {
+        title: "Go to artist",
+        onClick: () => console.log("Artist"),
+        icon: MdMicrophone
+      },
+      {
+        title: "Share",
+        onClick: () => console.log("Share"),
+        icon: MdShareAlt
+      },
+    ],
+    artist: [
+      {
+        title: "Play all artist's songs next",
+        onClick: () => console.log("Next"),
+        icon: MdMusicalNote
+      },
+      {
+        title: "Add all artist's songs to queue",
+        onClick: () => console.log("Queue"),
+        icon: IosList
+      },
+      {
+        title: "Share",
+        onClick: () => console.log("Share"),
+        icon: MdShareAlt
+      },
+    ],
   }
 
   openContextMenu = (item, type) => {
@@ -270,21 +308,22 @@ class App extends Component {
     this.setState({
       contextOpen: true,
       contextItems: items,
-      contextSelection: item
+      contextSelection: item,
+      contextType: type
     });
   }
 
   closeContextMenu = () => this.setState({contextOpen: false, contextItems: []})
 
   render() {
-    let { tab, User, Library, loading, Queue, nowPlayingOpen, contextOpen, contextItems, contextSelection } = this.state;
+    let { tab, User, Library, loading, Queue, nowPlayingOpen, contextOpen, contextItems, contextSelection, contextType } = this.state;
 
     return (
       <AppContext.Provider value={{ User, Library, Queue, loading, contextOpen, openContextMenu: this.openContextMenu }}>
         {!nowPlayingOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         )}
-        <ContextMenu open={contextOpen} items={contextItems} close={this.closeContextMenu} selected={contextSelection}/>
+        <ContextMenu open={contextOpen} items={contextItems} close={this.closeContextMenu} selected={contextSelection} type={contextType}/>
         <motion.div
           style={{
             ...styles.tabbar,
@@ -301,9 +340,9 @@ class App extends Component {
             <NowPlaying toggleNowPlaying={this.toggleNowPlaying} />
           ) : (
             <React.Fragment>
-              <h5 className={headingClass} style={styles.nowPlayingText}>
+              <Header style={styles.nowPlayingText}>
                 Now Playing
-              </h5>
+              </Header>
               <IosArrowUp
                 fontSize={"1em"}
                 color={"black"}

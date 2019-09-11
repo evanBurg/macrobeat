@@ -4,7 +4,7 @@ import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import { StandaloneItem } from "../Components/ItemGroup";
 import Loader from "react-loaders";
-const Item = props => <StandaloneItem {...props} song skinny />;
+const Item = props => <StandaloneItem {...props} type="song" skinny />;
 
 const styles = {
   loaderContainer: {

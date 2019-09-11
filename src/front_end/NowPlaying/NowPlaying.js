@@ -7,10 +7,7 @@ import MdPlay from "react-ionicons/lib/MdPlay";
 import { AppContext } from "../app";
 import Loader from "react-loaders";
 import { motion } from "framer-motion";
-
-const maskClass = "Pj7 sLG XiG pJI INd m1e";
-const headingClass = "lH1 dyH iFc SMy kON pBj IZT";
-const textClass = "tBJ dyH iFc SMy yTZ DrD IZT swG";
+import { Header, Text, Mask } from "../Components/WrapperComponents";
 
 const styles = {
   container: {
@@ -254,9 +251,9 @@ class Record extends Component {
 
     return (
       <div style={{ position: "relative", padding: "1em" }}>
-        <div className={maskClass} style={styles.recordCenterContainer}>
+        <Mask style={styles.recordCenterContainer}>
           <div style={styles.recordCenter} />
-        </div>
+        </Mask>
         <motion.div
           style={{
             background: `url(${this.props.image}) center center no-repeat`,
@@ -367,9 +364,9 @@ class NowPlaying extends Component {
                     onClick={this.props.toggleNowPlaying}
                   />
                 </div>
-                <h5 className={headingClass} style={styles.headingText}>
+                <Header style={styles.headingText}>
                   Now Playing
-                </h5>
+                </Header>
                 <div style={{ padding: "0.5em" }}>
                   <MdList fontSize="1.75em" color="#083072" />
                 </div>
@@ -377,24 +374,24 @@ class NowPlaying extends Component {
               <div style={styles.container}>
                 <div style={styles.infoContainer}>
                   <Record image={this.getImage(context)} playing />
-                  <h4 className={headingClass} style={styles.trackName}>
+                  <Header style={styles.trackName}>
                     {this.getTitle(context)}
-                  </h4>
-                  <h5 className={headingClass} style={styles.artistName}>
+                  </Header>
+                  <Header style={styles.artistName}>
                     {this.getArtist(context)}
-                  </h5>
+                  </Header>
 
                   <div style={styles.scrubbingContainer}>
                     <div style={{ padding: "0.8em" }}>
-                      <div className={textClass} style={styles.timeText}>
+                      <Text style={styles.timeText}>
                         0:00
-                      </div>
+                      </Text>
                     </div>
                     <WaveForm columns={22} playing />
                     <div style={{ padding: "0.8em" }}>
-                      <div className={textClass} style={styles.timeText}>
+                      <Text style={styles.timeText}>
                         4:52
-                      </div>
+                      </Text>
                     </div>
                   </div>
                 </div>
@@ -418,13 +415,13 @@ class NowPlaying extends Component {
                 </div>
               </div>
               <div style={styles.nextContainer}>
-                <div className={textClass} style={styles.nextText}>
+                <Text style={styles.nextText}>
                   Next Track
-                </div>
+                </Text>
 
-                <div className={textClass} style={styles.nextText}>
+                <Text style={styles.nextText}>
                   {this.getNext(context)}
-                </div>
+                </Text>
               </div>
             </div>
           )

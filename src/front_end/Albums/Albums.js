@@ -4,7 +4,7 @@ import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import { StandaloneItem } from "../Components/ItemGroup";
 import Loader from "react-loaders";
-const TallItem = props => <StandaloneItem {...props} wide />;
+const TallItem = props => <StandaloneItem {...props} type="album" wide />;
 
 const styles = {
   loaderContainer: {

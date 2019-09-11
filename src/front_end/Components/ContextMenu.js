@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const textClass = "tBJ dyH iFc SMy yTZ DrD IZT swG";
+import { Text } from "./WrapperComponents";
 
 const styles = {
   container: {
@@ -108,7 +107,7 @@ const ItemVariants = {
   click: {
     background: "#efefef",
     transition: {
-      background: { duration: 0.2, ease: 'easeInOut' }
+      background: { duration: 0.2, ease: "easeInOut" }
     }
   }
 };
@@ -130,9 +129,7 @@ const ContextItem = props => {
         <div style={styles.icon}>
           <Icon fontSize="1.3em" />
         </div>
-        <div className={textClass} style={styles.text}>
-          {props.title}
-        </div>
+        <Text style={styles.text}>{props.title}</Text>
       </motion.div>
     </React.Fragment>
   );
@@ -140,11 +137,17 @@ const ContextItem = props => {
 
 const Preview = props => {
   let img;
+  let titleKey = "Name";
+  let subTitleKey = "Artist";
 
-  if (true) {
+  if (props.type === "song") {
     img = props.item.Image.url;
   } else {
     img = props.item.Image;
+  }
+
+  if (props.type === "artist") {
+    subTitleKey = "";
   }
 
   return (
@@ -159,12 +162,10 @@ const Preview = props => {
         }}
       />
       <div style={styles.previewInfoContainer}>
-        <div className={textClass} style={styles.titleText}>
-          {props.item.Name}
-        </div>
-        <div className={textClass} style={styles.artistText}>
-          {props.item.Artist}
-        </div>
+        <Text style={styles.titleText}>{props.item[titleKey]}</Text>
+        {subTitleKey && (
+          <Text style={styles.artistText}>{props.item[subTitleKey]}</Text>
+        )}
       </div>
     </div>
   );
@@ -210,7 +211,7 @@ class ContextMenu extends Component {
   };
 
   render() {
-    const { items, open, close, selected } = this.props;
+    const { items, open, close, selected, type } = this.props;
 
     return (
       <AnimatePresence>
@@ -233,7 +234,7 @@ class ContextMenu extends Component {
               animate={"visible"}
               exit={"hidden"}
             >
-              {selected && <Preview item={selected} />}
+              {selected && <Preview item={selected} type={type} />}
               {items.map(item => (
                 <ContextItem
                   title={item.title}

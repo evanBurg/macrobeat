@@ -58,14 +58,14 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Artists</Heading>
-              <ItemGroup items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
+              <ItemGroup type="artist" items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Albums</Heading>
-              <ItemGroup wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
+              <ItemGroup type="album" wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
-              <ItemGroup songs items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+              <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
             </Row>
           </Page>
         )}
