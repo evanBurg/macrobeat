@@ -11,7 +11,7 @@ import { Header, Text, Mask } from "../Components/WrapperComponents";
 
 const styles = {
   container: {
-    marginBottom: 10,
+    marginBottom: "0.6em",
     display: "flex",
     flexDirection: "column",
     width: "100vw",
@@ -87,27 +87,27 @@ const styles = {
     transition: "all 0.6s"
   },
   recordCenterContainer: {
-    width: 40,
-    height: 40,
-    left: "6.7em",
-    top: "6.7em",
+    width: 25,
+    height: 25,
+    left: "5.8rem",
+    top: "5.8rem",
     position: "absolute",
     zIndex: 23
   },
   recordCenter: {
     backgroundColor: "rgb(255, 255, 255)",
-    width: 40,
-    height: 40
+    width: 25,
+    height: 25
   },
   trackName: {
-    fontSize: "1.7em",
+    fontSize: "1.3em",
     textAlign: "center",
     fontWeight: "500",
     padding: "0 0.8em 0.1em 0.8em",
     color: "#000F45"
   },
   artistName: {
-    fontSize: "1.5em",
+    fontSize: "1.2em",
     fontWeight: "100",
     color: "#8397C5",
     textAlign: "center",
@@ -258,9 +258,9 @@ class Record extends Component {
           style={{
             background: `url(${this.props.image}) center center no-repeat`,
             boxShadow: `0px 0px 100px 10px ${this.state.color}`,
-            height: 225,
-            width: 225,
-            borderRadius: 225 / 2
+            height: 175,
+            width: 175,
+            borderRadius: 175 / 2
           }}
           initial={{ rotate: 0 }}
           animate={{ rotate: this.props.playing ? 360 : 0 }}
@@ -346,7 +346,20 @@ class NowPlaying extends Component {
     return context.Queue.CurrentSong.Name;
   };
 
+  getViewport = () => {
+    const w = window,
+      d = document,
+      e = d.documentElement,
+      g = d.getElementsByTagName("body")[0],
+      x = w.innerWidth || e.clientWidth || g.clientWidth,
+      y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+    return { width: x, height: y };
+  };
+
   render() {
+    const { width, height } = this.getViewport();
+
     return (
       <AppContext.Consumer>
         {context =>
@@ -364,9 +377,7 @@ class NowPlaying extends Component {
                     onClick={this.props.toggleNowPlaying}
                   />
                 </div>
-                <Header style={styles.headingText}>
-                  Now Playing
-                </Header>
+                <Header style={styles.headingText}>Now Playing</Header>
                 <div style={{ padding: "0.5em" }}>
                   <MdList fontSize="1.75em" color="#083072" />
                 </div>
@@ -383,46 +394,41 @@ class NowPlaying extends Component {
 
                   <div style={styles.scrubbingContainer}>
                     <div style={{ padding: "0.8em" }}>
-                      <Text style={styles.timeText}>
-                        0:00
-                      </Text>
+                      <Text style={styles.timeText}>0:00</Text>
                     </div>
-                    <WaveForm columns={22} playing />
+                    <WaveForm columns={Math.floor(width / 22)} playing />
                     <div style={{ padding: "0.8em" }}>
-                      <Text style={styles.timeText}>
-                        4:52
-                      </Text>
+                      <Text style={styles.timeText}>4:52</Text>
                     </div>
                   </div>
                 </div>
-
-                <div style={styles.controlsContainer}>
-                  <MdSkipBackward
-                    fontSize="2.2em"
-                    color="#B9C1D1"
-                    onClick={this.props.toggleNowPlaying}
-                  />
-                  <MdPlay
-                    fontSize="4.75em"
-                    color="#929CAF"
-                    onClick={this.props.toggleNowPlaying}
-                  />
-                  <MdSkipForward
-                    fontSize="2.2em"
-                    color="#B9C1D1"
-                    onClick={this.props.toggleNowPlaying}
-                  />
+                <div>
+                  <div style={styles.controlsContainer}>
+                    <MdSkipBackward
+                      fontSize="2.2em"
+                      color="#B9C1D1"
+                      onClick={this.props.toggleNowPlaying}
+                    />
+                    <MdPlay
+                      fontSize="4.75em"
+                      color="#929CAF"
+                      onClick={this.props.toggleNowPlaying}
+                    />
+                    <MdSkipForward
+                      fontSize="2.2em"
+                      color="#B9C1D1"
+                      onClick={this.props.toggleNowPlaying}
+                    />
+                  </div>
                 </div>
               </div>
-              <div style={styles.nextContainer}>
-                <Text style={styles.nextText}>
-                  Next Track
-                </Text>
+              {height > 607 && (
+                <div style={styles.nextContainer}>
+                  <Text style={styles.nextText}>Next Track</Text>
 
-                <Text style={styles.nextText}>
-                  {this.getNext(context)}
-                </Text>
-              </div>
+                  <Text style={styles.nextText}>{this.getNext(context)}</Text>
+                </div>
+              )}
             </div>
           )
         }
