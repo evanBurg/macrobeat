@@ -20,11 +20,13 @@ import MdMicrophone from "react-ionicons/lib/MdMicrophone";
 import MdDisc from "react-ionicons/lib/MdDisc";
 import MdMusicalNote from "react-ionicons/lib/MdMusicalNote";
 import IosList from "react-ionicons/lib/IosList";
+import IosAddCircleOutline from "react-ionicons/lib/IosAddCircleOutline";
 import MdShareAlt from "react-ionicons/lib/MdShareAlt";
 import MdSearch from "react-ionicons/lib/MdSearch";
 import IosArrowUp from "react-ionicons/lib/IosArrowUp";
 import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
+import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
 
 //"./View Models/YouTubeSearch.json"
@@ -108,6 +110,9 @@ class App extends Component {
       nowPlayingOpen: false,
       contextOpen: false,
       contextItems: [],
+      collectionOpen: false,
+      collectionItem: null,
+      collectionType: ""
     };
   }
 
@@ -131,12 +136,12 @@ class App extends Component {
     }, 2000);
   };
 
-  componentDidUpdate(prevProps, prevState){
-    if(prevState.contextOpen !== this.state.contextOpen){
-      if(this.state.contextOpen){
-        document.body.style.overflow = "hidden"
-      }else{
-        document.body.style.overflow = "unset"
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contextOpen !== this.state.contextOpen) {
+      if (this.state.contextOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "unset";
       }
     }
   }
@@ -244,6 +249,12 @@ class App extends Component {
         icon: IosList
       },
       {
+        key: "library",
+        title: "Add song to library",
+        onClick: () => console.log("Library"),
+        icon: IosAddCircleOutline
+      },
+      {
         key: "artist",
         title: "Go to artist",
         onClick: () => console.log("Artist"),
@@ -260,7 +271,7 @@ class App extends Component {
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt
-      },
+      }
     ],
     album: [
       {
@@ -286,7 +297,7 @@ class App extends Component {
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt
-      },
+      }
     ],
     artist: [
       {
@@ -306,16 +317,16 @@ class App extends Component {
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt
-      },
-    ],
-  }
+      }
+    ]
+  };
 
   openContextMenu = (item, type) => {
     //attach item to command
 
     let items = [];
 
-    if(this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
+    if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
 
     this.setState({
       contextOpen: true,
@@ -323,61 +334,125 @@ class App extends Component {
       contextSelection: item,
       contextType: type
     });
-  }
+  };
 
-  closeContextMenu = () => this.setState({contextOpen: false, contextItems: []})
+  closeContextMenu = () =>
+    this.setState({ contextOpen: false, contextItems: [] });
+
+  openCollection = (item, type) => {
+    //attach item to command
+
+    let items = [];
+
+    if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
+
+    this.setState({
+      collectionOpen: true,
+      collectionItem: item,
+      collectionType: type
+    });
+  };
+
+  closeCollection = () =>
+    this.setState({ collectionOpen: false, collectionItem: null });
 
   render() {
-    let { tab, User, Library, loading, Queue, nowPlayingOpen, contextOpen, contextItems, contextSelection, contextType } = this.state;
+    let {
+      tab,
+      User,
+      Library,
+      loading,
+      Queue,
+      nowPlayingOpen,
+      contextOpen,
+      contextItems,
+      contextSelection,
+      contextType,
+      collectionOpen,
+      collectionItem,
+      collectionType
+    } = this.state;
 
     return (
-      <AppContext.Provider value={{ User, Library, Queue, loading, contextOpen, openContextMenu: this.openContextMenu }}>
-        {!nowPlayingOpen && (
+      <AppContext.Provider
+        value={{
+          User,
+          Library,
+          Queue,
+          loading,
+          contextOpen,
+          openContextMenu: this.openContextMenu,
+          openCollection: this.openCollection
+        }}
+      >
+        {!nowPlayingOpen && !collectionOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         )}
-        <ContextMenu open={contextOpen} items={contextItems} close={this.closeContextMenu} selected={contextSelection} type={contextType}/>
-        <motion.div
-          style={{
-            ...styles.tabbar,
-            ...styles.nowPlaying,
-            padding: nowPlayingOpen ? 0 : 10,
-            zIndex: nowPlayingOpen ? 22 : 20
-          }}
-          animate={{
-            height: nowPlayingOpen ? "100%" : "75px",
-            backgroundColor: nowPlayingOpen ? "#fff" : "#efefef"
-          }}
-        >
-          {nowPlayingOpen ? (
-            <NowPlaying toggleNowPlaying={this.toggleNowPlaying} />
-          ) : (
-            <React.Fragment>
-              <Header style={styles.nowPlayingText}>
-                Now Playing
-              </Header>
-              <IosArrowUp
-                fontSize={"1em"}
-                color={"black"}
-                onClick={this.toggleNowPlaying}
-              />
-            </React.Fragment>
-          )}
-        </motion.div>
-        <div style={styles.tabbar}>
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={{
-              scaleY: nowPlayingOpen ? 0 : 1,
-              opacity: nowPlayingOpen ? 0 : 1
-            }}
-          >
-            <SegmentedControl
-              items={this.navbarItems()}
-              selectedItemIndex={tab}
-              onChange={({ activeIndex }) => this.setTab(activeIndex)}
+
+        {collectionOpen && (
+          <AnimatePresence>
+            <CollectionView
+              key={JSON.stringify(collectionItem)}
+              open={collectionOpen}
+              item={collectionItem}
+              close={this.closeCollection}
+              type={collectionType}
             />
-          </motion.div>
-        </div>
+          </AnimatePresence>
+        )}
+
+        <ContextMenu
+          open={contextOpen}
+          items={contextItems}
+          close={this.closeContextMenu}
+          selected={contextSelection}
+          type={contextType}
+        />
+
+        {!collectionOpen && (
+          <React.Fragment>
+            <motion.div
+              style={{
+                ...styles.tabbar,
+                ...styles.nowPlaying,
+                padding: nowPlayingOpen ? 0 : 10,
+                zIndex: nowPlayingOpen ? 22 : 20
+              }}
+              animate={{
+                height: nowPlayingOpen ? "100%" : "75px",
+                backgroundColor: nowPlayingOpen ? "#fff" : "#efefef"
+              }}
+            >
+              {nowPlayingOpen ? (
+                <NowPlaying toggleNowPlaying={this.toggleNowPlaying} />
+              ) : (
+                <React.Fragment>
+                  <Header style={styles.nowPlayingText}>Now Playing</Header>
+                  <IosArrowUp
+                    fontSize={"1em"}
+                    color={"black"}
+                    onClick={this.toggleNowPlaying}
+                  />
+                </React.Fragment>
+              )}
+            </motion.div>
+            <div style={styles.tabbar}>
+              <motion.div
+                initial={{ scaleY: 0 }}
+                animate={{
+                  scaleY: nowPlayingOpen ? 0 : 1,
+                  opacity: nowPlayingOpen ? 0 : 1
+                }}
+              >
+                <SegmentedControl
+                  items={this.navbarItems()}
+                  selectedItemIndex={tab}
+                  onChange={({ activeIndex }) => this.setTab(activeIndex)}
+                />
+              </motion.div>
+            </div>
+          </React.Fragment>
+        )}
       </AppContext.Provider>
     );
   }

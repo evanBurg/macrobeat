@@ -3,13 +3,6 @@ import Loader from "react-loaders";
 import { AppContext } from "../app";
 
 const styles = {
-  container: {
-    width: "100%",
-    overflowY: "hidden",
-    overflowX: "auto",
-    margin: 0,
-    padding: 0
-  },
   loaderContainer: {
     width: "100%",
     margin: 25,
@@ -25,7 +18,12 @@ const styles = {
     display: "flex",
     flexFlow: "row nowrap",
     justifyContent: "stretch",
-    alignItems: "center"
+    alignItems: "center",
+    width: "100vw",
+    overflowY: "hidden",
+    overflowX: "auto",
+    margin: 0,
+    padding: 0
   },
   selfContainer: {
     width: "100%",
@@ -80,7 +78,7 @@ const Item = props => {
       {ctx => (
         <div
           style={style}
-          onClick={() => ctx.openContextMenu(props.item, props.type)}
+          onClick={() => props.standalone ? ctx.openCollection(props.item, props.type) : ctx.openContextMenu(props.item, props.type) }
         >
           <h5 className="lH1 dyH iFc SMy kON pBj IZT" style={styles.text}>
             {props.item.Name}
@@ -94,7 +92,7 @@ const Item = props => {
 const StandaloneItem = props => {
   return (
     <div style={styles.selfContainer}>
-      <Item {...props} item={props.data} />
+      <Item {...props} item={props.data} standalone={props.type !== "song"} />
     </div>
   );
 };
@@ -116,7 +114,7 @@ class ItemGroup extends Component {
     }
 
     return (
-      <div style={styles.container}>
+      <div style={{marginRight: 10}}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
             <Item key={key} item={items[key]} wide={wide} type={type} />
