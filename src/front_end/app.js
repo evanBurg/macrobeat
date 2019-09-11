@@ -232,26 +232,31 @@ class App extends Component {
   contextItems = {
     song: [
       {
+        key: "next",
         title: "Play next",
         onClick: () => console.log("Next"),
         icon: MdMusicalNote
       },
       {
+        key: "queue",
         title: "Add to queue",
         onClick: () => console.log("Queue"),
         icon: IosList
       },
       {
+        key: "artist",
         title: "Go to artist",
         onClick: () => console.log("Artist"),
         icon: MdMicrophone
       },
       {
+        key: "album",
         title: "Go to album",
         onClick: () => console.log("Album"),
         icon: MdDisc
       },
       {
+        key: "share",
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt
@@ -259,21 +264,25 @@ class App extends Component {
     ],
     album: [
       {
+        key: "next",
         title: "Play album next",
         onClick: () => console.log("Next"),
         icon: MdMusicalNote
       },
       {
+        key: "queue",
         title: "Add all songs to queue",
         onClick: () => console.log("Queue"),
         icon: IosList
       },
       {
+        key: "artist",
         title: "Go to artist",
         onClick: () => console.log("Artist"),
         icon: MdMicrophone
       },
       {
+        key: "share",
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt
@@ -281,16 +290,19 @@ class App extends Component {
     ],
     artist: [
       {
+        key: "next",
         title: "Play all artist's songs next",
         onClick: () => console.log("Next"),
         icon: MdMusicalNote
       },
       {
+        key: "queue",
         title: "Add all artist's songs to queue",
         onClick: () => console.log("Queue"),
         icon: IosList
       },
       {
+        key: "share",
         title: "Share",
         onClick: () => console.log("Share"),
         icon: MdShareAlt

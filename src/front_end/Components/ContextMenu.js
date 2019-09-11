@@ -158,7 +158,8 @@ const Preview = props => {
           minHeight: 70,
           background: `url(${img}) center no-repeat`,
           backgroundSize: "cover",
-          margin: 10
+          margin: 10,
+          borderRadius: 15
         }}
       />
       <div style={styles.previewInfoContainer}>
@@ -237,6 +238,7 @@ class ContextMenu extends Component {
               {selected && <Preview item={selected} type={type} />}
               {items.map(item => (
                 <ContextItem
+                  key={item.key}
                   title={item.title}
                   icon={item.icon}
                   onClick={item.onClick}
