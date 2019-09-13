@@ -1,6 +1,7 @@
 
 
-
+class MusicDriver(object):
+    pass
 
 class MusicWrapper(object):
     """
