@@ -67,7 +67,7 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: "0.2em",
     marginTop: "0.2em",
     padding: 5
@@ -120,8 +120,8 @@ const Song = props => {
         >
           <div
             style={{
-              ...styles.songImage,
-              background: `url(${props.song.Image.url}) center no-repeat`
+              background: `url(${props.song.Image.url}) center no-repeat`,
+              ...styles.songImage
             }}
           />
           <div style={styles.songInfo}>
@@ -222,4 +222,5 @@ class CollectionView extends Component {
   }
 }
 
+export {CollectionView, Song}
 export default CollectionView;

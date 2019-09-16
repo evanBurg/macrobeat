@@ -379,7 +379,7 @@ class NowPlaying extends Component {
                 </div>
                 <Header style={styles.headingText}>Now Playing</Header>
                 <div style={{ padding: "0.5em" }}>
-                  <MdList fontSize="1.75em" color="#083072" />
+                  <MdList fontSize="1.75em" color="#083072" onClick={context.openQueue} />
                 </div>
               </div>
               <div style={styles.container}>
@@ -423,7 +423,7 @@ class NowPlaying extends Component {
                 </div>
               </div>
               {height > 607 && (
-                <div style={styles.nextContainer}>
+                <div style={styles.nextContainer} onClick={context.openQueue}>
                   <Text style={styles.nextText}>Next Track</Text>
 
                   <Text style={styles.nextText}>{this.getNext(context)}</Text>

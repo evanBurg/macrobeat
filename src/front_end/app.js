@@ -28,6 +28,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
+import PlayingQueue from "./NowPlaying/PlayingQueue";
 
 //"./View Models/YouTubeSearch.json"
 
@@ -52,6 +53,14 @@ const styles = {
     WebkitBoxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px",
     MozBoxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px",
     boxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px"
+  },
+  nowPlayingClosed: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    width: "100%",
+    padding: "10px 10px 62px 10px"
   },
   nowPlayingText: { fontSize: "1em", fontWeight: "100" }
 };
@@ -112,7 +121,8 @@ class App extends Component {
       contextItems: [],
       collectionOpen: false,
       collectionItem: null,
-      collectionType: ""
+      collectionType: "",
+      queueOpen: false
     };
   }
 
@@ -350,12 +360,6 @@ class App extends Component {
     this.setState({ contextOpen: false, contextItems: [] });
 
   openCollection = (item, type) => {
-    //attach item to command
-
-    let items = [];
-
-    if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
-
     this.setState({
       contextOpen: false,
       collectionOpen: true,
@@ -366,6 +370,14 @@ class App extends Component {
 
   closeCollection = () =>
     this.setState({ collectionOpen: false, collectionItem: null });
+
+  openQueue = () => {
+    this.setState({ queueOpen: true });
+  };
+
+  closeQueue = () => {
+    this.setState({ queueOpen: false });
+  };
 
   render() {
     let {
@@ -381,21 +393,23 @@ class App extends Component {
       contextType,
       collectionOpen,
       collectionItem,
-      collectionType
+      collectionType,
+      queueOpen
     } = this.state;
 
+    const context = {
+      User,
+      Library,
+      Queue,
+      loading,
+      contextOpen,
+      openContextMenu: this.openContextMenu,
+      openCollection: this.openCollection,
+      openQueue: this.openQueue
+    };
+
     return (
-      <AppContext.Provider
-        value={{
-          User,
-          Library,
-          Queue,
-          loading,
-          contextOpen,
-          openContextMenu: this.openContextMenu,
-          openCollection: this.openCollection
-        }}
-      >
+      <AppContext.Provider value={context}>
         {!nowPlayingOpen && !collectionOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         )}
@@ -419,6 +433,10 @@ class App extends Component {
           selected={contextSelection}
           type={contextType}
         />
+
+        <AnimatePresence>
+          {queueOpen && <PlayingQueue key="queue" close={this.closeQueue} />}
+        </AnimatePresence>
 
         {!collectionOpen && (
           <React.Fragment>
@@ -445,14 +463,7 @@ class App extends Component {
                 <div
                   onClick={this.toggleNowPlaying}
                   key="closed"
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    width: "100%",
-                    padding: "10px 10px 62px 10px"
-                  }}
+                  style={styles.nowPlayingClosed}
                 >
                   <Header style={styles.nowPlayingText}>Now Playing</Header>
                   <IosArrowUp fontSize={"1em"} color={"black"} />
