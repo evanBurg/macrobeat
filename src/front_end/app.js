@@ -423,7 +423,6 @@ class App extends Component {
         {!collectionOpen && (
           <React.Fragment>
             <motion.div
-              onClick={!nowPlayingOpen ? this.toggleNowPlaying : undefined}
               style={{
                 ...styles.tabbar,
                 ...styles.nowPlaying
@@ -444,22 +443,19 @@ class App extends Component {
                 />
               ) : (
                 <div
+                  onClick={this.toggleNowPlaying}
                   key="closed"
                   style={{
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    width: '100%',
+                    width: "100%",
                     padding: "10px 10px 62px 10px"
                   }}
                 >
                   <Header style={styles.nowPlayingText}>Now Playing</Header>
-                  <IosArrowUp
-                    fontSize={"1em"}
-                    color={"black"}
-                    onClick={this.toggleNowPlaying}
-                  />
+                  <IosArrowUp fontSize={"1em"} color={"black"} />
                 </div>
               )}
             </motion.div>
