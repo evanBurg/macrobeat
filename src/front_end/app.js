@@ -41,17 +41,17 @@ const styles = {
     paddingBottom: 2.5,
     bottom: 0,
     left: 0,
-    right: 0,
-    WebkitBoxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)",
-    MozBoxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)",
-    boxShadow: "9px 10px 18px -14px rgba(0,0,0,0.75)"
+    right: 0
   },
   nowPlaying: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    height: "4.55em"
+    background: "#FFF",
+    WebkitBoxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px",
+    MozBoxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px",
+    boxShadow: "rgba(0, 0, 0, 0.3) 0px -11px 20px 0px"
   },
   nowPlayingText: { fontSize: "1em", fontWeight: "100" }
 };
@@ -136,7 +136,8 @@ class App extends Component {
     }, 2000);
   };
 
-  componentDidUpdate(prevProps, prevState) {Library
+  componentDidUpdate(prevProps, prevState) {
+    Library;
     if (prevState.contextOpen !== this.state.contextOpen) {
       if (this.state.contextOpen) {
         document.body.style.overflow = "hidden";
@@ -257,13 +258,18 @@ class App extends Component {
       {
         key: "artist",
         title: "Go to artist",
-        onClick: (item) => this.openCollection(this.state.Library.getArtist(item.Artist), 'artist'),
+        onClick: item =>
+          this.openCollection(
+            this.state.Library.getArtist(item.Artist),
+            "artist"
+          ),
         icon: MdMicrophone
       },
       {
         key: "album",
         title: "Go to album",
-        onClick: (item) => this.openCollection(this.state.Library.getAlbum(item.Album), 'album'),
+        onClick: item =>
+          this.openCollection(this.state.Library.getAlbum(item.Album), "album"),
         icon: MdDisc
       },
       {
@@ -289,7 +295,11 @@ class App extends Component {
       {
         key: "artist",
         title: "Go to artist",
-        onClick: (item) => this.openCollection(this.state.Library.getArtist(item.Artist), 'artist'),
+        onClick: item =>
+          this.openCollection(
+            this.state.Library.getArtist(item.Artist),
+            "artist"
+          ),
         icon: MdMicrophone
       },
       {
@@ -413,28 +423,44 @@ class App extends Component {
         {!collectionOpen && (
           <React.Fragment>
             <motion.div
+              onClick={!nowPlayingOpen ? this.toggleNowPlaying : undefined}
               style={{
                 ...styles.tabbar,
-                ...styles.nowPlaying,
-                padding: nowPlayingOpen ? 0 : 10,
-                zIndex: nowPlayingOpen ? 22 : 20
+                ...styles.nowPlaying
+              }}
+              key="nowPlayingContainer"
+              initial={{
+                zIndex: 20
               }}
               animate={{
-                height: nowPlayingOpen ? "100%" : "75px",
-                backgroundColor: nowPlayingOpen ? "#fff" : "#efefef"
+                top: nowPlayingOpen ? 0 : "unset",
+                zIndex: nowPlayingOpen ? 22 : 20
               }}
             >
               {nowPlayingOpen ? (
-                <NowPlaying toggleNowPlaying={this.toggleNowPlaying} />
+                <NowPlaying
+                  toggleNowPlaying={this.toggleNowPlaying}
+                  key="open"
+                />
               ) : (
-                <React.Fragment>
+                <div
+                  key="closed"
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    width: '100%',
+                    padding: "10px 10px 62px 10px"
+                  }}
+                >
                   <Header style={styles.nowPlayingText}>Now Playing</Header>
                   <IosArrowUp
                     fontSize={"1em"}
                     color={"black"}
                     onClick={this.toggleNowPlaying}
                   />
-                </React.Fragment>
+                </div>
               )}
             </motion.div>
             <div style={styles.tabbar}>
