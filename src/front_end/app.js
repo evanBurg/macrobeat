@@ -7,13 +7,13 @@ import IconButton from "./Components/IconButton";
 
 import Home from "./Home/Home";
 import NowPlaying from "./NowPlaying/NowPlaying";
-import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
 import Queue from "./View Models/Queue";
 import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
+import Search from "./Search/Search";
 
 import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
@@ -32,7 +32,7 @@ import PlayingQueue from "./NowPlaying/PlayingQueue";
 
 //"./View Models/YouTubeSearch.json"
 
-const Search = require("./View Models/YouTubeSearch.json");
+const Results = require("./View Models/YouTubeSearch.json");
 
 const styles = {
   tabbar: {
@@ -131,7 +131,7 @@ class App extends Component {
 
     //Replace with actual fetch
     setTimeout(() => {
-      const library = new Library(Search);
+      const library = new Library(Results);
       this.setState({
         Library: library,
         User: {
@@ -201,7 +201,7 @@ class App extends Component {
       case 4:
         return (
           <AnimateTabChange animating={this.setAnimating} key="search">
-            <Page heading="Search" />
+            <Search/>
           </AnimateTabChange>
         );
     }
