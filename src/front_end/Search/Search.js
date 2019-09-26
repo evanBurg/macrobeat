@@ -4,6 +4,44 @@ import { Box, SearchField } from "gestalt";
 import { Row, Page } from "../Components/Page";
 import { Text, Header } from "../Components/WrapperComponents";
 
+const styles = {
+  resultsContainer: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    width: "unset",
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: "3rem"
+  },
+  resultRow: {
+    width: "-webkit-fill-available",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingBottom: 20
+  },
+  resultImage: {
+    display: "inline-block",
+    height: "2rem",
+    minHeight: "2rem",
+    width: "2rem",
+    minWidth: "2rem",
+    borderRadius: 15,
+    padding: 10,
+    backgroundSize: "cover",
+    backgroundBlendMode: "multiply",
+    boxShadow: "0px 0px 27px -10px #000000"
+  },
+  resultInfo: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    paddingLeft: 10
+  }
+};
+
 class Search extends Component {
   constructor(props) {
     super(props);
@@ -20,40 +58,15 @@ class Search extends Component {
 
     return results.map((result, idx) => {
       return (
-        <div
-          style={{
-            width: "-webkit-fill-available",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingBottom: 20
-          }}
-        >
-          <div style={{display: 'flex'}}>
+        <div style={styles.resultRow}>
+          <div style={{ display: "flex" }}>
             <div
               style={{
-                display: "inline-block",
-                height: "2rem",
-                minHeight: "2rem",
-                width: "2rem",
-                minWidth: "2rem",
-                borderRadius: 15,
-                padding: 10,
-                backgroundSize: "cover",
-                backgroundBlendMode: "multiply",
-                boxShadow: "0px 0px 27px -10px #000000",
+                ...styles.resultImage,
                 background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image.url})`
               }}
             />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                paddingLeft: 10
-              }}
-            >
+            <div style={styles.resultInfo}>
               <Header
                 style={{
                   fontSize: "1em",
@@ -72,7 +85,10 @@ class Search extends Component {
             </div>
           </div>
 
-          <i style={{ paddingLeft: 10, paddingTop: 3 }} className="fab fa-youtube" />
+          <i
+            style={{ paddingLeft: 10, paddingTop: 3 }}
+            className={`fab fa-${result.Type.toLowerCase()}`}
+          />
         </div>
       );
     });
@@ -101,17 +117,7 @@ class Search extends Component {
                 />
               </Box>
             </Row>
-            <Row
-              style={{
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                width: "unset",
-                paddingLeft: 20,
-                paddingRight: 20,
-                paddingBottom: "3rem"
-              }}
-            >
+            <Row style={styles.resultsContainer}>
               {context.Library && this.getResults(context.Library.Songs)}
             </Row>
           </Page>
