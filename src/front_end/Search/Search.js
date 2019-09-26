@@ -22,41 +22,57 @@ class Search extends Component {
       return (
         <div
           style={{
+            width: "-webkit-fill-available",
             display: "flex",
             flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
+            paddingBottom: 20
           }}
         >
-          <div
-            style={{
-              display: "inline-block",
-              height: "3em",
-              minHeight: "3em",
-              width: "3em",
-              minWidth: "3em",
-              borderRadius: 15,
-              padding: 10,
-              backgroundSize: "cover",
-              backgroundBlendMode: "multiply",
-              boxShadow: "0px 0px 27px -10px #000000",
-              background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image.url})`
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              justifyContent: "flex-start"
-            }}
-          >
-            <Header>{result.name}</Header>
-            <Text>
-              Song • {result.Artist} • {result.Album}
-            </Text>
+          <div style={{display: 'flex'}}>
+            <div
+              style={{
+                display: "inline-block",
+                height: "2rem",
+                minHeight: "2rem",
+                width: "2rem",
+                minWidth: "2rem",
+                borderRadius: 15,
+                padding: 10,
+                backgroundSize: "cover",
+                backgroundBlendMode: "multiply",
+                boxShadow: "0px 0px 27px -10px #000000",
+                background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image.url})`
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                paddingLeft: 10
+              }}
+            >
+              <Header
+                style={{
+                  fontSize: "1em",
+                  fontWeight: "bold"
+                }}
+              >
+                {result.Name}
+              </Header>
+              <Text
+                style={{
+                  fontSize: "0.9em"
+                }}
+              >
+                Song • {result.Artist} • {result.Album}
+              </Text>
+            </div>
           </div>
-          <i className="fa fa-youtube" />
+
+          <i style={{ paddingLeft: 10, paddingTop: 3 }} className="fab fa-youtube" />
         </div>
       );
     });
@@ -86,7 +102,15 @@ class Search extends Component {
               </Box>
             </Row>
             <Row
-              style={{ flexDirection: "column", justifyContent: "flex-start" }}
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+                width: "unset",
+                paddingLeft: 20,
+                paddingRight: 20,
+                paddingBottom: "3rem"
+              }}
             >
               {context.Library && this.getResults(context.Library.Songs)}
             </Row>
