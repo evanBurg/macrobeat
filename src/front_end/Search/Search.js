@@ -52,9 +52,18 @@ class Search extends Component {
     };
   }
 
-  getResults = fakeResults => {
-    let { results } = this.state;
+  getResults = async fakeResults => {
+    let { results, search } = this.state;
     if (fakeResults) results = fakeResults;
+
+
+    if(!fakeResults){
+      let response = await fetch(`/search?query=${search}`);
+      if(response.ok){
+        results = await response.json();
+      }
+    }
+
 
     return results.map((result, idx) => {
       return (

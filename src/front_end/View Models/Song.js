@@ -1,11 +1,11 @@
 //Type: YouTube
 const YouTubeAdapter = song => ({
-  ID: song.id.videoId,
-  Artist: song.snippet.channelTitle,
+  ID: song.videoId,
+  Artist: song.author.name,
   Album: "Unknown",
 
-  Name: song.snippet.title,
-  Image: song.snippet.thumbnails.high,
+  Name: song.title,
+  Image: song.thumbnail,
   Type: "YouTube"
 });
 
