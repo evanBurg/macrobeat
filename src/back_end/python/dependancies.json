@@ -3,6 +3,7 @@
         "pip3 install --user mps-youtube",
         "pip3 install --user youtube-dl",
         "pip3 install --user youtube-dl --upgrade",
-        "dl mpv on windows https://github.com/mps-youtube/mps-youtube#additional-windows-installation-notes"
+        "pip3 install pafy" //for youtube
+        //"dl mpv on windows https://github.com/mps-youtube/mps-youtube#additional-windows-installation-notes"
     ]
 }
