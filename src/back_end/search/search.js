@@ -1,13 +1,10 @@
 const ytSearch = require("../../dist/yt-search.min.js");
 
-const search = async (query, source) => {
+const search = async (query) => {
   let songs = [];
 
-  switch (source) {
-    case "YouTube":
-      songs = await YouTubeSearchWrapper(query);
-      break;
-  }
+  //TODO: Check if logged in to services before searching
+  if(true) songs = [...songs, YouTubeSearchWrapper(query)];
 
   return songs;
 };
