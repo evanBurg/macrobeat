@@ -37,7 +37,11 @@
     "react-ionicons": "^3.0.1",
     "react-loaders": "^3.0.1",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0"
+    "socket.io-client": "^2.2.0",
+    "async.parallel": "~0.5.2",
+    "cheerio": "~0.22.0",
+    "dasu": "0.0.23",
+    "minimist": "~1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
