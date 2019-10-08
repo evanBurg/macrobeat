@@ -55,7 +55,7 @@ const styles = {
 const Item = props => {
   let style = JSON.parse(JSON.stringify(styles.item));
   style.background = `rgba(0, 0, 0, 0.45) center no-repeat url(${
-    props.type === "song" ? props.item.Image.url : props.item.Image
+    props.type === "song" ? props.item.Image : props.item.Image
   }`;
 
   if (props.wide) {

@@ -120,7 +120,7 @@ const Song = props => {
         >
           <div
             style={{
-              background: `url(${props.song.Image.url}) center no-repeat`,
+              background: `url(${props.song.Image}) center no-repeat`,
               ...styles.songImage
             }}
           />

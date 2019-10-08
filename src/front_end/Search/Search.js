@@ -3,6 +3,7 @@ import { AppContext } from "../app";
 import { Box, SearchField } from "gestalt";
 import { Row, Page } from "../Components/Page";
 import { Text, Header } from "../Components/WrapperComponents";
+import Song from "../View Models/Song";
 
 const styles = {
   resultsContainer: {
@@ -48,58 +49,61 @@ class Search extends Component {
 
     this.state = {
       results: [],
+      resultItems: [],
       search: ""
     };
   }
 
-  getResults = async fakeResults => {
+  getResults = async context => {
     let { results, search } = this.state;
-    if (fakeResults) results = fakeResults;
 
+    if (!search) return <React.Fragment />;
 
-    if(!fakeResults){
-      let response = await fetch(`/search?query=${search}`);
-      if(response.ok){
-        results = await response.json();
-      }
-    }
-
-
-    return results.map((result, idx) => {
-      return (
-        <div style={styles.resultRow}>
-          <div style={{ display: "flex" }}>
-            <div
-              style={{
-                ...styles.resultImage,
-                background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image.url})`
-              }}
-            />
-            <div style={styles.resultInfo}>
-              <Header
-                style={{
-                  fontSize: "1em",
-                  fontWeight: "bold"
-                }}
-              >
-                {result.Name}
-              </Header>
-              <Text
-                style={{
-                  fontSize: "0.9em"
-                }}
-              >
-                Song • {result.Artist} • {result.Album}
-              </Text>
-            </div>
-          </div>
-
-          <i
-            style={{ paddingLeft: 10, paddingTop: 3 }}
-            className={`fab fa-${result.Type.toLowerCase()}`}
-          />
-        </div>
+    let response = await fetch(`/api/search?query=${search}`);
+    if (response.ok) {
+      results = (await response.json()).map(
+        song => new Song(song, "YouTube")
       );
+    };
+
+    this.setState({
+      results,
+      resultItems: results.map((result, idx) => {
+        return (
+          <div style={styles.resultRow} onClick={() => context.openContextMenu(result, "song")}>
+            <div style={{ display: "flex" }}>
+              <div
+                style={{
+                  ...styles.resultImage,
+                  background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image})`
+                }}
+              />
+              <div style={styles.resultInfo}>
+                <Header
+                  style={{
+                    fontSize: "1em",
+                    fontWeight: "bold"
+                  }}
+                >
+                  {result.Name}
+                </Header>
+                <Text
+                  style={{
+                    fontSize: "0.9em"
+                  }}
+                >
+                  Song • {result.Artist} • {result.Album}
+                </Text>
+              </div>
+            </div>
+
+            <i
+              style={{ paddingLeft: 10, paddingTop: 3 }}
+              className={`fab fa-${result.Type.toLowerCase()}`}
+            />
+          </div>
+        );
+      })
     });
   };
 
@@ -119,16 +123,16 @@ class Search extends Component {
                 <SearchField
                   accessibilityLabel="Search services"
                   id="searchField"
-                  onChange={({ value }) => this.setState({ search: value })}
+                  onChange={({ value }) =>
+                    this.setState({ search: value }, () => this.getResults(context))
+                  }
                   placeholder="Search services..."
                   value={this.state.search}
                   style={{ width: "100%" }}
                 />
               </Box>
             </Row>
-            <Row style={styles.resultsContainer}>
-              {context.Library && this.getResults(context.Library.Songs)}
-            </Row>
+            <Row style={styles.resultsContainer}>{this.state.resultItems}</Row>
           </Page>
         )}
       </AppContext.Consumer>

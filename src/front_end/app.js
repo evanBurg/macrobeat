@@ -32,7 +32,7 @@ import PlayingQueue from "./NowPlaying/PlayingQueue";
 
 //"./View Models/YouTubeSearch.json"
 
-const Results = require("./View Models/YouTubeSearch.json");
+//const Results = require("./View Models/YouTubeSearch.json");
 
 const styles = {
   tabbar: {
@@ -131,7 +131,7 @@ class App extends Component {
 
     //Replace with actual fetch
     setTimeout(() => {
-      const library = new Library(Results);
+      const library = new Library([], []);
       this.setState({
         Library: library,
         User: {

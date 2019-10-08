@@ -15,8 +15,7 @@
     // used to escape query strings
     var _querystring = require('querystring');
     
-    var YT_SEARCH_QUERY_URI = 'https://www.youtube.com/results?' + 'hl=en&gl=US&category=music' + '&sp=EgIQAQ%253D%253D' + '&search_query=';
-    
+    var YT_SEARCH_QUERY_URI = `https://www.youtube.com/results?hl=en&gl=US&category=music&search_query=`
     var ONE_SECOND = 1000;
     var ONE_MINUTE = ONE_SECOND * 60;
     var TIME_TO_LIVE = ONE_MINUTE * 5;
@@ -99,7 +98,7 @@
     
     function findVideos(uri, page, callback) {
       uri += '&page=' + page;
-    
+      
       var params = _url.parse(uri);
     
       _dasu.req(params, function (err, res, body) {
