@@ -2,3 +2,4 @@ public/js
 public/css
 node_modules/
 src/back_end/cached_files/youtube/
+src/back_end/python/__pycache__/
