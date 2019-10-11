@@ -29,6 +29,7 @@ import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
 import PlayingQueue from "./NowPlaying/PlayingQueue";
+import ScrollToTop from "./Components/ScrollToTop";
 
 //"./View Models/YouTubeSearch.json"
 
@@ -122,7 +123,8 @@ class App extends Component {
       collectionOpen: false,
       collectionItem: null,
       collectionType: "",
-      queueOpen: false
+      queueOpen: false,
+      showScrollToTop: false
     };
   }
 
@@ -157,8 +159,25 @@ class App extends Component {
     }
   }
 
+  htmlNode = null;
+
   componentDidMount() {
     this.getData();
+    this.htmlNode = document.querySelectorAll("html")[0];
+    this.htmlNode.addEventListener('wheel', this.scrollEvent, { capture: false, passive: true})
+  }
+
+  scrollEvent = e => {
+    if(this.htmlNode.scrollTop > 50){
+      this.setState({showScrollToTop: true});
+    }else{
+      this.setState({showScrollToTop: false});
+    }
+  }
+
+  scrollToTop = () => {
+    this.setState({showScrollToTop: false});
+    this.htmlNode.scrollTo(0, 0);
   }
 
   setTab = tab => this.setState({ tab });
@@ -485,6 +504,9 @@ class App extends Component {
                 />
               </motion.div>
             </div>
+            <AnimatePresence>
+              {this.state.showScrollToTop && <ScrollToTop key={"scroller"} onClick={this.scrollToTop}/>}
+            </AnimatePresence>
           </React.Fragment>
         )}
       </AppContext.Provider>

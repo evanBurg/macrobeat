@@ -4,6 +4,7 @@ import { Box, SearchField } from "gestalt";
 import { Row, Page } from "../Components/Page";
 import { Text, Header } from "../Components/WrapperComponents";
 import Song from "../View Models/Song";
+import Empty from "../Components/Empty";
 
 const styles = {
   resultsContainer: {
@@ -132,7 +133,14 @@ class Search extends Component {
                 />
               </Box>
             </Row>
-            <Row style={styles.resultsContainer}>{this.state.resultItems}</Row>
+            {this.state.resultItems.length > 0 && !!this.state.search ? (
+              <Row style={styles.resultsContainer}>{this.state.resultItems}</Row>
+            ) : (
+              <div style={{display: 'flex', justifyContent: 'center'}}>
+                <Empty/>
+              </div>
+            )}
+
           </Page>
         )}
       </AppContext.Consumer>

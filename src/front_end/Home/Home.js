@@ -4,6 +4,7 @@ import SongGroup from "../Components/SongGroup";
 import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import ItemGroup from "../Components/ItemGroup";
+import Empty from "../Components/Empty";
 
 class Home extends Component {
   constructor(props) {
@@ -58,14 +59,26 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Artists</Heading>
-              <ItemGroup type="artist" items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
+              {context.Library && context.Library.Artists && context.Library.Artists.length > 0 ? (
+                <ItemGroup type="artist" items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
+              ) : (
+                <Empty loading={context.loading} />
+              )}
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Albums</Heading>
-              <ItemGroup type="album" wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
+              {context.Library && context.Library.Albums && context.Library.Albums.length > 0 ? (
+                <ItemGroup type="album" wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
+              ) : (
+                <Empty loading={context.loading} /> 
+              )}
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
-              <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+              {context.Library && context.Library.Songs && context.Library.Songs.length > 0 ? (
+                <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+              ) : (
+                <Empty loading={context.loading} />
+              )}
             </Row>
           </Page>
         )}
