@@ -7,7 +7,7 @@ class Library {
     this._Artists = {};
     this._Albums = {};
     this._History = History || [];
-    this._Songs = Results.items.map(song => new Song(song, Results.source));
+    this._Songs = Results.map(song => new Song(song, Results.source));
 
     this._Songs.forEach(song => {
       let artistExists = false;

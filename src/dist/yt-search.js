@@ -15,8 +15,7 @@
     // used to escape query strings
     var _querystring = require('querystring');
     
-    var YT_SEARCH_QUERY_URI = 'https://www.youtube.com/results?' + 'hl=en&gl=US&category=music' + '&search_query=';
-    
+    var YT_SEARCH_QUERY_URI = `https://www.youtube.com/results?hl=en&gl=US&category=music&search_query=`
     var ONE_SECOND = 1000;
     var ONE_MINUTE = ONE_SECOND * 60;
     var TIME_TO_LIVE = ONE_MINUTE * 5;
@@ -99,13 +98,15 @@
     
     function findVideos(uri, page, callback) {
       uri += '&page=' + page;
-    
+      
       var params = _url.parse(uri);
     
       _dasu.req(params, function (err, res, body) {
         if (err) {
           callback(err);
         } else {
+          
+
           parseResponse(body, callback);
         }
       });
@@ -145,7 +146,10 @@
         var href = a.attr('href') || '';
     
         var videoId = href.split('=')[1];
-    
+        var image = $('img', content.previousSibling.firstChild);
+        var imageURL = image.attr('src');
+        if(imageURL === "/yts/img/pixel-vfl3z5WfW.gif") imageURL = image.attr("data-thumb")
+
         var metaInfo = $('.yt-lockup-meta-info', content);
         var metaInfoList = $('li', metaInfo);
         // console.log(metaInfoList)
@@ -165,6 +169,7 @@
           title: a.text(),
           url: href,
           videoId: videoId,
+          thumbnail: imageURL,
           seconds: Number(duration.seconds),
           timestamp: duration.timestamp,
           duration: duration,

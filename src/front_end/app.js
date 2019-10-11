@@ -7,13 +7,13 @@ import IconButton from "./Components/IconButton";
 
 import Home from "./Home/Home";
 import NowPlaying from "./NowPlaying/NowPlaying";
-import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
 import Queue from "./View Models/Queue";
 import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
+import Search from "./Search/Search";
 
 import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
@@ -29,10 +29,11 @@ import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
 import PlayingQueue from "./NowPlaying/PlayingQueue";
+import ScrollToTop from "./Components/ScrollToTop";
 
 //"./View Models/YouTubeSearch.json"
 
-const Search = require("./View Models/YouTubeSearch.json");
+//const Results = require("./View Models/YouTubeSearch.json");
 
 const styles = {
   tabbar: {
@@ -122,7 +123,8 @@ class App extends Component {
       collectionOpen: false,
       collectionItem: null,
       collectionType: "",
-      queueOpen: false
+      queueOpen: false,
+      showScrollToTop: false
     };
   }
 
@@ -131,7 +133,7 @@ class App extends Component {
 
     //Replace with actual fetch
     setTimeout(() => {
-      const library = new Library(Search);
+      const library = new Library([], []);
       this.setState({
         Library: library,
         User: {
@@ -157,8 +159,25 @@ class App extends Component {
     }
   }
 
+  htmlNode = null;
+
   componentDidMount() {
     this.getData();
+    this.htmlNode = document.querySelectorAll("html")[0];
+    this.htmlNode.addEventListener('wheel', this.scrollEvent, { capture: false, passive: true})
+  }
+
+  scrollEvent = e => {
+    if(this.htmlNode.scrollTop > 50){
+      this.setState({showScrollToTop: true});
+    }else{
+      this.setState({showScrollToTop: false});
+    }
+  }
+
+  scrollToTop = () => {
+    this.setState({showScrollToTop: false});
+    this.htmlNode.scrollTo(0, 0);
   }
 
   setTab = tab => this.setState({ tab });
@@ -201,7 +220,7 @@ class App extends Component {
       case 4:
         return (
           <AnimateTabChange animating={this.setAnimating} key="search">
-            <Page heading="Search" />
+            <Search/>
           </AnimateTabChange>
         );
     }
@@ -485,6 +504,9 @@ class App extends Component {
                 />
               </motion.div>
             </div>
+            <AnimatePresence>
+              {this.state.showScrollToTop && <ScrollToTop key={"scroller"} onClick={this.scrollToTop}/>}
+            </AnimatePresence>
           </React.Fragment>
         )}
       </AppContext.Provider>

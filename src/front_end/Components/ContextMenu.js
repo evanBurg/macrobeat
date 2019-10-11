@@ -141,7 +141,7 @@ const Preview = props => {
   let subTitleKey = "Artist";
 
   if (props.type === "song") {
-    img = props.item.Image.url;
+    img = props.item.Image;
   } else {
     img = props.item.Image;
   }

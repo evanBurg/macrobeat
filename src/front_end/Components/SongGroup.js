@@ -30,9 +30,7 @@ export default props => {
                 alt="collage image"
                 color={"#eee"}
                 fit="cover"
-                naturalHeight={image.height}
-                naturalWidth={image.width}
-                src={image.url}
+                src={image}
               >
                 {index == 0 && (
                   <h4

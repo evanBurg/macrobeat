@@ -4,6 +4,7 @@ import { Page, Row } from "../Components/Page";
 import { AppContext } from "../app";
 import { StandaloneItem } from "../Components/ItemGroup";
 import Loader from "react-loaders";
+import Empty from "../Components/Empty";
 const TallItem = props => <StandaloneItem {...props} type="artist" tall skinny />;
 
 const styles = {
@@ -29,6 +30,23 @@ class Artists extends Component {
     this.state = {
       search: ""
     };
+  }
+
+  getBody = context => {
+    if(context.Library.Artists && context.Library.Artists.length > 0){
+      return <Masonry
+                flexible
+                comp={TallItem}
+                items={Object.keys(context.Library.Artists).map(
+                  artistName => {
+                    return context.Library.Artists[artistName];
+                  }
+                )}
+                minCols={2}
+              />
+    }else{
+      return <Empty/>
+    }
   }
 
   render() {
@@ -60,16 +78,7 @@ class Artists extends Component {
                   <Loader type="ball-scale" color="black" />
                 </div>
               ) : (
-                <Masonry
-                  flexible
-                  comp={TallItem}
-                  items={Object.keys(context.Library.Artists).map(
-                    artistName => {
-                      return context.Library.Artists[artistName];
-                    }
-                  )}
-                  minCols={2}
-                />
+                this.getBody(context)
               )}
             </Row>
           </Page>
