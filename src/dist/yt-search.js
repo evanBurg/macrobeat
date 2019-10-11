@@ -95,7 +95,7 @@
         });
       }
     }
-    
+
     function findVideos(uri, page, callback) {
       uri += '&page=' + page;
       
@@ -105,7 +105,9 @@
         if (err) {
           callback(err);
         } else {
-          
+          if(res.statusCode >= 300 && res.statusCode <= 399){
+            //Follow redirect
+          }
 
           parseResponse(body, callback);
         }

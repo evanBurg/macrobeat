@@ -4,6 +4,7 @@ import "gestalt/dist/gestalt.css";
 import "loaders.css//loaders.css";
 import { SegmentedControl, Text } from "gestalt";
 import IconButton from "./Components/IconButton";
+import io from "socket.io-client";
 
 import Home from "./Home/Home";
 import NowPlaying from "./NowPlaying/NowPlaying";
@@ -124,7 +125,9 @@ class App extends Component {
       collectionItem: null,
       collectionType: "",
       queueOpen: false,
-      showScrollToTop: false
+      showScrollToTop: false,
+      playing: false,
+      socket: io()
     };
   }
 
@@ -164,21 +167,26 @@ class App extends Component {
   componentDidMount() {
     this.getData();
     this.htmlNode = document.querySelectorAll("html")[0];
-    this.htmlNode.addEventListener('wheel', this.scrollEvent, { capture: false, passive: true})
+    this.htmlNode.addEventListener("wheel", this.scrollEvent, {
+      capture: false,
+      passive: true
+    });
+
+    this.state.socket.on("update", this.update);
   }
 
   scrollEvent = e => {
-    if(this.htmlNode.scrollTop > 50){
-      this.setState({showScrollToTop: true});
-    }else{
-      this.setState({showScrollToTop: false});
+    if (this.htmlNode.scrollTop > 50) {
+      this.setState({ showScrollToTop: true });
+    } else {
+      this.setState({ showScrollToTop: false });
     }
-  }
+  };
 
   scrollToTop = () => {
-    this.setState({showScrollToTop: false});
+    this.setState({ showScrollToTop: false });
     this.htmlNode.scrollTo(0, 0);
-  }
+  };
 
   setTab = tab => this.setState({ tab });
 
@@ -186,6 +194,13 @@ class App extends Component {
     document.body.style.overflow = "hidden";
 
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
+  };
+
+  update = ({ queue, currentSong, playing }) => {
+    this.setState({
+      Queue: new Queue(queue, currentSong, this.state.socket),
+      playing: playing
+    });
   };
 
   toggleNowPlaying = () =>
@@ -220,7 +235,7 @@ class App extends Component {
       case 4:
         return (
           <AnimateTabChange animating={this.setAnimating} key="search">
-            <Search/>
+            <Search />
           </AnimateTabChange>
         );
     }
@@ -264,100 +279,118 @@ class App extends Component {
     />
   ];
 
-  contextItems = {
-    song: [
-      {
-        key: "next",
-        title: "Play next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "library",
-        title: "Add song to library",
-        onClick: () => console.log("Library"),
-        icon: IosAddCircleOutline
-      },
-      {
-        key: "artist",
-        title: "Go to artist",
-        onClick: item =>
-          this.openCollection(
-            this.state.Library.getArtist(item.Artist),
-            "artist"
-          ),
-        icon: MdMicrophone
-      },
-      {
-        key: "album",
-        title: "Go to album",
-        onClick: item =>
-          this.openCollection(this.state.Library.getAlbum(item.Album), "album"),
-        icon: MdDisc
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ],
-    album: [
-      {
-        key: "next",
-        title: "Play album next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add all songs to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "artist",
-        title: "Go to artist",
-        onClick: item =>
-          this.openCollection(
-            this.state.Library.getArtist(item.Artist),
-            "artist"
-          ),
-        icon: MdMicrophone
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ],
-    artist: [
-      {
-        key: "next",
-        title: "Play all artist's songs next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add all artist's songs to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ]
+  contextItems = type => {
+    type = type.toLowerCase();
+    switch (type) {
+      case "song":
+        return [
+          {
+            key: "next",
+            title: "Play next",
+            onClick: () =>
+              this.state.Queue.PlayNext(this.state.contextSelection),
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add to queue",
+            onClick: () =>
+              this.state.Queue.AddToQueue(this.state.contextSelection),
+            icon: IosList
+          },
+          {
+            key: "library",
+            title: "Add song to library",
+            onClick: () =>
+              this.state.Queue.AddToLibrary(this.state.contextSelection),
+            icon: IosAddCircleOutline
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item =>
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              ),
+            icon: MdMicrophone
+          },
+          {
+            key: "album",
+            title: "Go to album",
+            onClick: item =>
+              this.openCollection(
+                this.state.Library.getAlbum(item.Album),
+                "album"
+              ),
+            icon: MdDisc
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => console.log("Share"),
+            icon: MdShareAlt
+          }
+        ];
+      case "album":
+        return [
+          {
+            key: "next",
+            title: "Play album next",
+            onClick: () =>
+              this.state.Queue.PlayNext(this.state.contextSelection),
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add all songs to queue",
+            onClick: () =>
+              this.state.Queue.AddToQueue(this.state.contextSelection),
+            icon: IosList
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item =>
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              ),
+            icon: MdMicrophone
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => console.log("Share"),
+            icon: MdShareAlt
+          }
+        ];
+      case "artist":
+        return [
+          {
+            key: "next",
+            title: "Play all artist's songs next",
+            onClick: () =>
+              this.state.Queue.PlayNext(this.state.contextSelection),
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add all artist's songs to queue",
+            onClick: () =>
+              this.state.Queue.AddToQueue(this.state.contextSelection),
+            icon: IosList
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => console.log("Share"),
+            icon: MdShareAlt
+          }
+        ];
+      default:
+        return [];
+    }
   };
 
   openContextMenu = (item, type) => {
@@ -365,7 +398,9 @@ class App extends Component {
 
     let items = [];
 
-    if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
+    items = this.contextItems(type);
+
+    items.map(item => {});
 
     this.setState({
       contextOpen: true,
@@ -505,7 +540,9 @@ class App extends Component {
               </motion.div>
             </div>
             <AnimatePresence>
-              {this.state.showScrollToTop && <ScrollToTop key={"scroller"} onClick={this.scrollToTop}/>}
+              {this.state.showScrollToTop && (
+                <ScrollToTop key={"scroller"} onClick={this.scrollToTop} />
+              )}
             </AnimatePresence>
           </React.Fragment>
         )}
