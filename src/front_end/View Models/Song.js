@@ -56,6 +56,17 @@ class Song {
   get Type(){
       return this._Type;
   }
+
+  toJSON(){
+    return {
+      ID: this._ID,
+      Artist: this._Artist,
+      Album: this._Album,
+      Name: this._Name,
+      Image: this._Image,
+      Type: this._Type,
+    }
+  }
 }
 
 export default Song;

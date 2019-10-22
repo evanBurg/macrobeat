@@ -1,7 +1,8 @@
 class Queue {
-  constructor(SongArray, CurrentlyPlayingIndex) {
+  constructor(SongArray, CurrentlyPlayingIndex, Socket) {
     this._Queue = SongArray;
     this._ActiveIndex = CurrentlyPlayingIndex;
+    this._Socket = Socket;
   }
 
   get LastSong() {
@@ -31,20 +32,36 @@ class Queue {
 
   SkipTrack() {
     if (this._ActiveIndex + 1 <= this._Queue.length) {
-      console.log("Skip Forward")
+      this._Socket.emit("nextTrack", this.NextSong().toJSON());
     }
   }
 
   LastTrack() {
     if (this._ActiveIndex - 1 >= 0) {
-      console.log("Skip Backward")
+      this._Socket.emit("prevTrack", this.LastSong().toJSON());
     }
   }
 
-  set SetTrack(index){
+  set SetTrack(index) {
     if (index >= 0 && index <= this._Queue.length) {
-      console.log("Set Track ", index);
-      }
+      this._Socket.emit("play", this._Queue[index].toJSON());
+    }
+  }
+
+  PlayPause(){
+    this._Socket.emit("playpause");
+  }
+
+  AddToQueue(Song){
+    this._Socket.emit("queue", Song.toJSON());
+  }
+
+  PlayNext(Song){
+    this._Socket.emit("playNext", Song.toJSON());
+  }
+
+  AddToLibrary(Song){
+    this._Socket.emit("addToLibrary", Song.toJSON());
   }
 }
 

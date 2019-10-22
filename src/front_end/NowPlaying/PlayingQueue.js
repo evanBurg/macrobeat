@@ -23,7 +23,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     backgroundColor: "#fff",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
     position: "fixed",
     bottom: 0,
