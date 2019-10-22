@@ -53,9 +53,9 @@ io.on("connection", async socket => {
 
   //Someone pressed "Add to Queue"
   socket.on('queue', song => {
-    if(song.Type && data.ID){
+    if(song.Type && song.ID){
 
-      queue.push(data);
+      queue.push(song);
 
     }else{
       socket.emit('queueError');
@@ -66,9 +66,9 @@ io.on("connection", async socket => {
 
   //Someone pressed "Play Next"
   socket.on('playNext', song => {
-    if(song.Type && data.ID){
+    if(song.Type && song.ID){
 
-      queue.splice(currentSong, 0, data);
+      queue.splice(currentSong + 1, 0, song);
 
     }else{
       socket.emit('playNextError');
@@ -79,7 +79,7 @@ io.on("connection", async socket => {
 
   //Someone chose a song in the existing "Queue"
   socket.on('play', song => {
-    if(song.Type && data.ID){
+    if(song.Type && song.ID){
 
       //TODO: Call python to play the song
 
@@ -137,7 +137,7 @@ io.on("connection", async socket => {
   })
 
   socket.on('addToLibrary', song => {
-    if(song.Type && data.ID){
+    if(song.Type && song.ID){
 
       //Add to users mongo library
 

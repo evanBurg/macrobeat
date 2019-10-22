@@ -32,19 +32,19 @@ class Queue {
 
   SkipTrack() {
     if (this._ActiveIndex + 1 <= this._Queue.length) {
-      this._Socket.emit("nextTrack", this.NextSong());
+      this._Socket.emit("nextTrack", this.NextSong().toJSON());
     }
   }
 
   LastTrack() {
     if (this._ActiveIndex - 1 >= 0) {
-      this._Socket.emit("prevTrack", this.LastSong());
+      this._Socket.emit("prevTrack", this.LastSong().toJSON());
     }
   }
 
   set SetTrack(index) {
     if (index >= 0 && index <= this._Queue.length) {
-      this._Socket.emit("play", this._Queue[index]);
+      this._Socket.emit("play", this._Queue[index].toJSON());
     }
   }
 
@@ -53,15 +53,15 @@ class Queue {
   }
 
   AddToQueue(Song){
-    this._Socket.emit("queue", Song);
+    this._Socket.emit("queue", Song.toJSON());
   }
 
   PlayNext(Song){
-    this._Socket.emit("playNext", Song);
+    this._Socket.emit("playNext", Song.toJSON());
   }
 
   AddToLibrary(Song){
-    this._Socket.emit("addToLibrary", Song);
+    this._Socket.emit("addToLibrary", Song.toJSON());
   }
 }
 
