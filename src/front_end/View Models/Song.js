@@ -1,11 +1,11 @@
 //Type: YouTube
 const YouTubeAdapter = song => ({
-  ID: song.id.videoId,
-  Artist: song.snippet.channelTitle,
+  ID: song.videoId,
+  Artist: song.author.name,
   Album: "Unknown",
 
-  Name: song.snippet.title,
-  Image: song.snippet.thumbnails.high,
+  Name: song.title,
+  Image: song.thumbnail,
   Type: "YouTube"
 });
 
@@ -55,6 +55,17 @@ class Song {
 
   get Type(){
       return this._Type;
+  }
+
+  toJSON(){
+    return {
+      ID: this._ID,
+      Artist: this._Artist,
+      Album: this._Album,
+      Name: this._Name,
+      Image: this._Image,
+      Type: this._Type,
+    }
   }
 }
 

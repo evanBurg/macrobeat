@@ -292,7 +292,7 @@ class NowPlaying extends Component {
       return "";
     }
 
-    return context.Queue.CurrentSong.Image.url;
+    return context.Queue.CurrentSong.Image;
   };
 
   getTitle = context => {

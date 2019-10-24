@@ -6,8 +6,8 @@ router.get("/ping", (req, res) => {
     res.send("pong");
 })
 
-router.get("/yt-search", async (req, res) => {
-    res.send(await search(req.query.query, "YouTube"));
+router.get("/search", async (req, res) => {
+    res.send(await search(req.query.query));
 })
 
 module.exports = router;

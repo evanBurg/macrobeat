@@ -4,16 +4,17 @@ import "gestalt/dist/gestalt.css";
 import "loaders.css//loaders.css";
 import { SegmentedControl, Text } from "gestalt";
 import IconButton from "./Components/IconButton";
+import io from "socket.io-client";
 
 import Home from "./Home/Home";
 import NowPlaying from "./NowPlaying/NowPlaying";
-import Page from "./Components/Page";
 
 import Library from "./View Models/Library";
 import Queue from "./View Models/Queue";
 import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
+import Search from "./Search/Search";
 
 import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
@@ -29,10 +30,11 @@ import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
 import PlayingQueue from "./NowPlaying/PlayingQueue";
+import ScrollToTop from "./Components/ScrollToTop";
 
 //"./View Models/YouTubeSearch.json"
 
-const Search = require("./View Models/YouTubeSearch.json");
+//const Results = require("./View Models/YouTubeSearch.json");
 
 const styles = {
   tabbar: {
@@ -122,7 +124,10 @@ class App extends Component {
       collectionOpen: false,
       collectionItem: null,
       collectionType: "",
-      queueOpen: false
+      queueOpen: false,
+      showScrollToTop: false,
+      playing: false,
+      socket: io()
     };
   }
 
@@ -131,7 +136,7 @@ class App extends Component {
 
     //Replace with actual fetch
     setTimeout(() => {
-      const library = new Library(Search);
+      const library = new Library([], []);
       this.setState({
         Library: library,
         User: {
@@ -139,7 +144,7 @@ class App extends Component {
           user: "Burgy",
           img: "https://i.imgur.com/nKuE1ep.jpg"
         },
-        Queue: new Queue(library.Songs, 0)
+        Queue: new Queue(library.Songs, 0, this.state.socket)
       });
 
       this.setState({ loading: false });
@@ -157,9 +162,31 @@ class App extends Component {
     }
   }
 
+  htmlNode = null;
+
   componentDidMount() {
     this.getData();
+    this.htmlNode = document.querySelectorAll("html")[0];
+    this.htmlNode.addEventListener("wheel", this.scrollEvent, {
+      capture: false,
+      passive: true
+    });
+
+    this.state.socket.on("update", this.update);
   }
+
+  scrollEvent = e => {
+    if (this.htmlNode.scrollTop > 50) {
+      this.setState({ showScrollToTop: true });
+    } else {
+      this.setState({ showScrollToTop: false });
+    }
+  };
+
+  scrollToTop = () => {
+    this.setState({ showScrollToTop: false });
+    this.htmlNode.scrollTo(0, 0);
+  };
 
   setTab = tab => this.setState({ tab });
 
@@ -167,6 +194,13 @@ class App extends Component {
     document.body.style.overflow = "hidden";
 
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
+  };
+
+  update = ({ queue, currentSong, playing }) => {
+    this.setState({
+      Queue: new Queue(queue, currentSong, this.state.socket),
+      playing: playing
+    });
   };
 
   toggleNowPlaying = () =>
@@ -201,7 +235,7 @@ class App extends Component {
       case 4:
         return (
           <AnimateTabChange animating={this.setAnimating} key="search">
-            <Page heading="Search" />
+            <Search />
           </AnimateTabChange>
         );
     }
@@ -245,100 +279,114 @@ class App extends Component {
     />
   ];
 
-  contextItems = {
-    song: [
-      {
-        key: "next",
-        title: "Play next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "library",
-        title: "Add song to library",
-        onClick: () => console.log("Library"),
-        icon: IosAddCircleOutline
-      },
-      {
-        key: "artist",
-        title: "Go to artist",
-        onClick: item =>
-          this.openCollection(
-            this.state.Library.getArtist(item.Artist),
-            "artist"
-          ),
-        icon: MdMicrophone
-      },
-      {
-        key: "album",
-        title: "Go to album",
-        onClick: item =>
-          this.openCollection(this.state.Library.getAlbum(item.Album), "album"),
-        icon: MdDisc
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ],
-    album: [
-      {
-        key: "next",
-        title: "Play album next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add all songs to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "artist",
-        title: "Go to artist",
-        onClick: item =>
-          this.openCollection(
-            this.state.Library.getArtist(item.Artist),
-            "artist"
-          ),
-        icon: MdMicrophone
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ],
-    artist: [
-      {
-        key: "next",
-        title: "Play all artist's songs next",
-        onClick: () => console.log("Next"),
-        icon: MdMusicalNote
-      },
-      {
-        key: "queue",
-        title: "Add all artist's songs to queue",
-        onClick: () => console.log("Queue"),
-        icon: IosList
-      },
-      {
-        key: "share",
-        title: "Share",
-        onClick: () => console.log("Share"),
-        icon: MdShareAlt
-      }
-    ]
+  contextItems = type => {
+    type = type.toLowerCase();
+    switch (type) {
+      case "song":
+        return [
+          {
+            key: "next",
+            title: "Play next",
+            onClick: () => { this.state.Queue.PlayNext(this.state.contextSelection); this.closeContextMenu(); },
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add to queue",
+            onClick: () => { this.state.Queue.AddToQueue(this.state.contextSelection); this.closeContextMenu(); },
+            icon: IosList
+          },
+          {
+            key: "library",
+            title: "Add song to library",
+            onClick: () => { this.state.Queue.AddToLibrary(this.state.contextSelection); this.closeContextMenu(); },
+            icon: IosAddCircleOutline
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              ); this.closeContextMenu();
+            },
+            icon: MdMicrophone
+          },
+          {
+            key: "album",
+            title: "Go to album",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getAlbum(item.Album),
+                "album"
+              ); this.closeContextMenu();
+            },
+            icon: MdDisc
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => { console.log("Share"); this.closeContextMenu(); },
+            icon: MdShareAlt
+          }
+        ];
+      case "album":
+        return [
+          {
+            key: "next",
+            title: "Play album next",
+            onClick: () => { this.state.Queue.PlayNext(this.state.contextSelection); this.closeContextMenu(); },
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add all songs to queue",
+            onClick: () => { this.state.Queue.AddToQueue(this.state.contextSelection); this.closeContextMenu(); },
+            icon: IosList
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              ); this.closeContextMenu();
+            },
+            icon: MdMicrophone
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => { console.log("Share"); this.closeContextMenu(); },
+            icon: MdShareAlt
+          }
+        ];
+      case "artist":
+        return [
+          {
+            key: "next",
+            title: "Play all artist's songs next",
+            onClick: () => { this.state.Queue.PlayNext(this.state.contextSelection); this.closeContextMenu(); },
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add all artist's songs to queue",
+            onClick: () => { this.state.Queue.AddToQueue(this.state.contextSelection); this.closeContextMenu(); },
+            icon: IosList
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => { console.log("Share"); this.closeContextMenu(); },
+            icon: MdShareAlt
+          }
+        ];
+      default:
+        return [];
+    }
   };
 
   openContextMenu = (item, type) => {
@@ -346,7 +394,9 @@ class App extends Component {
 
     let items = [];
 
-    if (this.contextItems.hasOwnProperty(type)) items = this.contextItems[type];
+    items = this.contextItems(type);
+
+    items.map(item => { });
 
     this.setState({
       contextOpen: true,
@@ -460,15 +510,15 @@ class App extends Component {
                   key="open"
                 />
               ) : (
-                <div
-                  onClick={this.toggleNowPlaying}
-                  key="closed"
-                  style={styles.nowPlayingClosed}
-                >
-                  <Header style={styles.nowPlayingText}>Now Playing</Header>
-                  <IosArrowUp fontSize={"1em"} color={"black"} />
-                </div>
-              )}
+                  <div
+                    onClick={this.toggleNowPlaying}
+                    key="closed"
+                    style={styles.nowPlayingClosed}
+                  >
+                    <Header style={styles.nowPlayingText}>Now Playing</Header>
+                    <IosArrowUp fontSize={"1em"} color={"black"} />
+                  </div>
+                )}
             </motion.div>
             <div style={styles.tabbar}>
               <motion.div
@@ -485,6 +535,11 @@ class App extends Component {
                 />
               </motion.div>
             </div>
+            <AnimatePresence>
+              {this.state.showScrollToTop && (
+                <ScrollToTop key={"scroller"} onClick={this.scrollToTop} />
+              )}
+            </AnimatePresence>
           </React.Fragment>
         )}
       </AppContext.Provider>

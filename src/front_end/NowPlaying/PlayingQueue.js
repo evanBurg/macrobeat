@@ -23,7 +23,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     backgroundColor: "#fff",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
     position: "fixed",
     bottom: 0,
@@ -141,8 +141,8 @@ class PlayingQueue extends Component {
             <AppContext.Consumer>
               {ctx =>
                 ctx.Queue.Array.map((song, idx) => (
-                  <div style={styles.songWrapper}>
-                    <Song key={idx} song={song} />
+                  <div key={idx}  style={styles.songWrapper}>
+                    <Song key={idx + '-song'} song={song} />
                   </div>
                 ))
               }
