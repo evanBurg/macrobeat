@@ -71,7 +71,7 @@ class Search extends Component {
       results,
       resultItems: results.map((result, idx) => {
         return (
-          <div style={styles.resultRow} onClick={() => context.openContextMenu(result, "song")}>
+          <div key={`search-${idx}`} style={styles.resultRow} onClick={() => context.openContextMenu(result, "song")}>
             <div style={{ display: "flex" }}>
               <div
                 style={{

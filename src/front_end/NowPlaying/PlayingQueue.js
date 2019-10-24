@@ -141,8 +141,8 @@ class PlayingQueue extends Component {
             <AppContext.Consumer>
               {ctx =>
                 ctx.Queue.Array.map((song, idx) => (
-                  <div style={styles.songWrapper}>
-                    <Song key={idx} song={song} />
+                  <div key={idx}  style={styles.songWrapper}>
+                    <Song key={idx + '-song'} song={song} />
                   </div>
                 ))
               }
