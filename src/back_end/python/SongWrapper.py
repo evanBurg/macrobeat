@@ -32,7 +32,3 @@ class SongWrapper(object):
     def speed(self, speed_value: float = 1.0):
         """Set playback speed to specified ratio"""
         raise NotImplementedError
-
-class YoutubeSongWrapper(SongWrapper):
-    """Songwrapper implementation for Youtube"""
-    def __init__(self, )

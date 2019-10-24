@@ -10,5 +10,12 @@
         "name": "Launch Program",
         "program": "${workspaceFolder}/server.js"
     },
+    {
+        "type": "python",
+        "request": "launch",
+        "name": "Launch Python",
+        "program": "${workspaceFolder}\\src\\back_end\\python\\YouTubeDriver.py",
+        "args": ["https://www.youtube.com/watch?v=QPKm4l59iPk", "--no-video"]
+    },
     ]
 }
