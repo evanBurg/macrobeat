@@ -15,6 +15,7 @@ import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
 import Search from "./Search/Search";
+import NewUser from "./Components/NewUser";
 
 import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
@@ -67,6 +68,13 @@ const styles = {
   nowPlayingText: { fontSize: "1em", fontWeight: "100" }
 };
 
+const uuidv4 = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 const AppContext = React.createContext({
   Library: null,
   User: {
@@ -107,6 +115,11 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    window.db = new Dexie("macrobeat");
+    window.db.version(1).stores({
+        user: "ID"
+    });
+
     this.state = {
       tab: 0,
       User: {
@@ -127,7 +140,8 @@ class App extends Component {
       queueOpen: false,
       showScrollToTop: false,
       playing: false,
-      socket: io()
+      socket: io(),
+      firstLoginOpen: false
     };
   }
 
@@ -164,13 +178,23 @@ class App extends Component {
 
   htmlNode = null;
 
-  componentDidMount() {
+  componentDidMount = async () => {
     this.getData();
     this.htmlNode = document.querySelectorAll("html")[0];
     this.htmlNode.addEventListener("wheel", this.scrollEvent, {
       capture: false,
       passive: true
     });
+
+    let userID = (await window.db.user.toArray())
+
+    if(!userID || userID.length < 1){
+      userID = uuidv4();
+      this.setState({firstLoginOpen: true})
+      window.db.user.put({ID: userID});
+    }else{
+      userID = userID.reduce((acc, row) => row).ID;
+    }
 
     this.state.socket.on("update", this.update);
   }
@@ -429,6 +453,10 @@ class App extends Component {
     this.setState({ queueOpen: false });
   };
 
+  openWelcomePage = () => {
+    this.setState({firstLoginOpen: true})
+  }
+
   render() {
     let {
       tab,
@@ -541,6 +569,9 @@ class App extends Component {
               )}
             </AnimatePresence>
           </React.Fragment>
+        )}
+        {this.state.firstLoginOpen && (
+          <NewUser/>
         )}
       </AppContext.Provider>
     );
