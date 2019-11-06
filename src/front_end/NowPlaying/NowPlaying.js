@@ -4,6 +4,7 @@ import MdList from "react-ionicons/lib/MdList";
 import MdSkipForward from "react-ionicons/lib/MdSkipForward";
 import MdSkipBackward from "react-ionicons/lib/MdSkipBackward";
 import MdPlay from "react-ionicons/lib/MdPlay";
+import MdPause from "react-ionicons/lib/MdPause";
 import { AppContext } from "../app";
 import Loader from "react-loaders";
 import { motion } from "framer-motion";
@@ -368,69 +369,77 @@ class NowPlaying extends Component {
               <Loader type="ball-scale" color="black" />
             </div>
           ) : (
-            <div style={styles.container}>
-              <div style={styles.headerContainer}>
-                <div style={{ padding: "0.5em" }}>
-                  <IosArrowLeft
-                    fontSize="1.75em"
-                    color="#083072"
-                    onClick={this.props.toggleNowPlaying}
-                  />
-                </div>
-                <Header style={styles.headingText}>Now Playing</Header>
-                <div style={{ padding: "0.5em" }}>
-                  <MdList fontSize="1.75em" color="#083072" onClick={context.openQueue} />
-                </div>
-              </div>
               <div style={styles.container}>
-                <div style={styles.infoContainer}>
-                  <Record image={this.getImage(context)} playing />
-                  <Header style={styles.trackName}>
-                    {this.getTitle(context)}
-                  </Header>
-                  <Header style={styles.artistName}>
-                    {this.getArtist(context)}
-                  </Header>
+                <div style={styles.headerContainer}>
+                  <div style={{ padding: "0.5em" }}>
+                    <IosArrowLeft
+                      fontSize="1.75em"
+                      color="#083072"
+                      onClick={this.props.toggleNowPlaying}
+                    />
+                  </div>
+                  <Header style={styles.headingText}>Now Playing</Header>
+                  <div style={{ padding: "0.5em" }}>
+                    <MdList fontSize="1.75em" color="#083072" onClick={context.openQueue} />
+                  </div>
+                </div>
+                <div style={styles.container}>
+                  <div style={styles.infoContainer}>
+                    <Record key={this.props.playing} image={this.getImage(context)} playing={this.props.playing} />
+                    <Header style={styles.trackName}>
+                      {this.getTitle(context)}
+                    </Header>
+                    <Header style={styles.artistName}>
+                      {this.getArtist(context)}
+                    </Header>
 
-                  <div style={styles.scrubbingContainer}>
-                    <div style={{ padding: "0.8em" }}>
-                      <Text style={styles.timeText}>0:00</Text>
+                    <div style={styles.scrubbingContainer}>
+                      <div style={{ padding: "0.8em" }}>
+                        <Text style={styles.timeText}>0:00</Text>
+                      </div>
+                      <WaveForm columns={Math.floor(width / 22)} playing={this.props.playing} />
+                      <div style={{ padding: "0.8em" }}>
+                        <Text style={styles.timeText}>4:52</Text>
+                      </div>
                     </div>
-                    <WaveForm columns={Math.floor(width / 22)} playing />
-                    <div style={{ padding: "0.8em" }}>
-                      <Text style={styles.timeText}>4:52</Text>
+                  </div>
+                  <div>
+                    <div style={styles.controlsContainer}>
+                      <MdSkipBackward
+                        fontSize="2.2em"
+                        color="#B9C1D1"
+                        onClick={() => context.Queue.LastTrack()}
+                      />
+                      {this.props.playing ? (
+                        <MdPause
+                          fontSize="4.75em"
+                          color="#929CAF"
+                          onClick={() => context.Queue.PlayPause()}
+                        />
+                      ) : (
+                          <MdPlay
+                            fontSize="4.75em"
+                            color="#929CAF"
+                            onClick={() => context.Queue.PlayPause()}
+                          />
+                        )}
+                      <MdSkipForward
+                        fontSize="2.2em"
+                        color="#B9C1D1"
+                        onClick={() => context.Queue.SkipTrack()}
+                      />
                     </div>
                   </div>
                 </div>
-                <div>
-                  <div style={styles.controlsContainer}>
-                    <MdSkipBackward
-                      fontSize="2.2em"
-                      color="#B9C1D1"
-                      onClick={this.props.toggleNowPlaying}
-                    />
-                    <MdPlay
-                      fontSize="4.75em"
-                      color="#929CAF"
-                      onClick={this.props.toggleNowPlaying}
-                    />
-                    <MdSkipForward
-                      fontSize="2.2em"
-                      color="#B9C1D1"
-                      onClick={this.props.toggleNowPlaying}
-                    />
+                {height > 607 && (
+                  <div style={styles.nextContainer} onClick={context.openQueue}>
+                    <Text style={styles.nextText}>Next Track</Text>
+
+                    <Text style={styles.nextText}>{this.getNext(context)}</Text>
                   </div>
-                </div>
+                )}
               </div>
-              {height > 607 && (
-                <div style={styles.nextContainer} onClick={context.openQueue}>
-                  <Text style={styles.nextText}>Next Track</Text>
-
-                  <Text style={styles.nextText}>{this.getNext(context)}</Text>
-                </div>
-              )}
-            </div>
-          )
+            )
         }
       </AppContext.Consumer>
     );

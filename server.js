@@ -35,7 +35,7 @@ updateClients = () => {
 }
 
 io.on("connection", async socket => {
-
+  updateClients();
   //On initial connection, check if the user already has their login stored
   socket.on('init', data => {
     
@@ -76,6 +76,8 @@ io.on("connection", async socket => {
         loggedIn: true
       });
     }
+
+    updateClients();
   })
 
   //Someone pressed "Add to Queue"
@@ -119,10 +121,10 @@ io.on("connection", async socket => {
 
   //Someone pressed the play pause
   socket.on('playpause', song => {
-    playing != playing;
+    playing = !playing;
 
     //Tell the python to stop or start
-    
+
     updateClients();
   })
 
@@ -174,6 +176,8 @@ io.on("connection", async socket => {
 
     updateClients();
   })
+
+  socket.on('getupdate', () => updateClients())
 });
 
 server.listen(port, () => console.log(`Listening on port ${port}...`));

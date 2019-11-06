@@ -239,7 +239,7 @@ class App extends Component {
   };
 
   toggleNowPlaying = () =>
-    this.setState(s => ({ nowPlayingOpen: !s.nowPlayingOpen }));
+    {this.setState(s => ({ nowPlayingOpen: !s.nowPlayingOpen })); this.socket.emit('getupdate')};
 
   getTab = () => {
     switch (this.state.tab) {
@@ -475,6 +475,7 @@ class App extends Component {
       Library,
       loading,
       Queue,
+      playing,
       nowPlayingOpen,
       contextOpen,
       contextItems,
@@ -546,6 +547,7 @@ class App extends Component {
             >
               {nowPlayingOpen ? (
                 <NowPlaying
+                  playing={playing}
                   toggleNowPlaying={this.toggleNowPlaying}
                   key="open"
                 />

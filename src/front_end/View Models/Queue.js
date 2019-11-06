@@ -5,6 +5,8 @@ class Queue {
     this._Socket = Socket;
   }
 
+  JSONCopy = (object) => JSON.parse(JSON.stringify(object));
+
   get LastSong() {
     if (this._Queue[this._ActiveIndex - 1])
       return this._Queue[this._ActiveIndex - 1];
@@ -31,20 +33,20 @@ class Queue {
   }
 
   SkipTrack() {
-    if (this._ActiveIndex + 1 <= this._Queue.length) {
-      this._Socket.emit("nextTrack", this.NextSong().toJSON());
+    if (this._ActiveIndex + 1 <= this._Queue.length && !!this.NextSong) {
+      this._Socket.emit("nextTrack", this.JSONCopy(this.NextSong));
     }
   }
 
   LastTrack() {
-    if (this._ActiveIndex - 1 >= 0) {
-      this._Socket.emit("prevTrack", this.LastSong().toJSON());
+    if (this._ActiveIndex - 1 >= 0 && !!this.LastSong) {
+      this._Socket.emit("prevTrack", this.JSONCopy(this.LastSong));
     }
   }
 
   set SetTrack(index) {
     if (index >= 0 && index <= this._Queue.length) {
-      this._Socket.emit("play", this._Queue[index].toJSON());
+      this._Socket.emit("play", this.JSONCopy(this._Queue[index]));
     }
   }
 
@@ -53,15 +55,15 @@ class Queue {
   }
 
   AddToQueue(Song){
-    this._Socket.emit("queue", Song.toJSON());
+    this._Socket.emit("queue", this.JSONCopy(Song));
   }
 
   PlayNext(Song){
-    this._Socket.emit("playNext", Song.toJSON());
+    this._Socket.emit("playNext", this.JSONCopy(Song));
   }
 
   AddToLibrary(Song){
-    this._Socket.emit("addToLibrary", Song.toJSON());
+    this._Socket.emit("addToLibrary", this.JSONCopy(Song));
   }
 }
 
