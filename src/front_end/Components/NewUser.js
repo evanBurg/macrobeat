@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { TextField, Box, Label } from "gestalt";
-import { Text, Header } from "./WrapperComponents";
-import {motion} from 'framer-motion'
+import { TextField } from "gestalt";
+import { Header, Button } from "./WrapperComponents";
+import { motion } from 'framer-motion'
+import {AppContext} from '../app'
 
 const styles = {
   container: {
@@ -10,7 +11,7 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    background: "white",
+    background: "url(/img/welcomebackground.svg) white",
     bottom: 0,
     top: 0,
     left: 0,
@@ -36,6 +37,7 @@ const styles = {
     right: 0,
     borderRadius: "50%",
     border: "white solid 10px",
+    background: 'white',
     zIndex: 3
   },
   emptyImageBackground: {
@@ -60,15 +62,17 @@ const styles = {
     textAlign: 'center',
     padding: 20,
     fontSize: '3rem',
-    textShadow: "-8px 0 white, 0 8px white, 8px 0 white, 0 -8px white"
   },
   abstract: {
-      position: 'absolute',
-      zIndex: -2,
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0
+    position: 'absolute',
+    zIndex: -2,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+  },
+  button: {
+    width: '35%'
   }
 };
 
@@ -85,10 +89,35 @@ class NewUser extends Component {
     };
   }
 
+  fileInput = null;
+
+  base64encode(file) {
+    return new Promise((res, rej) => {
+      var reader = new FileReader();
+      reader.onloadend = function() {
+        res(reader.result);
+      }
+      reader.readAsDataURL(file);
+    })
+  }
+
+  componentDidMount() {
+    this.fileInput = document.getElementById("image-input")
+    const reactThis = this;
+    this.fileInput.addEventListener('change', async function() {
+      if (this.files && this.files[0]) {
+          const base64 = await reactThis.base64encode(this.files[0])
+          reactThis.setState({
+            image: base64
+          });
+      }
+  });
+  }
+
   renderImage = () => {
     if (!this.state.image) {
       return (
-        <div style={styles.emptyImageContainer}>
+        <div style={styles.emptyImageContainer} onClick={this.fileInput ? () => this.fileInput.click() : undefined}>
           <div style={styles.emptyImage} />
           <i style={styles.emptyImagePlus} className="fas fa-plus-circle" />
           <i
@@ -98,6 +127,19 @@ class NewUser extends Component {
         </div>
       );
     }
+
+    let style = {...styles.emptyImage,
+      background: `url(${this.state.image})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      boxShadow: '0px 0px 26px -9px rgba(0,0,0,0.75)'
+    };
+    return (
+      <div key={`container-${JSON.stringify(this.state.image)}`} style={styles.emptyImageContainer} onClick={this.fileInput ? () => this.fileInput.click() : undefined}>
+        <div key={`image-${JSON.stringify(this.state.image)}`} style={style} />
+        <i style={styles.emptyImagePlus} className="fas fa-plus-circle" />
+      </div>
+    );
   };
 
   handleName = event => {
@@ -106,32 +148,40 @@ class NewUser extends Component {
     });
   };
 
+  identify = (ctx) => {
+    ctx.socket.emit('identify', {
+      username: this.state.name,
+      icon: this.state.image
+    });
+  }
+
   render() {
     return (
-      <motion.div 
-        initial={{y: -100, opacity: 0}}
-        animate={{y: 0, opacity: 1}}
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         style={styles.container}
       >
         <Header style={styles.welcomeText}>Welcome to Macrobeat!</Header>
 
         {this.renderImage()}
 
-        <Box>
-          <Box marginBottom={2}>
-            <Label htmlFor="name">
-              <Text>Name</Text>
-            </Label>
-          </Box>
+        <input id="image-input" type="file" style={{visibility:"hidden"}} />
+        <div style={{margin: '1rem'}}>
           <TextField
             id="name"
             onChange={this.handleName}
             placeholder="Enter a display name..."
             value={this.state.name}
           />
-        </Box>
+        </div>
 
-        <img style={styles.abstract} src="/img/welcomebackground.svg"/>
+        <AppContext.Consumer>
+          {ctx => (
+              <Button style={styles.button} onClick={() => this.identify(ctx)}>Submit</Button>
+          )}
+        </AppContext.Consumer>
+
         <img style={styles.personImg} src={this.state.personUrl} />
       </motion.div>
     );

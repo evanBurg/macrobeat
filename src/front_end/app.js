@@ -123,7 +123,6 @@ class App extends Component {
     this.state = {
       tab: 0,
       User: {
-        name: undefined,
         user: undefined,
         img: undefined
       },
@@ -154,7 +153,6 @@ class App extends Component {
       this.setState({
         Library: library,
         User: {
-          name: "Evan Burgess",
           user: "Burgy",
           img: "https://i.imgur.com/nKuE1ep.jpg"
         },
@@ -190,13 +188,26 @@ class App extends Component {
 
     if(!userID || userID.length < 1){
       userID = uuidv4();
-      this.setState({firstLoginOpen: true})
       window.db.user.put({ID: userID});
     }else{
       userID = userID.reduce((acc, row) => row).ID;
     }
 
+    this.state.socket.emit('init', {id: userID});
+
     this.state.socket.on("update", this.update);
+    this.state.socket.on('init', this.handleLogIn);
+  }
+
+  handleLogIn = data => {
+    if(!data.loggedIn){
+      this.setState({firstLoginOpen: true})
+    }else{
+      this.setState({
+        User: data.User,
+        firstLoginOpen: false
+      })
+    }
   }
 
   scrollEvent = e => {
@@ -483,7 +494,8 @@ class App extends Component {
       contextOpen,
       openContextMenu: this.openContextMenu,
       openCollection: this.openCollection,
-      openQueue: this.openQueue
+      openQueue: this.openQueue,
+      socket: this.state.socket
     };
 
     return (
