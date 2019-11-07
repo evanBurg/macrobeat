@@ -44,11 +44,13 @@ const Page = props => {
               {context.loading ? (
                 <Loader type="semi-circle-spin" color="black" />
               ) : (
-                <Avatar
-                  size="md"
-                  name="User"
-                  src={context.User.img || "https://via.placeholder.com/150"}
-                />
+                <div onClick={() => context.settingsOpen(true)}>
+                  <Avatar
+                    size="md"
+                    name="User"
+                    src={context.User.img || "https://via.placeholder.com/150"}
+                  />
+                </div>
               )}
             </Box>
           </Row>

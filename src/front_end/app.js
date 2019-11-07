@@ -15,7 +15,7 @@ import Artists from "./Artists/Artists";
 import Albums from "./Albums/Albums";
 import Songs from "./Songs/Songs";
 import Search from "./Search/Search";
-import NewUser from "./Components/NewUser";
+import NewUser from "./NewUser/NewUser";
 
 import MdHome from "react-ionicons/lib/MdHome";
 import MdMicrophone from "react-ionicons/lib/MdMicrophone";
@@ -32,6 +32,7 @@ import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
 import PlayingQueue from "./NowPlaying/PlayingQueue";
 import ScrollToTop from "./Components/ScrollToTop";
+import Settings from "./Settings/Settings";
 
 //"./View Models/YouTubeSearch.json"
 
@@ -140,7 +141,8 @@ class App extends Component {
       showScrollToTop: false,
       playing: false,
       socket: io(),
-      firstLoginOpen: false
+      firstLoginOpen: false,
+      settingsOpen: false
     };
   }
 
@@ -468,6 +470,10 @@ class App extends Component {
     this.setState({firstLoginOpen: true})
   }
 
+  setSettingsState = state => {
+    this.setState({settingsOpen: state});
+  }
+
   render() {
     let {
       tab,
@@ -496,7 +502,9 @@ class App extends Component {
       openContextMenu: this.openContextMenu,
       openCollection: this.openCollection,
       openQueue: this.openQueue,
-      socket: this.state.socket
+      identify: this.openWelcomePage,
+      socket: this.state.socket,
+      settingsOpen: this.setSettingsState
     };
 
     return (
@@ -584,9 +592,17 @@ class App extends Component {
             </AnimatePresence>
           </React.Fragment>
         )}
-        {this.state.firstLoginOpen && (
-          <NewUser/>
-        )}
+
+        <AnimatePresence>
+          {this.state.settingsOpen && (
+            <Settings key="settings"/>
+          )}
+          {this.state.firstLoginOpen && (
+            <NewUser key="welcom"/>
+          )}
+        </AnimatePresence>
+        
+        
       </AppContext.Provider>
     );
   }

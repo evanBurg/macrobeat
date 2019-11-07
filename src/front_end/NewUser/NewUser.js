@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { TextField } from "gestalt";
-import { Header, Button } from "./WrapperComponents";
+import { Header, Button } from "../Components/WrapperComponents";
 import { motion } from 'framer-motion'
 import {AppContext} from '../app'
 
@@ -160,6 +160,7 @@ class NewUser extends Component {
       <motion.div
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -100, opacity: 0 }}
         style={styles.container}
       >
         <Header style={styles.welcomeText}>Welcome to Macrobeat!</Header>
