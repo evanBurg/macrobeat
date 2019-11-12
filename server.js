@@ -43,7 +43,8 @@ updateClients = () => {
   io.emit("update", {
     queue,
     currentSong,
-    playing
+    playing,
+    users
   });
 };
 

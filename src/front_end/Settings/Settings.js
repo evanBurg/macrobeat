@@ -78,11 +78,15 @@ class Settings extends Component {
             </div>
             <div style={styles.row}>
               <Text style={styles.text}>Add Spotify Credentials</Text>
-              <a href="/api/spotify/login"><Button style={styles.buttons}>Add</Button></a>
+              <a style={{textDecoration: 'none'}} href="/api/spotify/login"><Button style={styles.buttons}>Add</Button></a>
             </div>
             <div style={styles.bottomRow}>
               <Text style={styles.text}>Add SoundCloud Credentials</Text>
               <Button style={styles.buttons}>Add</Button>
+            </div>
+            <div style={styles.row}>
+              <Text style={styles.text}>Kick User</Text>
+              <Button style={styles.buttons}>Choose User</Button>
             </div>
           </motion.div>
         )}
