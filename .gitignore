@@ -3,3 +3,20 @@ public/css
 node_modules/
 src/back_end/cached_files/youtube/
 src/back_end/python/__pycache__/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variables file
+.env
