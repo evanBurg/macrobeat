@@ -60,18 +60,21 @@ class Search extends Component {
 
     if (!search) return <React.Fragment />;
 
-    let response = await fetch(`/api/search?query=${search}`);
+    // TODO new search endpoint, data struct different
+    let response = await fetch(`/api/search/${search}`);
     if (response.ok) {
-      results = (await response.json()).map(
-        song => new Song(song, "YouTube")
-      );
-    };
+      results = (await response.json()).map(song => new Song(song, "YouTube"));
+    }
 
     this.setState({
       results,
       resultItems: results.map((result, idx) => {
         return (
-          <div key={`search-${idx}`} style={styles.resultRow} onClick={() => context.openContextMenu(result, "song")}>
+          <div
+            key={`search-${idx}`}
+            style={styles.resultRow}
+            onClick={() => context.openContextMenu(result, "song")}
+          >
             <div style={{ display: "flex" }}>
               <div
                 style={{
@@ -125,7 +128,9 @@ class Search extends Component {
                   accessibilityLabel="Search services"
                   id="searchField"
                   onChange={({ value }) =>
-                    this.setState({ search: value }, () => this.getResults(context))
+                    this.setState({ search: value }, () =>
+                      this.getResults(context)
+                    )
                   }
                   placeholder="Search services..."
                   value={this.state.search}
@@ -134,13 +139,14 @@ class Search extends Component {
               </Box>
             </Row>
             {this.state.resultItems.length > 0 && !!this.state.search ? (
-              <Row style={styles.resultsContainer}>{this.state.resultItems}</Row>
+              <Row style={styles.resultsContainer}>
+                {this.state.resultItems}
+              </Row>
             ) : (
-              <div style={{display: 'flex', justifyContent: 'center'}}>
-                <Empty/>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Empty />
               </div>
             )}
-
           </Page>
         )}
       </AppContext.Consumer>
