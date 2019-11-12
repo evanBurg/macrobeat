@@ -32,10 +32,6 @@ class Library {
         this._Artists[song.Artist].addAlbum(this._Albums[song.Album]);
       }
     });
-    console.log("Library Constructed")
-    console.log(this._Songs);
-    console.log(this._Artists);
-    console.log(this._Albums);
   }
 
   get Artists() {

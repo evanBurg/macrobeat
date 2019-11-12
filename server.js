@@ -110,10 +110,19 @@ io.on("connection", async socket => {
     updateClients();
   });
 
+  socket.on("queueMultiple", songArray => {
+    if (songArray) {
+      queue = [...queue, ...songArray];
+    } else {
+      socket.emit("queueError");
+    }
+    updateClients();
+  });
+
   //Someone pressed "Play Next"
-  socket.on("playNext", song => {
-    if (song.Type && song.ID) {
-      queue.splice(currentSong + 1, 0, song);
+  socket.on("playNextMultiple", songArray => {
+    if (songArray) {
+      queue.splice(currentSong + 1, 0, ...songArray);
     } else {
       socket.emit("playNextError");
     }
@@ -191,6 +200,26 @@ io.on("connection", async socket => {
       });
     } else {
       socket.emit("addToLibraryError");
+    }
+    updateClients();
+  });
+
+  socket.on("removeFromLibrary", song => {
+    if (song.Type && song.ID) {
+      //Add to users mongo library
+      reload = async () => {
+        socket.emit('reloadLibrary', await getLibrary())
+      }
+      Song.find({uniqueId: song.ID, source: song.Type}).remove((err) => {
+        if (err) {
+          console.log(err);
+          socket.emit("removeFromLibraryError");
+        }else{
+          reload();
+        }
+      });
+    } else {
+      socket.emit("removeFromLibraryError");
     }
     updateClients();
   });

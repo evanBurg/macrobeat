@@ -257,8 +257,12 @@ class Record extends Component {
         </Mask>
         <motion.div
           style={{
-            background: `url(${this.props.image}) center center no-repeat`,
-            boxShadow: `0px 0px 100px 10px ${this.state.color}`,
+            backgroundColor:"white",
+            backgroundImage:`url(${this.props.image})`,
+            backgroundPosition:"center",
+            backgroundSize:"cover",
+            backgroundRepeat:"no-repeat",
+            boxShadow: `rgba(0, 0, 0, 0.64) 0px 0px 30px 0px`,
             height: 175,
             width: 175,
             borderRadius: 175 / 2
