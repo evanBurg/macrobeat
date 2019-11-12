@@ -78,7 +78,7 @@ class Settings extends Component {
             </div>
             <div style={styles.row}>
               <Text style={styles.text}>Add Spotify Credentials</Text>
-              <Button style={styles.buttons}>Add</Button>
+              <a href="/api/spotify/login"><Button style={styles.buttons}>Add</Button></a>
             </div>
             <div style={styles.bottomRow}>
               <Text style={styles.text}>Add SoundCloud Credentials</Text>

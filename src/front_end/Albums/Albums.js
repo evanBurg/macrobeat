@@ -33,7 +33,7 @@ class Albums extends Component {
   }
 
   getBody = context => {
-    if(context.Library.Albums && context.Library.Albums.length > 0){
+    if(context.Library.Albums && Object.keys(context.Library.Albums).length > 0){
       return <Masonry
               flexible
               comp={TallItem}

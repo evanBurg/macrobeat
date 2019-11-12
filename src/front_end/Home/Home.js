@@ -15,11 +15,13 @@ class Home extends Component {
     };
   }
 
+  yeet = (context) => console.log(context.Library.Artists.length);
   render() {
     return (
       <AppContext.Consumer>
         {context => (
           <Page heading="Home">
+            {/* {context.Library && context.Library.Artists && this.yeet(context)} */}
             <Row>
               <Box
                 alignItems="center"
@@ -59,7 +61,7 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Artists</Heading>
-              {context.Library && context.Library.Artists && context.Library.Artists.length > 0 ? (
+              {context.Library && context.Library.Artists && Object.keys(context.Library.Artists).length > 0 ? (
                 <ItemGroup type="artist" items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
               ) : (
                 <Empty loading={context.loading} />
@@ -67,7 +69,7 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Albums</Heading>
-              {context.Library && context.Library.Albums && context.Library.Albums.length > 0 ? (
+              {context.Library && context.Library.Albums && Object.keys(context.Library.Albums).length > 0 ? (
                 <ItemGroup type="album" wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
               ) : (
                 <Empty loading={context.loading} /> 

@@ -7,8 +7,8 @@ class Library {
     this._Artists = {};
     this._Albums = {};
     this._History = History || [];
-    this._Songs = Results.map(song => new Song(song, Results.source));
-
+    this._Songs = Results.map(song => new Song(song, "database"));
+    
     this._Songs.forEach(song => {
       let artistExists = false;
       if (song.Artist && Object.keys(this._Artists).includes(song.Artist)) {
@@ -32,6 +32,10 @@ class Library {
         this._Artists[song.Artist].addAlbum(this._Albums[song.Album]);
       }
     });
+    console.log("Library Constructed")
+    console.log(this._Songs);
+    console.log(this._Artists);
+    console.log(this._Albums);
   }
 
   get Artists() {
@@ -39,7 +43,6 @@ class Library {
   }
 
   getArtist(name) {
-    debugger;
     if (this._Artists.hasOwnProperty(name)) return this._Artists[name];
     else return null;
   }
@@ -49,7 +52,6 @@ class Library {
   }
 
   getAlbum(name) {
-    debugger;
     if (this._Albums.hasOwnProperty(name)) return this._Albums[name];
     else return null;
   }

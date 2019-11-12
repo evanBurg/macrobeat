@@ -13,7 +13,7 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
-
+const Song = require(`./src/back_end/models/song`)
 app.use(cors()); // TODO remove in production, just for testing with postman
 
 app.use(bodyParser.json());
@@ -47,12 +47,22 @@ updateClients = () => {
   });
 };
 
+function getLibrary(){
+  return new Promise((res, rej) => {
+    Song.find({}, (err, songs) => {
+      if(!err) res(songs);
+      else rej(err);
+    })
+  })
+}
+
 io.on("connection", async socket => {
   updateClients();
 
   //On initial connection, check if the user already has their login stored
-  socket.on("init", data => {
-    if (false) {
+  socket.on("init", async data => {
+
+    if (true) {
       //if(data.id){
       //check databse for user data
       //return user data
@@ -61,7 +71,8 @@ io.on("connection", async socket => {
           user: "Burgy",
           img: "https://i.imgur.com/nKuE1ep.jpg"
         },
-        loggedIn: true
+        loggedIn: true,
+        library: await getLibrary()
       });
     } else {
       //Notify the front end that the user needs to identify themselves
@@ -159,6 +170,25 @@ io.on("connection", async socket => {
   socket.on("addToLibrary", song => {
     if (song.Type && song.ID) {
       //Add to users mongo library
+      const newsong = new Song({
+        uniqueId: song.ID,
+        title: song.Name,
+        artist: song.Artist,
+        album: song.Album,
+        image: song.Image,
+        source: song.Type,
+      });
+      reload = async () => {
+        socket.emit('reloadLibrary', await getLibrary())
+      }
+      newsong.save((err) => {
+        if (err) {
+          console.log(err);
+          socket.emit("addToLibraryError");
+        }else{
+          reload();
+        }
+      });
     } else {
       socket.emit("addToLibraryError");
     }

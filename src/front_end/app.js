@@ -150,19 +150,19 @@ class App extends Component {
     this.setState({ loading: true });
 
     //Replace with actual fetch
-    setTimeout(() => {
-      const library = new Library([], []);
-      this.setState({
-        Library: library,
-        User: {
-          user: "Burgy",
-          img: "https://i.imgur.com/nKuE1ep.jpg"
-        },
-        Queue: new Queue(library.Songs, 0, this.state.socket)
-      });
+    // setTimeout(() => {
+    //   const library = new Library([], []);
+    //   this.setState({
+    //     Library: library,
+    //     User: {
+    //       user: "Burgy",
+    //       img: "https://i.imgur.com/nKuE1ep.jpg"
+    //     },
+    //     Queue: new Queue(library.Songs, 0, this.state.socket)
+    //   });
 
-      this.setState({ loading: false });
-    }, 2000);
+    //   this.setState({ loading: false });
+    // }, 2000);
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -199,15 +199,24 @@ class App extends Component {
 
     this.state.socket.on("update", this.update);
     this.state.socket.on('init', this.handleLogIn);
+    this.state.socket.on('reloadLibrary', this.reloadLibrary);
+  }
+
+  reloadLibrary = songs => {
+    const library = new Library(songs, []);
+    this.setState({Library: library})
   }
 
   handleLogIn = data => {
     if(!data.loggedIn){
       this.setState({firstLoginOpen: true})
     }else{
+      console.log(data.library)
       this.setState({
         User: data.User,
-        firstLoginOpen: false
+        firstLoginOpen: false,
+        Library: new Library(data.library, []),
+        loading: false
       })
     }
   }
