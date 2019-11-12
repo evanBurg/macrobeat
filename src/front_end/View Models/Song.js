@@ -1,13 +1,33 @@
 //Type: YouTube
 const YouTubeAdapter = song => ({
-  ID: song.videoId,
-  Artist: song.author.name,
+  ID: song.id,
+  Artist: song.artist,
+  Album: "Unknown",
+
+  Name: song.track,
+  Image: song.thumbnail || "https://placeimg.com/640/480/people",
+  Type: "youtube"
+});
+
+const SpotifyAdapter = song => ({
+  ID: song.id,
+  Artist: song.artist,
+  Album: "Unknown",
+
+  Name: song.track,
+  Image: song.image || "https://placeimg.com/640/480/people",
+  Type: "spotify"
+});
+
+const DatabaseAdapter = song => ({
+  ID: song.uniqueId,
+  Artist: song.artist,
   Album: "Unknown",
 
   Name: song.title,
-  Image: song.thumbnail,
-  Type: "YouTube"
-});
+  Image: song.image || "https://placeimg.com/640/480/people",
+  Type: song.source
+})
 
 class Song {
   constructor(SongJSON, Source) {
@@ -15,8 +35,14 @@ class Song {
 
     let song;
     switch (Source) {
-      case "YouTube":
+      case "youtube":
         song = YouTubeAdapter(SongJSON);
+        break;
+      case "spotify":
+        song = SpotifyAdapter(SongJSON);
+        break;
+      case "database":
+        song = DatabaseAdapter(SongJSON);
         break;
     }
 

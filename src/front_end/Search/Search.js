@@ -63,7 +63,7 @@ class Search extends Component {
     // TODO new search endpoint, data struct different
     let response = await fetch(`/api/search/${search}`);
     if (response.ok) {
-      results = (await response.json()).map(song => new Song(song, "YouTube"));
+      results = (await response.json()).map(song => new Song(song, song.source));
     }
 
     this.setState({
