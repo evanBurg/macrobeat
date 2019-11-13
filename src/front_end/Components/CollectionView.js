@@ -121,6 +121,7 @@ const Song = props => {
       {context => (
         <motion.div
           style={{...props.style, ...style}}
+          className={props.isDragging ? "dragging" : ""}
           onClick={(e) => {e.stopPropagation(); context.openContextMenu(props.song, props.type || "song")}}
         >
           <div

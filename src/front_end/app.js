@@ -202,7 +202,23 @@ class App extends Component {
     this.state.socket.on("update", this.update);
     this.state.socket.on("init", this.handleLogIn);
     this.state.socket.on("reloadLibrary", this.reloadLibrary);
+
+   // document.body.addEventListener("mousemove", e => this.handleMouseMove(e));
   };
+
+  handleMouseMove = (event) => {
+    let dragging = document.querySelectorAll(".dragging");
+
+    if (dragging.length > 0) {
+      var x = event.pageX;
+      var y = event.pageY;
+      console.log(x, y);
+
+      dragging.forEach(el => {
+        el.style.transform = "translateX(-50)";
+      });
+    }
+  }
 
   reloadLibrary = songs => {
     const library = new Library(songs, []);
@@ -671,8 +687,6 @@ class App extends Component {
       settingsOpen: this.setSettingsState
     };
 
-    console.log(Queue ? Queue.Array : "loading");
-
     return (
       <AppContext.Provider value={context}>
         {!nowPlayingOpen && !collectionOpen && (
@@ -713,37 +727,37 @@ class App extends Component {
         {!collectionOpen && (
           <React.Fragment>
             {Queue && Queue.Array.length > 0 && (
-               <motion.div
-               style={{
-                 ...styles.tabbar,
-                 ...styles.nowPlaying
-               }}
-               key="nowPlayingContainer"
-               initial={{
-                 zIndex: 20
-               }}
-               animate={{
-                 top: nowPlayingOpen ? 0 : "unset",
-                 zIndex: nowPlayingOpen ? 22 : 20
-               }}
-             >
-               {nowPlayingOpen ? (
-                 <NowPlaying
-                   playing={playing}
-                   toggleNowPlaying={this.toggleNowPlaying}
-                   key="open"
-                 />
-               ) : (
-                 <div
-                   onClick={this.toggleNowPlaying}
-                   key="closed"
-                   style={styles.nowPlayingClosed}
-                 >
-                   <Header style={styles.nowPlayingText}>Now Playing</Header>
-                   <IosArrowUp fontSize={"1em"} color={"black"} />
-                 </div>
-               )}
-             </motion.div>
+              <motion.div
+                style={{
+                  ...styles.tabbar,
+                  ...styles.nowPlaying
+                }}
+                key="nowPlayingContainer"
+                initial={{
+                  zIndex: 20
+                }}
+                animate={{
+                  top: nowPlayingOpen ? 0 : "unset",
+                  zIndex: nowPlayingOpen ? 22 : 20
+                }}
+              >
+                {nowPlayingOpen ? (
+                  <NowPlaying
+                    playing={playing}
+                    toggleNowPlaying={this.toggleNowPlaying}
+                    key="open"
+                  />
+                ) : (
+                  <div
+                    onClick={this.toggleNowPlaying}
+                    key="closed"
+                    style={styles.nowPlayingClosed}
+                  >
+                    <Header style={styles.nowPlayingText}>Now Playing</Header>
+                    <IosArrowUp fontSize={"1em"} color={"black"} />
+                  </div>
+                )}
+              </motion.div>
             )}
             <div style={styles.tabbar}>
               <motion.div

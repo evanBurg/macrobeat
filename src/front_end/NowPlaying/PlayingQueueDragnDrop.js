@@ -193,6 +193,7 @@ function App(props) {
             <motion.div
               style={styles.innerContainer}
               variants={inner}
+              onClick={e => e.stopPropagation()}
               initial="hidden"
               animate="visible"
               exit="hidden"

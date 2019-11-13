@@ -51,7 +51,8 @@ class Search extends Component {
     this.state = {
       results: [],
       resultItems: [],
-      search: ""
+      search: "",
+      debounceTimer: null
     };
   }
 
@@ -111,6 +112,18 @@ class Search extends Component {
     });
   };
 
+  debounce = (ctx) => {
+    let {debounceTimer} = this.state;
+
+    clearTimeout(debounceTimer);
+
+    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 400)});
+  }
+
+  handleSearchChange = ({value}, ctx) => {
+    this.setState({ search: value }, () => this.debounce(ctx))
+  }
+
   render() {
     return (
       <AppContext.Consumer>
@@ -127,11 +140,8 @@ class Search extends Component {
                 <SearchField
                   accessibilityLabel="Search services"
                   id="searchField"
-                  onChange={({ value }) =>
-                    this.setState({ search: value }, () =>
-                      this.getResults(context)
-                    )
-                  }
+                  onChange={(e) => this.handleSearchChange(e, context)}
+                    
                   placeholder="Search services..."
                   value={this.state.search}
                   style={{ width: "100%" }}
