@@ -112,7 +112,7 @@ const styles = {
 };
 
 const Song = props => {
-  let style = styles.song;
+  let style = JSON.parse(JSON.stringify(styles.song));
   if(props.playing === true) {style.background = "#EFEFEF";}
   else {style.background = "#FFF";}
 

@@ -39,9 +39,9 @@ const styles = {
     bottom: 0,
     left: 0,
     right: 0,
-    height: "60vh",
     borderTopLeftRadius: 15,
-    borderTopRightRadius: 15
+    borderTopRightRadius: 15,
+    height: "60vh"
   },
   headerContainer: {
     display: "flex",
@@ -107,16 +107,17 @@ const Playing = (ctx, song) => {
 const Row = React.memo(({ data: songs, index, style }) => {
   const song = songs[index];
   return (
-    <AppContext.Consumer>
+    <AppContext.Consumer key={`${song.ID}-${song.Time}`}>
       {ctx => (
         <Draggable
           draggableId={`${song.ID}-${song.Time}`}
           index={index}
-          key={song.ID}
+          style={style}
+          key={`${song.ID}-${song.Time}`}
         >
           {(provided, snapshot) => (
             <div
-              style={{ ...styles.songWrapper, margin: 0, ...style }}
+              style={{ margin: 0, ...style }}
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
@@ -155,92 +156,96 @@ function App(props) {
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable
-        droppableId="droppable"
-        mode="virtual"
-        renderClone={(provided, snapshot, rubric) => (
-          <AppContext.Consumer>
-            {ctx => (
-              <div
-                style={styles.songWrapper}
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-              >
-                <Song
-                  song={songs[rubric.source.index]}
-                  style={{ margin: 0 }}
-                  type="queue"
-                  isDragging={snapshot.isDragging}
-                  index={rubric.source.index}
-                  playing={Playing(ctx, songs[rubric.source.index])}
-                />
-              </div>
-            )}
-          </AppContext.Consumer>
-        )}
+    <motion.div
+      onClick={props.close}
+      style={styles.container}
+      variants={container}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+    >
+      <motion.div
+        style={styles.innerContainer}
+        variants={inner}
+        onClick={e => e.stopPropagation()}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        transition={{
+          damping: 20
+        }}
       >
-        {droppableProvided => (
-          <motion.div
-            onClick={props.close}
-            style={styles.container}
-            variants={container}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-          >
-            <motion.div
-              style={styles.innerContainer}
-              variants={inner}
-              onClick={e => e.stopPropagation()}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              transition={{
-                damping: 20
-              }}
-            >
-              <div style={styles.headerContainer} onClick={props.close}>
-                <Text style={styles.headerText}>Up Next</Text>
-                <div style={styles.headerIcons}>
-                  <div style={styles.headerIcon}>
-                    <MdRepeat fontSize="1.7em" color="black" />
-                  </div>
-                  <div style={styles.headerIcon}>
-                    <MdShuffle fontSize="1.7em" color="black" />
-                  </div>
-                  <div style={styles.headerIcon}>
-                    <IosArrowDown fontSize="1.7em" color="black" />
-                  </div>
-                </div>
-              </div>
-              <div style={styles.songsContainer}>
+        <div style={styles.headerContainer} onClick={props.close}>
+          <Text style={styles.headerText}>Up Next</Text>
+          <div style={styles.headerIcons}>
+            <div style={styles.headerIcon}>
+              <MdRepeat fontSize="1.7em" color="black" />
+            </div>
+            <div style={styles.headerIcon}>
+              <MdShuffle fontSize="1.7em" color="black" />
+            </div>
+            <div style={styles.headerIcon}>
+              <IosArrowDown fontSize="1.7em" color="black" />
+            </div>
+          </div>
+        </div>
+        <div style={styles.songsContainer}>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable
+              droppableId="droppable"
+              mode="list"
+              renderClone={(provided, snapshot, rubric) => (
                 <AppContext.Consumer>
-                  {ctx =>
-                    ctx.Queue.Array ? (
-                      <List
-                        height={365}
-                        itemCount={ctx.Queue.Array.length}
-                        itemSize={65}
-                        // you will want to use List.outerRef rather than List.innerRef as it has the correct height when the list is unpopulated
-                        outerRef={droppableProvided.innerRef}
-                        itemData={ctx.Queue.Array}
-                      >
-                        {Row}
-                      </List>
-                    ) : (
-                      <React.Fragment />
-                    )
-                  }
+                  {ctx => (
+                    <div
+                      style={styles.songWrapper}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Song
+                        song={songs[rubric.source.index]}
+                        style={{ margin: 0 }}
+                        type="queue"
+                        isDragging={snapshot.isDragging}
+                        index={rubric.source.index}
+                        playing={Playing(ctx, songs[rubric.source.index])}
+                      />
+                    </div>
+                  )}
                 </AppContext.Consumer>
-                {droppableProvided.placeholder}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </Droppable>
-    </DragDropContext>
+              )}
+            >
+              {droppableProvided => (
+                <AppContext.Consumer>
+                  {ctx => (
+                    <React.Fragment>
+                      {ctx.Queue.Array ? (
+                        <div 
+                        {...droppableProvided.droppableProps}
+                        ref={droppableProvided.innerRef}
+                        style={{width: '100%', height: 365, overflowX: 'hidden', overflowY: 'auto'}}
+                        >
+                          {ctx.Queue.Array.map((song, idx) => {
+                            return <Row
+                              data={ctx.Queue.Array}
+                              index={idx}
+                            />
+                          })}
+                        </div>
+                      ) : (
+                        <React.Fragment />
+                      )}
+                      {droppableProvided.placeholder}
+                    </React.Fragment>
+                  )}
+                </AppContext.Consumer>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
