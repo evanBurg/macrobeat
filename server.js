@@ -48,7 +48,9 @@ updateClients = () => {
   });
 };
 
-function getLibrary(){
+const unixTimestamp = () =>  new Date().getTime()/1000|0;
+
+const getLibrary = () => {
   return new Promise((res, rej) => {
     Song.find({}, (err, songs) => {
       if(!err) res(songs);
@@ -85,6 +87,18 @@ io.on("connection", async socket => {
     updateClients();
   });
 
+  socket.on("reorder", newQueue => { 
+    let {ID, Time} = queue[currentSong]
+    queue = newQueue;
+    newQueue.forEach((song, idx) => {
+      if(song.ID === ID && song.Time === Time){
+        currentSong = idx;
+      }
+    })
+    updateClients();
+  })
+
+
   socket.on("identify", data => {
     if (data.username && data.icon) {
       users.push(data);
@@ -100,10 +114,22 @@ io.on("connection", async socket => {
     }
     updateClients();
   });
+  
+  socket.on("removeFromQueue", song => {
+    if (song.Type && song.ID && song.Time) {
+      queue = queue.filter(sng => {
+        return sng.ID !== song.ID && sng.Time !== song.Time
+      });
+    } else {
+      socket.emit("queueError");
+    }
+    updateClients();
+  });
 
   //Someone pressed "Add to Queue"
   socket.on("queue", song => {
     if (song.Type && song.ID) {
+      song.Time = unixTimestamp()
       queue.push(song);
     } else {
       socket.emit("queueError");
@@ -113,7 +139,7 @@ io.on("connection", async socket => {
 
   socket.on("queueMultiple", songArray => {
     if (songArray) {
-      queue = [...queue, ...songArray];
+      queue = [...queue, ...songArray.map(song => ({...song, Time: unixTimestamp()}))];
     } else {
       socket.emit("queueError");
     }
@@ -123,7 +149,17 @@ io.on("connection", async socket => {
   //Someone pressed "Play Next"
   socket.on("playNextMultiple", songArray => {
     if (songArray) {
-      queue.splice(currentSong + 1, 0, ...songArray);
+      queue.splice(currentSong + 1, 0, ...songArray.map(song => ({...song, Time: unixTimestamp()})));
+    } else {
+      socket.emit("playNextError");
+    }
+    updateClients();
+  });
+
+  socket.on("playNext", song => {
+    if (song.Type && song.ID) {
+      song.Time = unixTimestamp();
+      queue.splice(currentSong + 1, 0, song);
     } else {
       socket.emit("playNextError");
     }

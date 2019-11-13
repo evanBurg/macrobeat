@@ -70,7 +70,8 @@ const styles = {
     alignItems: "center",
     marginBottom: "0.2em",
     marginTop: "0.2em",
-    padding: 5
+    padding: 5,
+    width: '100vw'
   },
   songImage: {
     minHeight: 40,
@@ -111,12 +112,16 @@ const styles = {
 };
 
 const Song = props => {
+  let style = styles.song;
+  if(props.playing === true) {style.background = "#EFEFEF";}
+  else {style.background = "#FFF";}
+
   return (
     <AppContext.Consumer>
       {context => (
         <motion.div
-          style={styles.song}
-          onClick={() => context.openContextMenu(props.song, "song")}
+          style={{...props.style, ...style}}
+          onClick={(e) => {e.stopPropagation(); context.openContextMenu(props.song, props.type || "song")}}
         >
           <div
             style={{

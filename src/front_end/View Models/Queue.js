@@ -18,6 +18,10 @@ class Queue {
     else return null;
   }
 
+  get CurrentSongIndex(){
+    return this._ActiveIndex;
+  }
+
   get NextSong() {
     if (this._Queue[this._ActiveIndex + 1])
       return this._Queue[this._ActiveIndex + 1];
@@ -56,6 +60,10 @@ class Queue {
 
   AddToQueue(Song){
     this._Socket.emit("queue", this.JSONCopy(Song));
+  }
+
+  RemoveFromQueue(Song){
+    this._Socket.emit("removeFromQueue", this.JSONCopy(Song));
   }
 
   AddSongsToQueue(SongArray){

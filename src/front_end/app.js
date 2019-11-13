@@ -31,7 +31,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
-import PlayingQueue from "./NowPlaying/PlayingQueue";
+import PlayingQueue from "./NowPlaying/PlayingQueueDragnDrop";
 import ScrollToTop from "./Components/ScrollToTop";
 import Settings from "./Settings/Settings";
 
@@ -71,11 +71,12 @@ const styles = {
 };
 
 const uuidv4 = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-}
+};
 
 const AppContext = React.createContext({
   Library: null,
@@ -119,7 +120,7 @@ class App extends Component {
 
     window.db = new Dexie("macrobeat");
     window.db.version(1).stores({
-        user: "ID"
+      user: "ID"
     });
 
     this.state = {
@@ -187,39 +188,39 @@ class App extends Component {
       passive: true
     });
 
-    let userID = (await window.db.user.toArray())
+    let userID = await window.db.user.toArray();
 
-    if(!userID || userID.length < 1){
+    if (!userID || userID.length < 1) {
       userID = uuidv4();
-      window.db.user.put({ID: userID});
-    }else{
+      window.db.user.put({ ID: userID });
+    } else {
       userID = userID.reduce((acc, row) => row).ID;
     }
 
-    this.state.socket.emit('init', {id: userID});
+    this.state.socket.emit("init", { id: userID });
 
     this.state.socket.on("update", this.update);
-    this.state.socket.on('init', this.handleLogIn);
-    this.state.socket.on('reloadLibrary', this.reloadLibrary);
-  }
+    this.state.socket.on("init", this.handleLogIn);
+    this.state.socket.on("reloadLibrary", this.reloadLibrary);
+  };
 
   reloadLibrary = songs => {
     const library = new Library(songs, []);
-    this.setState({Library: library})
-  }
+    this.setState({ Library: library });
+  };
 
   handleLogIn = data => {
-    if(!data.loggedIn){
-      this.setState({firstLoginOpen: true})
-    }else{
+    if (!data.loggedIn) {
+      this.setState({ firstLoginOpen: true });
+    } else {
       this.setState({
         User: data.User,
         firstLoginOpen: false,
         Library: new Library(data.library, []),
         loading: false
-      })
+      });
     }
-  }
+  };
 
   scrollEvent = e => {
     if (this.htmlNode.scrollTop > 50) {
@@ -249,8 +250,14 @@ class App extends Component {
     });
   };
 
-  toggleNowPlaying = () =>
-    {this.setState(s => ({ nowPlayingOpen: !s.nowPlayingOpen })); this.socket.emit('getupdate')};
+  reorderQueue = queue => {
+    this.state.socket.emit("reorder", queue);
+  };
+
+  toggleNowPlaying = () => {
+    this.setState(s => ({ nowPlayingOpen: !s.nowPlayingOpen }));
+    this.state.socket.emit("getupdate");
+  };
 
   getTab = () => {
     switch (this.state.tab) {
@@ -329,73 +336,33 @@ class App extends Component {
     type = type.toLowerCase();
     switch (type) {
       case "library":
-          return [
-            {
-              key: "next",
-              title: "Play next",
-              onClick: () => { this.state.Queue.PlayNext(this.state.contextSelection); this.closeContextMenu(); },
-              icon: MdMusicalNote
-            },
-            {
-              key: "queue",
-              title: "Add to queue",
-              onClick: () => { this.state.Queue.AddToQueue(this.state.contextSelection); this.closeContextMenu(); },
-              icon: IosList
-            },
-            {
-              key: "library",
-              title: "Remove song library",
-              onClick: () => { this.state.Queue.RemoveFromLibrary(this.state.contextSelection); this.closeContextMenu(); },
-              icon: IosRemoveCircleOutline
-            },
-            {
-              key: "artist",
-              title: "Go to artist",
-              onClick: item => {
-                this.openCollection(
-                  this.state.Library.getArtist(item.Artist),
-                  "artist"
-                ); this.closeContextMenu();
-              },
-              icon: MdMicrophone
-            },
-            {
-              key: "album",
-              title: "Go to album",
-              onClick: item => {
-                this.openCollection(
-                  this.state.Library.getAlbum(item.Album),
-                  "album"
-                ); this.closeContextMenu();
-              },
-              icon: MdDisc
-            },
-            {
-              key: "share",
-              title: "Share",
-              onClick: () => { console.log("Share"); this.closeContextMenu(); },
-              icon: MdShareAlt
-            }
-          ];
-      case "song":
         return [
           {
             key: "next",
             title: "Play next",
-            onClick: () => { this.state.Queue.PlayNext(this.state.contextSelection); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.PlayNext(this.state.contextSelection);
+              this.closeContextMenu();
+            },
             icon: MdMusicalNote
           },
           {
             key: "queue",
             title: "Add to queue",
-            onClick: () => { this.state.Queue.AddToQueue(this.state.contextSelection); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.AddToQueue(this.state.contextSelection);
+              this.closeContextMenu();
+            },
             icon: IosList
           },
           {
             key: "library",
-            title: "Add song to library",
-            onClick: () => { this.state.Queue.AddToLibrary(this.state.contextSelection); this.closeContextMenu(); },
-            icon: IosAddCircleOutline
+            title: "Remove song library",
+            onClick: () => {
+              this.state.Queue.RemoveFromLibrary(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: IosRemoveCircleOutline
           },
           {
             key: "artist",
@@ -404,7 +371,8 @@ class App extends Component {
               this.openCollection(
                 this.state.Library.getArtist(item.Artist),
                 "artist"
-              ); this.closeContextMenu();
+              );
+              this.closeContextMenu();
             },
             icon: MdMicrophone
           },
@@ -415,14 +383,135 @@ class App extends Component {
               this.openCollection(
                 this.state.Library.getAlbum(item.Album),
                 "album"
-              ); this.closeContextMenu();
+              );
+              this.closeContextMenu();
             },
             icon: MdDisc
           },
           {
             key: "share",
             title: "Share",
-            onClick: () => { console.log("Share"); this.closeContextMenu(); },
+            onClick: () => {
+              console.log("Share");
+              this.closeContextMenu();
+            },
+            icon: MdShareAlt
+          }
+        ];
+      case "queue":
+        return [
+          {
+            key: "next",
+            title: "Play next",
+            onClick: () => {
+              this.state.Queue.PlayNext(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Remove from queue",
+            onClick: () => {
+              this.state.Queue.RemoveFromQueue(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: IosRemoveCircleOutline
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              );
+              this.closeContextMenu();
+            },
+            icon: MdMicrophone
+          },
+          {
+            key: "album",
+            title: "Go to album",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getAlbum(item.Album),
+                "album"
+              );
+              this.closeContextMenu();
+            },
+            icon: MdDisc
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => {
+              console.log("Share");
+              this.closeContextMenu();
+            },
+            icon: MdShareAlt
+          }
+        ];
+      case "song":
+        return [
+          {
+            key: "next",
+            title: "Play next",
+            onClick: () => {
+              this.state.Queue.PlayNext(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: MdMusicalNote
+          },
+          {
+            key: "queue",
+            title: "Add to queue",
+            onClick: () => {
+              this.state.Queue.AddToQueue(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: IosList
+          },
+          {
+            key: "library",
+            title: "Add song to library",
+            onClick: () => {
+              this.state.Queue.AddToLibrary(this.state.contextSelection);
+              this.closeContextMenu();
+            },
+            icon: IosAddCircleOutline
+          },
+          {
+            key: "artist",
+            title: "Go to artist",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getArtist(item.Artist),
+                "artist"
+              );
+              this.closeContextMenu();
+            },
+            icon: MdMicrophone
+          },
+          {
+            key: "album",
+            title: "Go to album",
+            onClick: item => {
+              this.openCollection(
+                this.state.Library.getAlbum(item.Album),
+                "album"
+              );
+              this.closeContextMenu();
+            },
+            icon: MdDisc
+          },
+          {
+            key: "share",
+            title: "Share",
+            onClick: () => {
+              console.log("Share");
+              this.closeContextMenu();
+            },
             icon: MdShareAlt
           }
         ];
@@ -431,13 +520,21 @@ class App extends Component {
           {
             key: "next",
             title: "Play album next",
-            onClick: () => { this.state.Queue.PlaySongsNext(this.state.contextSelection.Songs); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.PlaySongsNext(this.state.contextSelection.Songs);
+              this.closeContextMenu();
+            },
             icon: MdMusicalNote
           },
           {
             key: "queue",
             title: "Add all songs to queue",
-            onClick: () => { this.state.Queue.AddSongsToQueue(this.state.contextSelection.Songs); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.AddSongsToQueue(
+                this.state.contextSelection.Songs
+              );
+              this.closeContextMenu();
+            },
             icon: IosList
           },
           {
@@ -447,10 +544,11 @@ class App extends Component {
               this.openCollection(
                 this.state.Library.getArtist(item.Artist),
                 "artist"
-              ); this.closeContextMenu();
+              );
+              this.closeContextMenu();
             },
             icon: MdMicrophone
-          },
+          }
           // {
           //   key: "share",
           //   title: "Share",
@@ -463,15 +561,23 @@ class App extends Component {
           {
             key: "next",
             title: "Play all artist's songs next",
-            onClick: () => { this.state.Queue.PlaySongsNext(this.state.contextSelection.Songs); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.PlaySongsNext(this.state.contextSelection.Songs);
+              this.closeContextMenu();
+            },
             icon: MdMusicalNote
           },
           {
             key: "queue",
             title: "Add all artist's songs to queue",
-            onClick: () => { this.state.Queue.AddSongsToQueue(this.state.contextSelection.Songs); this.closeContextMenu(); },
+            onClick: () => {
+              this.state.Queue.AddSongsToQueue(
+                this.state.contextSelection.Songs
+              );
+              this.closeContextMenu();
+            },
             icon: IosList
-          },
+          }
           // {
           //   key: "share",
           //   title: "Share",
@@ -491,7 +597,7 @@ class App extends Component {
 
     items = this.contextItems(type);
 
-    items.map(item => { });
+    items.map(item => {});
 
     this.setState({
       contextOpen: true,
@@ -525,12 +631,12 @@ class App extends Component {
   };
 
   openWelcomePage = () => {
-    this.setState({firstLoginOpen: true})
-  }
+    this.setState({ firstLoginOpen: true });
+  };
 
   setSettingsState = state => {
-    this.setState({settingsOpen: state});
-  }
+    this.setState({ settingsOpen: state });
+  };
 
   render() {
     let {
@@ -565,7 +671,7 @@ class App extends Component {
       settingsOpen: this.setSettingsState
     };
 
-    console.log(Queue ? Queue.Array : 'loading');
+    console.log(Queue ? Queue.Array : "loading");
 
     return (
       <AppContext.Provider value={context}>
@@ -594,42 +700,51 @@ class App extends Component {
         />
 
         <AnimatePresence>
-          {queueOpen && <PlayingQueue key="queue" close={this.closeQueue} />}
+          {queueOpen && (
+            <PlayingQueue
+              key="queue"
+              close={this.closeQueue}
+              reorderQueue={this.reorderQueue}
+              queue={this.state.Queue}
+            />
+          )}
         </AnimatePresence>
 
         {!collectionOpen && (
           <React.Fragment>
-            <motion.div
-              style={{
-                ...styles.tabbar,
-                ...styles.nowPlaying
-              }}
-              key="nowPlayingContainer"
-              initial={{
-                zIndex: 20
-              }}
-              animate={{
-                top: nowPlayingOpen ? 0 : "unset",
-                zIndex: nowPlayingOpen ? 22 : 20
-              }}
-            >
-              {nowPlayingOpen ? (
-                <NowPlaying
-                  playing={playing}
-                  toggleNowPlaying={this.toggleNowPlaying}
-                  key="open"
-                />
-              ) : (
-                  <div
-                    onClick={this.toggleNowPlaying}
-                    key="closed"
-                    style={styles.nowPlayingClosed}
-                  >
-                    <Header style={styles.nowPlayingText}>Now Playing</Header>
-                    <IosArrowUp fontSize={"1em"} color={"black"} />
-                  </div>
-                )}
-            </motion.div>
+            {Queue && Queue.Array.length > 0 && (
+               <motion.div
+               style={{
+                 ...styles.tabbar,
+                 ...styles.nowPlaying
+               }}
+               key="nowPlayingContainer"
+               initial={{
+                 zIndex: 20
+               }}
+               animate={{
+                 top: nowPlayingOpen ? 0 : "unset",
+                 zIndex: nowPlayingOpen ? 22 : 20
+               }}
+             >
+               {nowPlayingOpen ? (
+                 <NowPlaying
+                   playing={playing}
+                   toggleNowPlaying={this.toggleNowPlaying}
+                   key="open"
+                 />
+               ) : (
+                 <div
+                   onClick={this.toggleNowPlaying}
+                   key="closed"
+                   style={styles.nowPlayingClosed}
+                 >
+                   <Header style={styles.nowPlayingText}>Now Playing</Header>
+                   <IosArrowUp fontSize={"1em"} color={"black"} />
+                 </div>
+               )}
+             </motion.div>
+            )}
             <div style={styles.tabbar}>
               <motion.div
                 initial={{ scaleY: 0 }}
@@ -654,15 +769,9 @@ class App extends Component {
         )}
 
         <AnimatePresence>
-          {this.state.settingsOpen && (
-            <Settings key="settings"/>
-          )}
-          {this.state.firstLoginOpen && (
-            <NewUser key="welcom"/>
-          )}
+          {this.state.settingsOpen && <Settings key="settings" />}
+          {this.state.firstLoginOpen && <NewUser key="welcom" />}
         </AnimatePresence>
-        
-        
       </AppContext.Provider>
     );
   }
