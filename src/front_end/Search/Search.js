@@ -59,7 +59,13 @@ class Search extends Component {
   getResults = async context => {
     let { results, search } = this.state;
 
-    if (!search) return <React.Fragment />;
+    if (!search) {
+      return this.setState({
+        results: [],
+        resultItems: [],
+        loading: false
+      })  
+    }
 
     // TODO new search endpoint, data struct different
     let response = await fetch(`/api/search/${search}`);
@@ -108,7 +114,8 @@ class Search extends Component {
             />
           </div>
         );
-      })
+      }),
+      loading: false
     });
   };
 
@@ -117,7 +124,7 @@ class Search extends Component {
 
     clearTimeout(debounceTimer);
 
-    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 400)});
+    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 400), loading: true});
   }
 
   handleSearchChange = ({value}, ctx) => {
@@ -148,13 +155,13 @@ class Search extends Component {
                 />
               </Box>
             </Row>
-            {this.state.resultItems.length > 0 && !!this.state.search ? (
+            {this.state.resultItems.length > 0 && !!this.state.search && !this.state.loading ? (
               <Row style={styles.resultsContainer}>
                 {this.state.resultItems}
               </Row>
             ) : (
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <Empty />
+                <Empty loading={this.state.loading} />
               </div>
             )}
           </Page>
