@@ -68,7 +68,11 @@ class Settings extends Component {
             exit={{ y: -100, opacity: 0 }}
             style={styles.container}
           >
-            <i className="fas fa-times" style={styles.close} onClick={() => ctx.settingsOpen(false)}/>
+            <i
+              className="fas fa-times"
+              style={styles.close}
+              onClick={() => ctx.settingsOpen(false)}
+            />
             <Header style={styles.header}>Settings</Header>
             <div style={styles.row}>
               <Text style={styles.text}>Update User Info</Text>
@@ -76,15 +80,33 @@ class Settings extends Component {
                 Update
               </Button>
             </div>
-            <div style={styles.row}>
-              <Text style={styles.text}>Add Spotify Credentials</Text>
-              <a style={{textDecoration: 'none'}} href="/api/spotify/login"><Button style={styles.buttons}>Add</Button></a>
+            {ctx.spotifyAccess ? (
+              <div style={styles.row}>
+                <Text style={styles.text}>Remove Spotify Credentials</Text>
+                <a style={{ textDecoration: "none" }} href="/api/spotify/logout">
+                  <Button style={styles.buttons}>Remove</Button>
+                </a>
+              </div>
+            ) : (
+              <div style={styles.row}>
+                <Text style={styles.text}>Add Spotify Credentials</Text>
+                <a style={{ textDecoration: "none" }} href="/api/spotify/login">
+                  <Button style={styles.buttons}>Add</Button>
+                </a>
+              </div>
+            )}
+            {ctx.soundcloudAccess ? (
+              <div style={styles.row}>
+              <Text style={styles.text}>Remove SoundCloud Credentials</Text>
+              <Button style={styles.buttons}>Remove</Button>
             </div>
-            <div style={styles.bottomRow}>
+            ) : (
+              <div style={styles.row}>
               <Text style={styles.text}>Add SoundCloud Credentials</Text>
               <Button style={styles.buttons}>Add</Button>
             </div>
-            <div style={styles.row}>
+            )}
+            <div style={styles.bottomRow}>
               <Text style={styles.text}>Kick User</Text>
               <Button style={styles.buttons}>Choose User</Button>
             </div>

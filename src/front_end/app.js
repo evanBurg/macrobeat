@@ -84,7 +84,9 @@ const AppContext = React.createContext({
     name: undefined,
     User: undefined,
     img: undefined
-  }
+  },
+  spotifyAccess: false,
+  soundcloudAccess: false
 });
 
 const variants = {
@@ -129,6 +131,7 @@ class App extends Component {
         user: undefined,
         img: undefined
       },
+      spotifyAccess: false,
       Queue: null,
       Library: null,
       loading: false,
@@ -233,7 +236,8 @@ class App extends Component {
         User: data.User,
         firstLoginOpen: false,
         Library: new Library(data.library, []),
-        loading: false
+        loading: false,
+        spotifyAccess: data.spotify
       });
     }
   };
@@ -670,7 +674,8 @@ class App extends Component {
       collectionOpen,
       collectionItem,
       collectionType,
-      queueOpen
+      queueOpen,
+      spotifyAccess
     } = this.state;
 
     const context = {
@@ -684,7 +689,8 @@ class App extends Component {
       openQueue: this.openQueue,
       identify: this.openWelcomePage,
       socket: this.state.socket,
-      settingsOpen: this.setSettingsState
+      settingsOpen: this.setSettingsState,
+      spotifyAccess
     };
 
     return (

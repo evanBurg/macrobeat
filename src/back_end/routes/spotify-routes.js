@@ -57,7 +57,7 @@ router.get(`/redirect`, async (req, res) => {
 					if (err) {
 						return res.status(500).send(`Spotify auth token could not be saved.`);
 					}
-					return res.send(`Spotify auth token successfully saved.`);
+					return res.redirect('/')
 				});
 			});
 		});

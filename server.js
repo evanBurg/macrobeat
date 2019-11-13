@@ -13,6 +13,7 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
+const { isLoggedIn: spotifyLoggedIn } = require(`./src/back_end/services/spotify-service`)
 const Song = require(`./src/back_end/models/song`)
 app.use(cors()); // TODO remove in production, just for testing with postman
 
@@ -75,7 +76,8 @@ io.on("connection", async socket => {
           img: "https://i.imgur.com/nKuE1ep.jpg"
         },
         loggedIn: true,
-        library: await getLibrary()
+        library: await getLibrary(),
+        spotify: await spotifyLoggedIn()
       });
     } else {
       //Notify the front end that the user needs to identify themselves

@@ -26,6 +26,15 @@ const refreshToken = async () => {
   ).exec();
 };
 
+const isLoggedIn = async () => {
+ let token = await AuthToken.findOne({ serviceName: `spotify` });
+ if(token){
+   return true;
+ }
+
+ return false;
+}
+
 const search = async searchQuery => {
   let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
   let options = {
@@ -76,5 +85,6 @@ const play = async uri => {};
 
 module.exports = {
   search,
-  play
+  play,
+  isLoggedIn
 };

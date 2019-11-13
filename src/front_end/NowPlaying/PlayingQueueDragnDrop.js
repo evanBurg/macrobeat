@@ -224,7 +224,7 @@ function App(props) {
                         <div 
                         {...droppableProvided.droppableProps}
                         ref={droppableProvided.innerRef}
-                        style={{width: '100%', height: 365, overflowX: 'hidden', overflowY: 'auto'}}
+                        style={{width: '100%', height: '50vh', overflowX: 'hidden', overflowY: 'auto'}}
                         >
                           {ctx.Queue.Array.map((song, idx) => {
                             return <Row
