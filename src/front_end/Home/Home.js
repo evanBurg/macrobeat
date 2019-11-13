@@ -21,24 +21,6 @@ class Home extends Component {
         {context => (
           <Page heading="Home">
             <Row>
-              <Box
-                alignItems="center"
-                justifyContent="center"
-                display="flex"
-                flex="grow"
-                paddingY={5}
-              >
-                <SearchField
-                  accessibilityLabel="Search library"
-                  id="searchField"
-                  onChange={({ value }) => this.setState({ search: value })}
-                  placeholder="Search your library.."
-                  value={this.state.search}
-                  style={{ width: "100%" }}
-                />
-              </Box>
-            </Row>
-            <Row>
               {context.Queue && !context.Queue.Empty && (
                 <SongGroup
                   label="Now playing"

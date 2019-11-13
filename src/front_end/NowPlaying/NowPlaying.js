@@ -32,7 +32,7 @@ const styles = {
   headingText: {
     fontSize: "1.9em",
     fontWeight: "400",
-    color: "#083072"
+    color: "#000"
   },
   infoContainer: {
     display: "flex",
@@ -344,11 +344,11 @@ class NowPlaying extends Component {
       return "";
     }
 
-    if (context.Queue.NextSong.Name.length > 20) {
+    if (context.Queue.NextSong.Name.length >= 20) {
       return context.Queue.NextSong.Name.substr(0, 17) + "...";
     }
 
-    return context.Queue.CurrentSong.Name;
+    return context.Queue.NextSong.Name;
   };
 
   getViewport = () => {
@@ -378,13 +378,13 @@ class NowPlaying extends Component {
                   <div style={{ padding: "0.5em" }}>
                     <IosArrowLeft
                       fontSize="1.75em"
-                      color="#083072"
+                      color="#000"
                       onClick={this.props.toggleNowPlaying}
                     />
                   </div>
                   <Header style={styles.headingText}>Now Playing</Header>
                   <div style={{ padding: "0.5em" }}>
-                    <MdList fontSize="1.75em" color="#083072" onClick={context.openQueue} />
+                    <MdList fontSize="1.75em" color="#000" onClick={context.openQueue} />
                   </div>
                 </div>
                 <div style={styles.container}>

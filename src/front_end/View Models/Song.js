@@ -1,32 +1,32 @@
 //Type: YouTube
 const YouTubeAdapter = song => ({
   ID: song.id,
-  Artist: song.artist,
-  Album: "Unknown",
+  Artist: song.artist || "Unknown",
+  Album: song.album || "Unknown",
 
-  Name: song.track,
-  Image: song.thumbnail || "https://placeimg.com/640/480/people",
+  Name: song.track || "Unknown",
+  Image: song.image || "https://placeimg.com/640/480/people",
   Type: "youtube"
 });
 
 const SpotifyAdapter = song => ({
   ID: song.id,
-  Artist: song.artist,
-  Album: "Unknown",
+  Artist: song.artist || "Unknown",
+  Album: song.album || "Unknown",
 
-  Name: song.track,
+  Name: song.track || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
   Type: "spotify"
 });
 
 const DatabaseAdapter = song => ({
-  ID: song.uniqueId,
-  Artist: song.artist,
-  Album: "Unknown",
+  ID: song.uniqueId || "Unknown",
+  Artist: song.artist || "Unknown",
+  Album: song.album || "Unknown",
 
-  Name: song.title,
+  Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
-  Type: song.source
+  Type: song.source || "Unknown"
 })
 
 class Song {

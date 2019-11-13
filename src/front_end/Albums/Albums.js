@@ -33,7 +33,21 @@ class Albums extends Component {
   }
 
   getBody = context => {
+    let {search} = this.state;
     if(context.Library.Albums && Object.keys(context.Library.Albums).length > 0){
+      if(search){
+        return <Masonry
+        flexible
+        comp={TallItem}
+        items={Object.keys(context.Library.Albums).filter(name => name.toLowerCase().includes(search.toLowerCase())).map(
+          albumName => {
+            return context.Library.Albums[albumName];
+          }
+        )}
+        minCols={1}
+      />
+      }
+
       return <Masonry
               flexible
               comp={TallItem}

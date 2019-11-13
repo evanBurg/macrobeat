@@ -33,7 +33,22 @@ class Artists extends Component {
   }
 
   getBody = context => {
+    let {search} = this.state;
     if(context.Library.Artists && Object.keys(context.Library.Artists).length > 0){
+
+      if(search){
+        return <Masonry
+                flexible
+                comp={TallItem}
+                items={Object.keys(context.Library.Artists).filter(name => name.toLowerCase().includes(search.toLowerCase())).map(
+                  artistName => {
+                    return context.Library.Artists[artistName];
+                  }
+                )}
+                minCols={2}
+              />
+      }
+
       return <Masonry
                 flexible
                 comp={TallItem}

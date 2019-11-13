@@ -35,15 +35,27 @@ class Songs extends Component {
   }
 
   getBody = context => {
+    let {search} = this.state;
     if(context.Library.Songs && context.Library.Songs.length > 0){
-      return <Masonry
-                flexible
-                comp={Item}
-                items={Object.keys(context.Library.Songs).map(songName => {
-                  return context.Library.Songs[songName];
-                })}
-                minCols={2}
-              />
+      if(search){
+        return <Masonry
+        flexible
+        comp={Item}
+        items={Object.keys(context.Library.Songs).filter(idx => context.Library.Songs[idx].Name.toLowerCase().includes(search.toLowerCase())).map(idx => {
+          return context.Library.Songs[idx];
+        })}
+        minCols={2}
+      />
+      }else{
+        return <Masonry
+        flexible
+        comp={Item}
+        items={Object.keys(context.Library.Songs).map(idx => {
+          return context.Library.Songs[idx];
+        })}
+        minCols={2}
+      />
+      }
     }else{
       return <Empty/>
     }
