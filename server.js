@@ -66,15 +66,20 @@ io.on("connection", async socket => {
   //On initial connection, check if the user already has their login stored
   socket.on("init", async data => {
 
-    if (true) {
-      //if(data.id){
+    if (data.id) {
       //check databse for user data
       //return user data
-      socket.emit("init", {
-        User: {
-          user: "Burgy",
-          img: "https://i.imgur.com/nKuE1ep.jpg"
-        },
+      users = users.filter(usr => usr.id !== data.id && !!usr.id);
+      let User = {
+        user: "Burgy",
+        img: "https://i.imgur.com/nKuE1ep.jpg",
+        id: data.id
+      };
+      socket.userId = data.id;
+      socket.username = User.user;
+      users.push(User);
+      socket.emit("init", { 
+        User,
         loggedIn: true,
         library: await getLibrary(),
         spotify: await spotifyLoggedIn()
@@ -103,14 +108,17 @@ io.on("connection", async socket => {
 
   socket.on("identify", data => {
     if (data.username && data.icon) {
-      users.push(data);
+      users = users.filter(usr => usr.id !== socket.userId && usr.id);
+      const User = {
+        user: data.username,
+        img: data.icon,
+        id: socket.userId
+      }
+      users.push(User);
       //Also save in the database
       socket.username = data.username;
       socket.emit("init", {
-        User: {
-          user: data.username,
-          img: data.icon
-        },
+        User,
         loggedIn: true
       });
     }
@@ -262,6 +270,10 @@ io.on("connection", async socket => {
     }
     updateClients();
   });
+
+  socket.on('disconnect', function() {
+    users = users.filter(usr => usr.id !== socket.userId && usr.id);
+ });
 
   socket.on("getupdate", () => updateClients());
 });

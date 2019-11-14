@@ -147,7 +147,9 @@ class App extends Component {
       playing: false,
       socket: io(),
       firstLoginOpen: false,
-      settingsOpen: false
+      settingsOpen: false,
+      users: [],
+      userID: null
     };
   }
 
@@ -200,28 +202,15 @@ class App extends Component {
       userID = userID.reduce((acc, row) => row).ID;
     }
 
+    //Attempt login
+    this.setState({userID})
     this.state.socket.emit("init", { id: userID });
 
+    //Set up event listeners
     this.state.socket.on("update", this.update);
     this.state.socket.on("init", this.handleLogIn);
     this.state.socket.on("reloadLibrary", this.reloadLibrary);
-
-   // document.body.addEventListener("mousemove", e => this.handleMouseMove(e));
   };
-
-  handleMouseMove = (event) => {
-    let dragging = document.querySelectorAll(".dragging");
-
-    if (dragging.length > 0) {
-      var x = event.pageX;
-      var y = event.pageY;
-      console.log(x, y);
-
-      dragging.forEach(el => {
-        el.style.transform = "translateX(-50)";
-      });
-    }
-  }
 
   reloadLibrary = songs => {
     const library = new Library(songs, []);
@@ -235,9 +224,9 @@ class App extends Component {
       this.setState({
         User: data.User,
         firstLoginOpen: false,
-        Library: new Library(data.library, []),
+        Library: data.hasOwnProperty("library") ? new Library(data.library, []) : this.state.Library,
         loading: false,
-        spotifyAccess: data.spotify
+        spotifyAccess: data.hasOwnProperty("spotify") ? data.spotify : this.state.spotifyAccess
       });
     }
   };
@@ -263,10 +252,11 @@ class App extends Component {
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
   };
 
-  update = ({ queue, currentSong, playing }) => {
+  update = ({ queue, currentSong, playing, users }) => {
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
-      playing: playing
+      playing: playing,
+      users
     });
   };
 
@@ -675,7 +665,8 @@ class App extends Component {
       collectionItem,
       collectionType,
       queueOpen,
-      spotifyAccess
+      spotifyAccess,
+      userID
     } = this.state;
 
     const context = {
@@ -690,7 +681,8 @@ class App extends Component {
       identify: this.openWelcomePage,
       socket: this.state.socket,
       settingsOpen: this.setSettingsState,
-      spotifyAccess
+      spotifyAccess,
+      userID
     };
 
     return (

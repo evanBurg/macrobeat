@@ -151,7 +151,8 @@ class NewUser extends Component {
   identify = (ctx) => {
     ctx.socket.emit('identify', {
       username: this.state.name,
-      icon: this.state.image
+      icon: this.state.image,
+      id: ctx.userID
     });
   }
 
