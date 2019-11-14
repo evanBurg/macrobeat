@@ -13,7 +13,8 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
-const Song = require(`./src/back_end/models/song`)
+const { Song } = require(`./src/back_end/models`);
+
 app.use(cors()); // TODO remove in production, just for testing with postman
 
 app.use(bodyParser.json());
@@ -31,37 +32,39 @@ app.get(`/`, (req, res) => {
   res.sendFile(`index.html`);
 });
 
-let server = http.createServer(app);
-let io = socketIO(server);
+const server = http.createServer(app);
+const io = socketIO(server);
 
 let users = [];
 let queue = [];
 let currentSong = 0;
 let playing = false;
 
-updateClients = () => {
-  io.emit("update", {
+const updateClients = () => {
+  io.emit(`update`, {
     queue,
     currentSong,
     playing
   });
 };
 
-function getLibrary(){
-  return new Promise((res, rej) => {
-    Song.find({}, (err, songs) => {
-      if(!err) res(songs);
-      else rej(err);
-    })
-  })
-}
+const getLibrary = () => {
+  return new Promise((resolve, reject) => {
+    Song.find({}, (error, songs) => {
+      if (!error) {
+        resolve(songs);
+      } else {
+        reject(error);
+      }
+    });
+  });
+};
 
 io.on("connection", async socket => {
   updateClients();
 
   //On initial connection, check if the user already has their login stored
   socket.on("init", async data => {
-
     if (true) {
       //if(data.id){
       //check databse for user data
@@ -176,16 +179,16 @@ io.on("connection", async socket => {
         artist: song.Artist,
         album: song.Album,
         image: song.Image,
-        source: song.Type,
+        source: song.Type
       });
       reload = async () => {
-        socket.emit('reloadLibrary', await getLibrary())
-      }
-      newsong.save((err) => {
+        socket.emit("reloadLibrary", await getLibrary());
+      };
+      newsong.save(err => {
         if (err) {
           console.log(err);
           socket.emit("addToLibraryError");
-        }else{
+        } else {
           reload();
         }
       });

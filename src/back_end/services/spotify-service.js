@@ -26,6 +26,31 @@ const refreshToken = async () => {
   ).exec();
 };
 
+const formatResults = async res => {
+  let songs = [];
+  const rawSongs = res.tracks.items;
+  for (let i = 0; i < rawSongs.length && i < process.env.QUERY_LIMIT; i++) {
+    const id = rawSongs[i].id;
+    const title = rawSongs[i].name;
+    const artist = rawSongs[i].artists[0].name;
+    const album = rawSongs[i].album.name;
+    const image =
+      rawSongs[i].album.images[rawSongs[i].album.images.length - 1].url;
+    const lengthS = Math.round(rawSongs[i].duration_ms / 1000);
+    const song = {
+      id,
+      title,
+      artist,
+      album,
+      image,
+      lengthS,
+      source: `spotify`
+    };
+    songs.push(song);
+  }
+  return songs;
+};
+
 const search = async searchQuery => {
   let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
   let options = {
@@ -47,34 +72,6 @@ const search = async searchQuery => {
   return await formatResults(body);
 };
 
-const formatResults = async res => {
-  let songs = [];
-  const rawSongs = res.tracks.items;
-  for (let i = 0; i < rawSongs.length && i < process.env.QUERY_LIMIT; i++) {
-    const id = rawSongs[i].id;
-    const track = rawSongs[i].name;
-    const artist = rawSongs[i].artists[0].name;
-    const album = rawSongs[i].album.name;
-    const image =
-      rawSongs[i].album.images[rawSongs[i].album.images.length - 1].url;
-    const lengthS = Math.round(rawSongs[i].duration_ms / 1000);
-    const song = {
-      id,
-      track,
-      artist,
-      album,
-      image,
-      lengthS,
-      source: `spotify`
-    };
-    songs.push(song);
-  }
-  return songs;
-};
-
-const play = async uri => {};
-
 module.exports = {
-  search,
-  play
+  search
 };
