@@ -76,6 +76,14 @@ class Search extends Component {
     this.setState({
       results,
       resultItems: results.map((result, idx) => {
+        const backgroundStyles = {
+          backgroundColor: "rgba(0, 0, 0, 0.45)",
+          backgroundImage: `url(${result.Image})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat"
+        }
+
         return (
           <div
             key={`search-${idx}`}
@@ -86,7 +94,7 @@ class Search extends Component {
               <div
                 style={{
                   ...styles.resultImage,
-                  background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image})`
+                  ...backgroundStyles
                 }}
               />
               <div style={styles.resultInfo}>

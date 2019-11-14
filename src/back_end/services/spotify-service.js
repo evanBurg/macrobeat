@@ -64,8 +64,8 @@ const formatResults = async res => {
     const track = rawSongs[i].name;
     const artist = rawSongs[i].artists[0].name;
     const album = rawSongs[i].album.name;
-    const image =
-      rawSongs[i].album.images[rawSongs[i].album.images.length - 1].url;
+    //First image is always highest quality
+    const image = rawSongs[i].album.images[0].url;
     const lengthS = Math.round(rawSongs[i].duration_ms / 1000);
     const song = {
       id,

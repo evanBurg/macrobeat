@@ -25,7 +25,7 @@ class Library {
         this._Albums[song.Album].addSong(song);
       } else {
         albumExists = true;
-        this._Albums[song.Album] = new Album(song.Album, song.Artist, [song]);
+        this._Albums[song.Album] = new Album(song.Album, song.Artist, song.Image, [song]);
       }
 
       if (artistExists && albumExists) {
