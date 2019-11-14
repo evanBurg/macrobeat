@@ -666,7 +666,8 @@ class App extends Component {
       collectionType,
       queueOpen,
       spotifyAccess,
-      userID
+      userID,
+      users
     } = this.state;
 
     const context = {
@@ -682,7 +683,8 @@ class App extends Component {
       socket: this.state.socket,
       settingsOpen: this.setSettingsState,
       spotifyAccess,
-      userID
+      userID,
+      users
     };
 
     return (

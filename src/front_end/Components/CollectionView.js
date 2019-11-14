@@ -25,7 +25,6 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
-    width: "100vw",
     alignItems: "center",
     marginBottom: "0.5em",
     marginTop: "0.5em"
@@ -56,10 +55,6 @@ const styles = {
     fontWeight: "100"
   },
   songsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
     marginBottom: "0.5em",
     marginTop: "0.5em"
   },
@@ -71,7 +66,6 @@ const styles = {
     marginBottom: "0.2em",
     marginTop: "0.2em",
     padding: 5,
-    width: '100vw'
   },
   songImage: {
     minHeight: 40,

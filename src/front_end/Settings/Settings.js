@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { TextField } from "gestalt";
 import { Header, Text, Button } from "../Components/WrapperComponents";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AppContext } from "../app";
+import KickUser from './KickUser'
 
 const styles = {
   container: {
@@ -55,10 +56,16 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      kickUserOpen: false
+    };
   }
 
+  kickUser = () => this.setState({kickUserOpen: true})
+  closeKickUser = () => this.setState({kickUserOpen: false})
+  
   render() {
+    let {kickUserOpen} = this.state;
     return (
       <AppContext.Consumer>
         {ctx => (
@@ -108,8 +115,11 @@ class Settings extends Component {
             )}
             <div style={styles.bottomRow}>
               <Text style={styles.text}>Kick User</Text>
-              <Button style={styles.buttons}>Choose User</Button>
+              <Button style={styles.buttons} onClick={this.kickUser}>Choose User</Button>
             </div>
+              <AnimatePresence>
+                {kickUserOpen && <KickUser key="kick" close={this.closeKickUser}/>}
+              </AnimatePresence>
           </motion.div>
         )}
       </AppContext.Consumer>
