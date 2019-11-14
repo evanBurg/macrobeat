@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { TextField } from "gestalt";
 import { Header, Text, Button } from "../Components/WrapperComponents";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AppContext } from "../app";
+import KickUser from './KickUser'
 
 const styles = {
   container: {
@@ -55,10 +56,16 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      kickUserOpen: false
+    };
   }
 
+  kickUser = () => this.setState({kickUserOpen: true})
+  closeKickUser = () => this.setState({kickUserOpen: false})
+  
   render() {
+    let {kickUserOpen} = this.state;
     return (
       <AppContext.Consumer>
         {ctx => (
@@ -68,7 +75,11 @@ class Settings extends Component {
             exit={{ y: -100, opacity: 0 }}
             style={styles.container}
           >
-            <i className="fas fa-times" style={styles.close} onClick={() => ctx.settingsOpen(false)}/>
+            <i
+              className="fas fa-times"
+              style={styles.close}
+              onClick={() => ctx.settingsOpen(false)}
+            />
             <Header style={styles.header}>Settings</Header>
             <div style={styles.row}>
               <Text style={styles.text}>Update User Info</Text>
@@ -76,14 +87,39 @@ class Settings extends Component {
                 Update
               </Button>
             </div>
-            <div style={styles.row}>
-              <Text style={styles.text}>Add Spotify Credentials</Text>
-              <a href="/api/spotify/login"><Button style={styles.buttons}>Add</Button></a>
+            {ctx.spotifyAccess ? (
+              <div style={styles.row}>
+                <Text style={styles.text}>Remove Spotify Credentials</Text>
+                <a style={{ textDecoration: "none" }} href="/api/spotify/logout">
+                  <Button style={styles.buttons}>Remove</Button>
+                </a>
+              </div>
+            ) : (
+              <div style={styles.row}>
+                <Text style={styles.text}>Add Spotify Credentials</Text>
+                <a style={{ textDecoration: "none" }} href="/api/spotify/login">
+                  <Button style={styles.buttons}>Add</Button>
+                </a>
+              </div>
+            )}
+            {ctx.soundcloudAccess ? (
+              <div style={styles.row}>
+              <Text style={styles.text}>Remove SoundCloud Credentials</Text>
+              <Button style={styles.buttons}>Remove</Button>
             </div>
-            <div style={styles.bottomRow}>
+            ) : (
+              <div style={styles.row}>
               <Text style={styles.text}>Add SoundCloud Credentials</Text>
               <Button style={styles.buttons}>Add</Button>
             </div>
+            )}
+            <div style={styles.bottomRow}>
+              <Text style={styles.text}>Kick User</Text>
+              <Button style={styles.buttons} onClick={this.kickUser}>Choose User</Button>
+            </div>
+              <AnimatePresence>
+                {kickUserOpen && <KickUser key="kick" close={this.closeKickUser}/>}
+              </AnimatePresence>
           </motion.div>
         )}
       </AppContext.Consumer>

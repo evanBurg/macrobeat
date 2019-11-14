@@ -25,17 +25,13 @@ class Library {
         this._Albums[song.Album].addSong(song);
       } else {
         albumExists = true;
-        this._Albums[song.Album] = new Album(song.Album, song.Artist, [song]);
+        this._Albums[song.Album] = new Album(song.Album, song.Artist, song.Image, [song]);
       }
 
       if (artistExists && albumExists) {
         this._Artists[song.Artist].addAlbum(this._Albums[song.Album]);
       }
     });
-    console.log("Library Constructed")
-    console.log(this._Songs);
-    console.log(this._Artists);
-    console.log(this._Albums);
   }
 
   get Artists() {

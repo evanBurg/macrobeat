@@ -25,7 +25,6 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
-    width: "100vw",
     alignItems: "center",
     marginBottom: "0.5em",
     marginTop: "0.5em"
@@ -56,10 +55,6 @@ const styles = {
     fontWeight: "100"
   },
   songsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
     marginBottom: "0.5em",
     marginTop: "0.5em"
   },
@@ -70,7 +65,7 @@ const styles = {
     alignItems: "center",
     marginBottom: "0.2em",
     marginTop: "0.2em",
-    padding: 5
+    padding: 5,
   },
   songImage: {
     minHeight: 40,
@@ -111,12 +106,17 @@ const styles = {
 };
 
 const Song = props => {
+  let style = JSON.parse(JSON.stringify(styles.song));
+  if(props.playing === true) {style.background = "#EFEFEF";}
+  else {style.background = "#FFF";}
+
   return (
     <AppContext.Consumer>
       {context => (
         <motion.div
-          style={styles.song}
-          onClick={() => context.openContextMenu(props.song, "song")}
+          style={{...props.style, ...style}}
+          className={props.isDragging ? "dragging" : ""}
+          onClick={(e) => {e.stopPropagation(); context.openContextMenu(props.song, props.type || "song")}}
         >
           <div
             style={{

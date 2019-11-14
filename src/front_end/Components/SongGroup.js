@@ -4,7 +4,7 @@ import { Box, Collage, Image, Mask, IconButton, Heading } from "gestalt";
 const styles = {
   nowPlaying: { textShadow: "rgb(0, 0, 0) 0px 0px 20px", margin: 10 },
   playButton: { position: "absolute", bottom: -140, right: 10 }
-}
+};
 
 export default props => {
   return (
@@ -22,27 +22,36 @@ export default props => {
         width={300}
         renderImage={({ index, width, height }) => {
           const { songs } = props;
-          const image = songs[index].Image;
+          if (songs[index]) {
+            const image = songs[index].Image;
 
-          return (
-            <Mask wash width={width - 10} height={height - 10} shape="rounded">
-              <Image
-                alt="collage image"
-                color={"#eee"}
-                fit="cover"
-                src={image}
+            return (
+              <Mask
+                wash
+                width={width - 10}
+                height={height - 10}
+                shape="rounded"
               >
-                {index == 0 && (
-                  <h4
-                    className="lH1 dyH iFc SMy ut5 erh IZT"
-                    style={styles.nowPlaying}
-                  >
-                    {props.label}
-                  </h4>
-                )}
-              </Image>
-            </Mask>
-          );
+                <Image
+                  alt="collage image"
+                  color={"#eee"}
+                  fit="cover"
+                  src={image}
+                >
+                  {index == 0 && (
+                    <h4
+                      className="lH1 dyH iFc SMy ut5 erh IZT"
+                      style={styles.nowPlaying}
+                    >
+                      {props.label}
+                    </h4>
+                  )}
+                </Image>
+              </Mask>
+            );
+          }
+
+          return <div/>
         }}
       />
       <div style={{ position: "relative" }}>

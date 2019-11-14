@@ -15,31 +15,11 @@ class Home extends Component {
     };
   }
 
-  yeet = (context) => console.log(context.Library.Artists.length);
   render() {
     return (
       <AppContext.Consumer>
         {context => (
           <Page heading="Home">
-            {/* {context.Library && context.Library.Artists && this.yeet(context)} */}
-            <Row>
-              <Box
-                alignItems="center"
-                justifyContent="center"
-                display="flex"
-                flex="grow"
-                paddingY={5}
-              >
-                <SearchField
-                  accessibilityLabel="Search library"
-                  id="searchField"
-                  onChange={({ value }) => this.setState({ search: value })}
-                  placeholder="Search your library.."
-                  value={this.state.search}
-                  style={{ width: "100%" }}
-                />
-              </Box>
-            </Row>
             <Row>
               {context.Queue && !context.Queue.Empty && (
                 <SongGroup
@@ -77,7 +57,7 @@ class Home extends Component {
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
               {context.Library && context.Library.Songs && context.Library.Songs.length > 0 ? (
-                <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+                <ItemGroup type="library" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
               ) : (
                 <Empty loading={context.loading} />
               )}

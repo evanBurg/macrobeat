@@ -5,6 +5,7 @@ const express = require(`express`);
 const app = express();
 const http = require(`http`);
 const socketIO = require(`socket.io`);
+var stringSimilarity = require("string-similarity");
 const cors = require(`cors`);
 const port = process.env.PORT || 5000;
 const {
@@ -14,6 +15,9 @@ const {
   youtuberoutes
 } = require(`./src/back_end/routes`);
 const { Song } = require(`./src/back_end/models`);
+
+const { Player: plr, spotifyservice } = require(`./src/back_end/services`);
+const Player = new plr();
 
 app.use(cors()); // TODO remove in production, just for testing with postman
 
@@ -44,18 +48,18 @@ const updateClients = () => {
   io.emit(`update`, {
     queue,
     currentSong,
-    playing
+    playing: Player.state === "playing",
+    users
   });
 };
 
+const unixTimestamp = () => (new Date().getTime() / 1000) | 0;
+
 const getLibrary = () => {
-  return new Promise((resolve, reject) => {
-    Song.find({}, (error, songs) => {
-      if (!error) {
-        resolve(songs);
-      } else {
-        reject(error);
-      }
+  return new Promise((res, rej) => {
+    Song.find({}, (err, songs) => {
+      if (!err) res(songs);
+      else rej(err);
     });
   });
 };
@@ -65,17 +69,23 @@ io.on("connection", async socket => {
 
   //On initial connection, check if the user already has their login stored
   socket.on("init", async data => {
-    if (true) {
-      //if(data.id){
+    if (data.id) {
       //check databse for user data
       //return user data
+      users = users.filter(usr => usr.id !== data.id && !!usr.id);
+      let User = {
+        user: "Burgy",
+        img: "https://i.imgur.com/nKuE1ep.jpg",
+        id: data.id
+      };
+      socket.userId = data.id;
+      socket.username = User.user;
+      users.push(User);
       socket.emit("init", {
-        User: {
-          user: "Burgy",
-          img: "https://i.imgur.com/nKuE1ep.jpg"
-        },
+        User,
         loggedIn: true,
-        library: await getLibrary()
+        library: await getLibrary(),
+        spotify: await spotifyservice.isLoggedIn()
       });
     } else {
       //Notify the front end that the user needs to identify themselves
@@ -87,18 +97,48 @@ io.on("connection", async socket => {
     updateClients();
   });
 
+  socket.on("kickuser", ({ userKicked, Kicker }) => {
+    //if(Kicker is admin)
+    io.emit("kicked", { userKicked, Kicker });
+  });
+
+  socket.on("reorder", newQueue => {
+    let { ID, Time } = queue[currentSong];
+    queue = newQueue;
+    newQueue.forEach((song, idx) => {
+      if (song.ID === ID && song.Time === Time) {
+        currentSong = idx;
+      }
+    });
+    updateClients();
+  });
+
   socket.on("identify", data => {
     if (data.username && data.icon) {
-      users.push(data);
+      users = users.filter(usr => usr.id !== socket.userId && usr.id);
+      const User = {
+        user: data.username,
+        img: data.icon,
+        id: socket.userId
+      };
+      users.push(User);
       //Also save in the database
       socket.username = data.username;
       socket.emit("init", {
-        User: {
-          user: data.username,
-          img: data.icon
-        },
+        User,
         loggedIn: true
       });
+    }
+    updateClients();
+  });
+
+  socket.on("removeFromQueue", song => {
+    if (song.Type && song.ID && song.Time) {
+      queue = queue.filter(sng => {
+        return sng.ID !== song.ID && sng.Time !== song.Time;
+      });
+    } else {
+      socket.emit("queueError");
     }
     updateClients();
   });
@@ -106,6 +146,7 @@ io.on("connection", async socket => {
   //Someone pressed "Add to Queue"
   socket.on("queue", song => {
     if (song.Type && song.ID) {
+      song.Time = unixTimestamp();
       queue.push(song);
     } else {
       socket.emit("queueError");
@@ -113,9 +154,35 @@ io.on("connection", async socket => {
     updateClients();
   });
 
+  socket.on("queueMultiple", songArray => {
+    if (songArray) {
+      queue = [
+        ...queue,
+        ...songArray.map(song => ({ ...song, Time: unixTimestamp() }))
+      ];
+    } else {
+      socket.emit("queueError");
+    }
+    updateClients();
+  });
+
   //Someone pressed "Play Next"
+  socket.on("playNextMultiple", songArray => {
+    if (songArray) {
+      queue.splice(
+        currentSong + 1,
+        0,
+        ...songArray.map(song => ({ ...song, Time: unixTimestamp() }))
+      );
+    } else {
+      socket.emit("playNextError");
+    }
+    updateClients();
+  });
+
   socket.on("playNext", song => {
     if (song.Type && song.ID) {
+      song.Time = unixTimestamp();
       queue.splice(currentSong + 1, 0, song);
     } else {
       socket.emit("playNextError");
@@ -127,6 +194,7 @@ io.on("connection", async socket => {
   socket.on("play", song => {
     if (song.Type && song.ID) {
       //TODO: Call python to play the song
+      Player.play(song);
     } else {
       socket.emit("playError");
     }
@@ -135,43 +203,57 @@ io.on("connection", async socket => {
 
   //Someone pressed the play pause
   socket.on("playpause", song => {
-    playing = !playing;
+    if (Player.state === "playing") {
+      Player.pause();
+    } else if (Player.state === "paused") {
+      Player.resume();
+    }
     //Tell the python to stop or start
     updateClients();
   });
 
   //Someone hit the arrow for the previous track
-  socket.on("prevTrack", data => {
-    playing = false;
+  socket.on("prevTrack", song => {
     currentSong -= 1;
     //Tell python to start the prev track
-    playing = true;
+    Player.play(queue[currentSong]);
     updateClients();
   });
 
   //Someone hit the arrow for the next track
   socket.on("nextTrack", data => {
-    playing = false;
     currentSong += 1;
-    //Tell python to start the prev track
-    playing = true;
+    Player.play(queue[currentSong]);
     updateClients();
   });
 
   //Someone moved the slider and let go
   socket.on("scrub", data => {
     if (data.timestamp) {
-      playing = false;
       //TODO: Call python to play the song from the specified time
-      playing = true;
+      Player.scrub(data.timestamp);
     } else {
       socket.emit("scrubError");
     }
     updateClients();
   });
 
-  socket.on("addToLibrary", song => {
+  socket.on("addToLibrary", async song => {
     if (song.Type && song.ID) {
+      if (song.Type === "youtube") {
+        //Attempt to get better album art
+        let tracks = await search(song.Name);
+        let trackNames = tracks.map(i => i.track);
+        let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
+        if (
+          tracks.length > ratings.bestMatchIndex &&
+          ratings.bestMatchIndex > -1
+        ) {
+          song.Album = tracks[ratings.bestMatchIndex].album;
+          song.Image = tracks[ratings.bestMatchIndex].image;
+        }
+      }
+
       //Add to users mongo library
       const newsong = new Song({
         uniqueId: song.ID,
@@ -181,21 +263,43 @@ io.on("connection", async socket => {
         image: song.Image,
         source: song.Type
       });
-      reload = async () => {
-        socket.emit("reloadLibrary", await getLibrary());
-      };
-      newsong.save(err => {
+
+      newsong.save(async err => {
         if (err) {
           console.log(err);
           socket.emit("addToLibraryError");
         } else {
-          reload();
+          socket.emit("reloadLibrary", await getLibrary());
         }
       });
     } else {
       socket.emit("addToLibraryError");
     }
     updateClients();
+  });
+
+  socket.on("removeFromLibrary", song => {
+    if (song.Type && song.ID) {
+      //Add to users mongo library
+      reload = async () => {
+        socket.emit("reloadLibrary", await getLibrary());
+      };
+      Song.find({ uniqueId: song.ID, source: song.Type }).remove(err => {
+        if (err) {
+          console.log(err);
+          socket.emit("removeFromLibraryError");
+        } else {
+          reload();
+        }
+      });
+    } else {
+      socket.emit("removeFromLibraryError");
+    }
+    updateClients();
+  });
+
+  socket.on("disconnect", function() {
+    users = users.filter(usr => usr.id !== socket.userId && usr.id);
   });
 
   socket.on("getupdate", () => updateClients());
