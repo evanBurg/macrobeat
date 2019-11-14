@@ -31,6 +31,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
+import {YouveBeenKicked } from './Settings/KickUser'
 import PlayingQueue from "./NowPlaying/PlayingQueueDragnDrop";
 import ScrollToTop from "./Components/ScrollToTop";
 import Settings from "./Settings/Settings";
@@ -149,7 +150,8 @@ class App extends Component {
       firstLoginOpen: false,
       settingsOpen: false,
       users: [],
-      userID: null
+      userID: null,
+      kicked: false
     };
   }
 
@@ -210,7 +212,17 @@ class App extends Component {
     this.state.socket.on("update", this.update);
     this.state.socket.on("init", this.handleLogIn);
     this.state.socket.on("reloadLibrary", this.reloadLibrary);
+    this.state.socket.on('kicked', this.attemptKick);
   };
+
+  attemptKick = ({userKicked, Kicker}) => {
+    if (userKicked === this.state.userID){
+      this.setState({
+        kicked: true,
+        kickedBy: Kicker
+      });
+    }
+  }
 
   reloadLibrary = songs => {
     const library = new Library(songs, []);
@@ -689,6 +701,11 @@ class App extends Component {
 
     return (
       <AppContext.Provider value={context}>
+        {this.state.kicked && (
+          <YouveBeenKicked kickedBy={this.state.kickedBy}/>
+        )}
+
+
         {!nowPlayingOpen && !collectionOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
         )}

@@ -87,12 +87,16 @@ const variants = {
 };
 
 const ShortenName = Name => {
-    if(Name.length > 12){
-        return Name.substr(0, 9) + '...'
-    }
+  if (Name.length > 12) {
+    return Name.substr(0, 9) + "...";
+  }
 
-    return Name
-}
+  return Name;
+};
+
+const kickUser = (ctx, userKicked, Kicker) => {
+  ctx.socket.emit("kickuser", { userKicked, Kicker });
+};
 
 const KickUser = props => {
   return (
@@ -121,12 +125,9 @@ const KickUser = props => {
                   <img style={style.image} src={img} alt={user} />
                   <Text style={style.text}>{ShortenName(user)}</Text>
                 </div>
-                <a
-                  style={{ textDecoration: "none" }}
-                  href="/api/spotify/logout"
-                >
-                  <Button style={style.buttons}>Kick User</Button>
-                </a>
+                <Button style={style.buttons} onClick={() => kickUser(ctx, id, ctx.User.id)}>
+                  Kick User
+                </Button>
               </div>
             ))
           }
@@ -136,4 +137,67 @@ const KickUser = props => {
   );
 };
 
+const KickedBy = (ctx, kickedBy) => {
+  let user = ctx.users.find(usr => usr.id == kickedBy);
+  return user.user;
+}
+
+const YouveBeenKicked = props => {
+  return (
+    <div style={{ ...style.container, zIndex: 9999999 }}>
+      <motion.div
+        style={style.modalTitle}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        exit="initial"
+      >
+        <Header>You've Been Kicked</Header>
+      </motion.div>
+      <motion.div
+        style={style.modalContainer}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        exit="initial"
+      >
+        <AppContext.Consumer>
+          {ctx =>
+            ctx.users.map(({ user, img, id }) => {
+              if(id !== ctx.userID){
+                return <React.Fragment key={id}/>
+              }
+
+              return (
+              <div
+                key={id}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: 'center'
+                }}
+              >
+                <Text style={{ fontSize: "1.5rem", fontWeight: '500', textAlign: 'center', margin: "1rem" }}>
+                  {ShortenName(user)}
+                </Text>
+                <Text>You were kicked by {KickedBy(ctx, props.kickedBy)}</Text>
+                <Text style={{ fontSize: "1.2rem", textAlign: 'center', margin: "1rem" }}>
+                  Refresh to continue...
+                </Text>
+                <Button style={{...style.buttons, margin: '1rem'}} onClick={() => window.location.reload()}>
+                  Refresh
+                </Button>
+              </div>
+            )})
+          }
+        </AppContext.Consumer>
+      </motion.div>
+    </div>
+  );
+};
+
 export default KickUser;
+export { KickUser, YouveBeenKicked };

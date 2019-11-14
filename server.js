@@ -14,10 +14,8 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
-const {
-  isLoggedIn: spotifyLoggedIn,
-  search
-} = require(`./src/back_end/services/spotify-service`);
+const { Player: plr, spotifyservice } = require(`./src/back_end/services`);
+const Player = new plr();
 const Song = require(`./src/back_end/models/song`);
 app.use(cors()); // TODO remove in production, just for testing with postman
 
@@ -48,7 +46,7 @@ updateClients = () => {
   io.emit("update", {
     queue,
     currentSong,
-    playing,
+    playing: Player.state === "playing",
     users
   });
 };
@@ -85,7 +83,7 @@ io.on("connection", async socket => {
         User,
         loggedIn: true,
         library: await getLibrary(),
-        spotify: await spotifyLoggedIn()
+        spotify: await spotifyservice.isLoggedIn()
       });
     } else {
       //Notify the front end that the user needs to identify themselves
@@ -95,6 +93,11 @@ io.on("connection", async socket => {
       });
     }
     updateClients();
+  });
+
+  socket.on("kickuser", ({ userKicked, Kicker }) => {
+    //if(Kicker is admin)
+    io.emit("kicked", { userKicked, Kicker });
   });
 
   socket.on("reorder", newQueue => {
@@ -189,6 +192,7 @@ io.on("connection", async socket => {
   socket.on("play", song => {
     if (song.Type && song.ID) {
       //TODO: Call python to play the song
+      Player.play(song);
     } else {
       socket.emit("playError");
     }
@@ -197,35 +201,35 @@ io.on("connection", async socket => {
 
   //Someone pressed the play pause
   socket.on("playpause", song => {
-    playing = !playing;
+    if (Player.state === "playing") {
+      Player.pause();
+    } else if (Player.state === "paused") {
+      Player.resume();
+    }
     //Tell the python to stop or start
     updateClients();
   });
 
   //Someone hit the arrow for the previous track
-  socket.on("prevTrack", data => {
-    playing = false;
+  socket.on("prevTrack", song => {
     currentSong -= 1;
     //Tell python to start the prev track
-    playing = true;
+    Player.play(queue[currentSong]);
     updateClients();
   });
 
   //Someone hit the arrow for the next track
   socket.on("nextTrack", data => {
-    playing = false;
     currentSong += 1;
-    //Tell python to start the prev track
-    playing = true;
+    Player.play(queue[currentSong]);
     updateClients();
   });
 
   //Someone moved the slider and let go
   socket.on("scrub", data => {
     if (data.timestamp) {
-      playing = false;
       //TODO: Call python to play the song from the specified time
-      playing = true;
+      Player.scrub(data.timestamp)
     } else {
       socket.emit("scrubError");
     }
