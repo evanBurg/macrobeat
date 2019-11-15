@@ -14,7 +14,7 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
-const { Song } = require(`./src/back_end/models`);
+const { Song, User } = require(`./src/back_end/models`);
 
 const { Player: plr, spotifyservice } = require(`./src/back_end/services`);
 const Player = new plr();
@@ -64,21 +64,46 @@ const getLibrary = () => {
   });
 };
 
+const bannedUsers = process.env.BANNED_USERS ? process.env.BANNED_USERS.split(",") : [];
+
+attemptCreateUser = data => {
+  return new Promise(async (res, rej) => {
+    let user = await User.findOne({ uniqueId: data.id })
+
+    if (!user) {
+      await User.create({
+        uniqueId: data.id,
+        userName: data.user || " ",
+        profilePicBase64: data.img || " "
+      })
+      user = await User.findOne({ uniqueId: data.id })
+    }
+    res(user);
+  })
+}
+
 io.on("connection", async socket => {
   updateClients();
 
   //On initial connection, check if the user already has their login stored
   socket.on("init", async data => {
-    if (data.id) {
+    socket.userId = data.id;
+    if (bannedUsers.includes(data.id)) {
+      io.emit("kicked", { userKicked: data.id, Kicker: data.id });
+    }
+
+    //Create an empty row with only the ID
+    let user = await attemptCreateUser({ id: data.id });
+
+    if (user && !!user.userName && !!user.profilePicBase64 && user.userName !== " " && user.profilePicBase64 !=+ " ") {
       //check databse for user data
       //return user data
       users = users.filter(usr => usr.id !== data.id && !!usr.id);
       let User = {
-        user: "Burgy",
-        img: "https://i.imgur.com/nKuE1ep.jpg",
+        user: user.username,
+        img: user.profilePicBase64,
         id: data.id
       };
-      socket.userId = data.id;
       socket.username = User.user;
       users.push(User);
       socket.emit("init", {
@@ -113,22 +138,26 @@ io.on("connection", async socket => {
     updateClients();
   });
 
-  socket.on("identify", data => {
+  socket.on("identify", async data => {
     if (data.username && data.icon) {
       users = users.filter(usr => usr.id !== socket.userId && usr.id);
-      const User = {
+      const userData = {
         user: data.username,
         img: data.icon,
-        id: socket.userId
+        id: data.id
       };
-      users.push(User);
+      users.push(userData);
+      await User.updateOne({ uniqueId: userData.id}, { userName: userData.user, profilePicBase64: userData.img })
       //Also save in the database
       socket.username = data.username;
       socket.emit("init", {
-        User,
-        loggedIn: true
+        User: userData,
+        loggedIn: true,
+        library: await getLibrary(),
+        spotify: await spotifyservice.isLoggedIn()
       });
     }
+
     updateClients();
   });
 
@@ -207,7 +236,7 @@ io.on("connection", async socket => {
       Player.pause();
     } else if (Player.state === "paused") {
       Player.resume();
-    }else if(Player.state === "constructed"){
+    } else if (Player.state === "constructed") {
       Player.play(queue[currentSong]);
     }
     //Tell the python to stop or start
@@ -244,23 +273,26 @@ io.on("connection", async socket => {
     if (song.Type && song.ID) {
       if (song.Type === "youtube") {
         //Attempt to get better album art
-        let tracks = await search(song.Name);
-        let trackNames = tracks.map(i => i.track);
-        let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
-        if (
-          tracks.length > ratings.bestMatchIndex &&
-          ratings.bestMatchIndex > -1
-        ) {
-          song.Album = tracks[ratings.bestMatchIndex].album;
-          song.Image = tracks[ratings.bestMatchIndex].image;
+        if (await spotifyservice.isLoggedIn()) {
+          let tracks = await spotifyservice.search(song.Name);
+          let trackNames = tracks.map(i => i.track);
+          let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
+          if (
+            tracks.length > ratings.bestMatchIndex &&
+            ratings.bestMatchIndex > -1
+          ) {
+            song.Album = tracks[ratings.bestMatchIndex].album;
+            song.Image = tracks[ratings.bestMatchIndex].image;
+          }
         }
       }
 
       //Add to users mongo library
       const newsong = new Song({
-        uniqueId: song.ID,
+        id: song.ID,
         title: song.Name,
         artist: song.Artist,
+        lengthS: song.Length,
         album: song.Album,
         image: song.Image,
         source: song.Type
@@ -271,7 +303,7 @@ io.on("connection", async socket => {
           console.log(err);
           socket.emit("addToLibraryError");
         } else {
-          socket.emit("reloadLibrary", await getLibrary());
+          io.emit("reloadLibrary", await getLibrary());
         }
       });
     } else {
@@ -283,24 +315,21 @@ io.on("connection", async socket => {
   socket.on("removeFromLibrary", song => {
     if (song.Type && song.ID) {
       //Add to users mongo library
-      reload = async () => {
-        socket.emit("reloadLibrary", await getLibrary());
-      };
-      Song.find({ uniqueId: song.ID, source: song.Type }).remove(err => {
+      Song.deleteOne({ id: song.ID, source: song.Type }, (async err => {
         if (err) {
           console.log(err);
           socket.emit("removeFromLibraryError");
         } else {
-          reload();
+          io.emit("reloadLibrary", await getLibrary());
         }
-      });
+      }));
     } else {
       socket.emit("removeFromLibraryError");
     }
     updateClients();
   });
 
-  socket.on("disconnect", function() {
+  socket.on("disconnect", function () {
     users = users.filter(usr => usr.id !== socket.userId && usr.id);
   });
 

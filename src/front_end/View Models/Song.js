@@ -5,6 +5,7 @@ const YouTubeAdapter = song => ({
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
+  Length: song.lengthS || 0,
   Type: "youtube"
 });
 
@@ -14,15 +15,17 @@ const SpotifyAdapter = song => ({
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
+  Length: song.lengthS || 0,
   Type: "spotify"
 });
 
 const DatabaseAdapter = song => ({
-  ID: song.uniqueId || "Unknown",
+  ID: song.id || "Unknown",
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
+  Length: song.lengthS || 0,
   Type: song.source || "Unknown"
 });
 
@@ -45,11 +48,10 @@ class Song {
 
     if (song) {
       this._valid = true;
-
       this._ID = song.ID;
       this._Artist = song.Artist;
       this._Album = song.Album;
-
+      this._Length = song.Length;
       this._Name = song.Name;
       this._Image = song.Image;
       this._Type = song.Type;
@@ -72,6 +74,10 @@ class Song {
     return this._Name;
   }
 
+  get Length() {
+    return this._Length;
+  }
+
   get Image() {
     return this._Image;
   }
@@ -86,6 +92,7 @@ class Song {
       Artist: this._Artist,
       Album: this._Album,
       Name: this._Name,
+      Length: this._Length,
       Image: this._Image,
       Type: this._Type
     };

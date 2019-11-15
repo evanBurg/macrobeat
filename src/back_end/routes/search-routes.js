@@ -9,7 +9,10 @@ const { youtubeservice } = require(`../services`);
 router.get(`/:searchQuery`, async (req, res) => {
   try {
     const searchQuery = util.encodeSpaces(req.params.searchQuery);
-    const spotifyRes = await spotifyservice.search(searchQuery);
+    let spotifyRes = [];
+    if(await spotifyservice.isLoggedIn()){
+      spotifyRes = await spotifyservice.search(searchQuery);
+    }
     const youtubeRes = await youtubeservice.search(searchQuery);
     // TODO combine and jumble results into a single array to send to front-end
     return res.send([...spotifyRes, ...youtubeRes]);

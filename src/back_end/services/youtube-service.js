@@ -78,7 +78,7 @@ const formatResults = async res => {
     const title = rawResults[i].snippet.title;
     const artist = rawResults[i].snippet.channelTitle;
     const image = rawResults[i].snippet.thumbnails.default.url;
-    const lengthS = rawResults[i].seconds;
+    const lengthS = rawResults[i].seconds || 0;
     const song = {
       id,
       title,
