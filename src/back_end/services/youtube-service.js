@@ -37,13 +37,13 @@ const fallbackFormatResults = async res => {
   const rawResults = res.videos;
   for (let i = 0; i < rawResults.length && i < process.env.QUERY_LIMIT; i++) {
     const id = rawResults[i].videoId;
-    const track = rawResults[i].title;
+    const title = rawResults[i].title;
     const artist = rawResults[i].author.channelName;
     const image = `https://i.ytimg.com/vi/${id}/default.jpg`;
     const lengthS = rawResults[i].seconds;
     const song = {
       id,
-      track,
+      title,
       artist,
       image,
       lengthS,
@@ -75,13 +75,13 @@ const formatResults = async res => {
   const rawResults = res.items;
   for (let i = 0; i < rawResults.length && i < process.env.QUERY_LIMIT; i++) {
     const id = rawResults[i].id.videoId;
-    const track = rawResults[i].snippet.title;
+    const title = rawResults[i].snippet.title;
     const artist = rawResults[i].snippet.channelTitle;
     const image = rawResults[i].snippet.thumbnails.default.url;
     const lengthS = rawResults[i].seconds;
     const song = {
       id,
-      track,
+      title,
       artist,
       image,
       lengthS,
@@ -93,6 +93,8 @@ const formatResults = async res => {
 };
 
 let g_stream = null;
+// let g_videoId = null;
+// let g_timestamp = null;
 const play = async videoId => {
   const url = `http://www.youtube.com/watch?v=${videoId}`;
   g_stream = stream(url);
@@ -120,10 +122,13 @@ const stop = async () => {
   }
 };
 
+// const scrub = async () => {};
+
 module.exports = {
   search,
   play,
   pause,
   resume,
   stop
+  // scrub
 };

@@ -4,8 +4,8 @@ const userroutes = require(`./user-routes`);
 const youtuberoutes = require(`./youtube-routes`);
 
 module.exports = {
-	searchroutes,
-	spotifyroutes,
-	userroutes,
-	youtuberoutes
+  searchroutes,
+  spotifyroutes,
+  userroutes,
+  youtuberoutes
 };

@@ -14,9 +14,11 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
+const { Song } = require(`./src/back_end/models`);
+
 const { Player: plr, spotifyservice } = require(`./src/back_end/services`);
 const Player = new plr();
-const Song = require(`./src/back_end/models/song`);
+
 app.use(cors()); // TODO remove in production, just for testing with postman
 
 app.use(bodyParser.json());
@@ -34,16 +36,16 @@ app.get(`/`, (req, res) => {
   res.sendFile(`index.html`);
 });
 
-let server = http.createServer(app);
-let io = socketIO(server);
+const server = http.createServer(app);
+const io = socketIO(server);
 
 let users = [];
 let queue = [];
 let currentSong = 0;
 let playing = false;
 
-updateClients = () => {
-  io.emit("update", {
+const updateClients = () => {
+  io.emit(`update`, {
     queue,
     currentSong,
     playing: Player.state === "playing",
@@ -231,7 +233,7 @@ io.on("connection", async socket => {
   socket.on("scrub", data => {
     if (data.timestamp) {
       //TODO: Call python to play the song from the specified time
-      Player.scrub(data.timestamp)
+      Player.scrub(data.timestamp);
     } else {
       socket.emit("scrubError");
     }
