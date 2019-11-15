@@ -187,7 +187,7 @@ io.on("connection", async socket => {
     if (songArray) {
       queue = [
         ...queue,
-        ...songArray.map(song => ({ ...song, Time: unixTimestamp() }))
+        ...songArray.map((song, idx) => ({ ...song, Time: unixTimestamp()+idx }))
       ];
     } else {
       socket.emit("queueError");
@@ -201,7 +201,7 @@ io.on("connection", async socket => {
       queue.splice(
         currentSong + 1,
         0,
-        ...songArray.map(song => ({ ...song, Time: unixTimestamp() }))
+        ...songArray.map((song, idx) => ({ ...song, Time: unixTimestamp()+idx }))
       );
     } else {
       socket.emit("playNextError");
