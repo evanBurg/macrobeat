@@ -205,6 +205,8 @@ io.on("connection", async socket => {
       Player.pause();
     } else if (Player.state === "paused") {
       Player.resume();
+    }else if(Player.state === "constructed"){
+      Player.play(queue[currentSong]);
     }
     //Tell the python to stop or start
     updateClients();
