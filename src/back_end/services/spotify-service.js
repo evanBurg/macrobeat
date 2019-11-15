@@ -26,15 +26,6 @@ const refreshToken = async () => {
   ).exec();
 };
 
-const isLoggedIn = async () => {
-  let token = await AuthToken.findOne({ serviceName: `spotify` });
-  if (token) {
-    return true;
-  }
-
-  return false;
-};
-
 const search = async searchQuery => {
   let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
   let options = {
@@ -64,7 +55,7 @@ const formatResults = async res => {
     const title = rawSongs[i].name;
     const artist = rawSongs[i].artists[0].name;
     const album = rawSongs[i].album.name;
-    //First image is always highest quality
+    // first image is always highest quality
     const image = rawSongs[i].album.images[0].url;
     const lengthS = Math.round(rawSongs[i].duration_ms / 1000);
     const song = {
@@ -81,10 +72,12 @@ const formatResults = async res => {
   return songs;
 };
 
-const play = songID => {}
+const isLoggedIn = async () => {
+  const token = await AuthToken.findOne({ serviceName: `spotify` });
+  return token ? true : false;
+};
 
 module.exports = {
   search,
-  play,
   isLoggedIn
 };

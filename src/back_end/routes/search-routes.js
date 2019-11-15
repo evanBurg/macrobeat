@@ -11,6 +11,7 @@ router.get(`/:searchQuery`, async (req, res) => {
     const searchQuery = util.encodeSpaces(req.params.searchQuery);
     const spotifyRes = await spotifyservice.search(searchQuery);
     const youtubeRes = await youtubeservice.search(searchQuery);
+    // TODO combine and jumble results into a single array to send to front-end
     return res.send([...spotifyRes, ...youtubeRes]);
   } catch (err) {
     console.log(err.stack);
