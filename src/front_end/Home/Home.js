@@ -21,24 +21,6 @@ class Home extends Component {
         {context => (
           <Page heading="Home">
             <Row>
-              <Box
-                alignItems="center"
-                justifyContent="center"
-                display="flex"
-                flex="grow"
-                paddingY={5}
-              >
-                <SearchField
-                  accessibilityLabel="Search library"
-                  id="searchField"
-                  onChange={({ value }) => this.setState({ search: value })}
-                  placeholder="Search your library.."
-                  value={this.state.search}
-                  style={{ width: "100%" }}
-                />
-              </Box>
-            </Row>
-            <Row>
               {context.Queue && !context.Queue.Empty && (
                 <SongGroup
                   label="Now playing"
@@ -59,7 +41,7 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Artists</Heading>
-              {context.Library && context.Library.Artists && context.Library.Artists.length > 0 ? (
+              {context.Library && context.Library.Artists && Object.keys(context.Library.Artists).length > 0 ? (
                 <ItemGroup type="artist" items={context.Library ? context.Library.Artists : {}} loading={context.loading} />
               ) : (
                 <Empty loading={context.loading} />
@@ -67,7 +49,7 @@ class Home extends Component {
             </Row>
             <Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Albums</Heading>
-              {context.Library && context.Library.Albums && context.Library.Albums.length > 0 ? (
+              {context.Library && context.Library.Albums && Object.keys(context.Library.Albums).length > 0 ? (
                 <ItemGroup type="album" wide items={context.Library ? context.Library.Albums : {}} loading={context.loading}/>
               ) : (
                 <Empty loading={context.loading} /> 
@@ -75,7 +57,7 @@ class Home extends Component {
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
               {context.Library && context.Library.Songs && context.Library.Songs.length > 0 ? (
-                <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+                <ItemGroup type="library" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
               ) : (
                 <Empty loading={context.loading} />
               )}

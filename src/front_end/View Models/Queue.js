@@ -18,6 +18,10 @@ class Queue {
     else return null;
   }
 
+  get CurrentSongIndex(){
+    return this._ActiveIndex;
+  }
+
   get NextSong() {
     if (this._Queue[this._ActiveIndex + 1])
       return this._Queue[this._ActiveIndex + 1];
@@ -58,12 +62,27 @@ class Queue {
     this._Socket.emit("queue", this.JSONCopy(Song));
   }
 
+  RemoveFromQueue(Song){
+    this._Socket.emit("removeFromQueue", this.JSONCopy(Song));
+  }
+
+  AddSongsToQueue(SongArray){
+    this._Socket.emit("queueMultiple", SongArray.map(Song => this.JSONCopy(Song)));
+  }
+
   PlayNext(Song){
     this._Socket.emit("playNext", this.JSONCopy(Song));
   }
 
+  PlaySongsNext(SongArray){
+    this._Socket.emit("playNextMultiple", SongArray.map(Song => this.JSONCopy(Song)));
+  }
+
   AddToLibrary(Song){
     this._Socket.emit("addToLibrary", this.JSONCopy(Song));
+  }
+  RemoveFromLibrary(Song){
+    this._Socket.emit("removeFromLibrary", this.JSONCopy(Song));
   }
 }
 

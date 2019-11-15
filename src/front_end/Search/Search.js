@@ -51,32 +51,50 @@ class Search extends Component {
     this.state = {
       results: [],
       resultItems: [],
-      search: ""
+      search: "",
+      debounceTimer: null
     };
   }
 
   getResults = async context => {
     let { results, search } = this.state;
 
-    if (!search) return <React.Fragment />;
+    if (!search) {
+      return this.setState({
+        results: [],
+        resultItems: [],
+        loading: false
+      })  
+    }
 
-    let response = await fetch(`/api/search?query=${search}`);
+    // TODO new search endpoint, data struct different
+    let response = await fetch(`/api/search/${search}`);
     if (response.ok) {
-      results = (await response.json()).map(
-        song => new Song(song, "YouTube")
-      );
-    };
+      results = (await response.json()).map(song => new Song(song, song.source));
+    }
 
     this.setState({
       results,
       resultItems: results.map((result, idx) => {
+        const backgroundStyles = {
+          backgroundColor: "rgba(0, 0, 0, 0.45)",
+          backgroundImage: `url(${result.Image})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat"
+        }
+
         return (
-          <div key={`search-${idx}`} style={styles.resultRow} onClick={() => context.openContextMenu(result, "song")}>
+          <div
+            key={`search-${idx}`}
+            style={styles.resultRow}
+            onClick={() => context.openContextMenu(result, "song")}
+          >
             <div style={{ display: "flex" }}>
               <div
                 style={{
                   ...styles.resultImage,
-                  background: `rgba(0, 0, 0, 0.45) center no-repeat url(${result.Image})`
+                  ...backgroundStyles
                 }}
               />
               <div style={styles.resultInfo}>
@@ -104,9 +122,22 @@ class Search extends Component {
             />
           </div>
         );
-      })
+      }),
+      loading: false
     });
   };
+
+  debounce = (ctx) => {
+    let {debounceTimer} = this.state;
+
+    clearTimeout(debounceTimer);
+
+    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 400), loading: true});
+  }
+
+  handleSearchChange = ({value}, ctx) => {
+    this.setState({ search: value }, () => this.debounce(ctx))
+  }
 
   render() {
     return (
@@ -124,23 +155,23 @@ class Search extends Component {
                 <SearchField
                   accessibilityLabel="Search services"
                   id="searchField"
-                  onChange={({ value }) =>
-                    this.setState({ search: value }, () => this.getResults(context))
-                  }
+                  onChange={(e) => this.handleSearchChange(e, context)}
+                    
                   placeholder="Search services..."
                   value={this.state.search}
                   style={{ width: "100%" }}
                 />
               </Box>
             </Row>
-            {this.state.resultItems.length > 0 && !!this.state.search ? (
-              <Row style={styles.resultsContainer}>{this.state.resultItems}</Row>
+            {this.state.resultItems.length > 0 && !!this.state.search && !this.state.loading ? (
+              <Row style={styles.resultsContainer}>
+                {this.state.resultItems}
+              </Row>
             ) : (
-              <div style={{display: 'flex', justifyContent: 'center'}}>
-                <Empty/>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Empty loading={this.state.loading} />
               </div>
             )}
-
           </Page>
         )}
       </AppContext.Consumer>
