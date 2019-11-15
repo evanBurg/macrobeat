@@ -81,26 +81,7 @@ const formatResults = async res => {
   return songs;
 };
 
-const search = async searchQuery => {
-  let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
-  let options = {
-    url: `${process.env.SPOTIFY_SEARCH_URI}?q=${searchQuery}&type=album,artist,track&limit=${process.env.QUERY_LIMIT}`,
-    headers: { Authorization: `Bearer ${doc.authToken}` },
-    json: true
-  };
-  let body = await preq.get(options);
-  if (
-    body.error &&
-    (body.error.status === 401 ||
-      body.error.message === `The access token expired`)
-  ) {
-    await refreshToken();
-    doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
-    options.headers = { Authorization: `Bearer ${doc.authToken}` };
-    body = await preq.get(options);
-  }
-  return await formatResults(body);
-};
+const play = songID => {}
 
 module.exports = {
   search,
