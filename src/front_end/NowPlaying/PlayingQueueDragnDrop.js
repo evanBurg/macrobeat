@@ -117,7 +117,7 @@ const Row = React.memo(({ data: songs, index, style }) => {
         >
           {(provided, snapshot) => (
             <div
-              style={{ margin: 0, ...style }}
+              style={{ ...styles.songWrapper, margin: 0, ...style }}
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
@@ -189,7 +189,7 @@ function App(props) {
             </div>
           </div>
         </div>
-        <div style={styles.songsContainer}>
+        <div style={{width: '100%'}}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable
               droppableId="droppable"

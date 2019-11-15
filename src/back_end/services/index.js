@@ -2,52 +2,56 @@ const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 
 class Player {
-  constructor() {}
-
-  currentlyPlaying = null;
-  currentService = "";
-  state = "constructed";
+  constructor() {
+    this.currentlyPlaying = null;
+    this.currentService = "";
+    this.state = "constructed";
+  }
 
   play(Song) {
-    if (state === "playing" || state === "paused") {
+    if (this.state === "playing" || this.state === "paused") {
       this.stop();
+    }
+
+    if(!Song){
+      return;
     }
 
     this.currentlyPlaying = Song;
     this.currentService = Song.Type;
     switch (Song.Type) {
       case "youtube":
-        youtubeservice.play(Song);
-        state = "playing";
+        youtubeservice.play(Song.ID);
+        this.state = "playing";
         break;
       case "spotify":
-        spotifyservice.play(Song);
-        state = "playing";
+        spotifyservice.play(Song.ID);
+        this.state = "playing";
         break;
     }
   }
 
-  resume(){
-	state === "playing"
-	switch (this.currentService) {
-		case "youtube":
-		  return youtubeservice.resume();
-		case "spotify":
-		  return spotifyservice.resume();
-	  }
+  resume() {
+    this.state = "playing";
+    switch (this.currentService) {
+      case "youtube":
+        return youtubeservice.resume();
+      case "spotify":
+        return spotifyservice.resume();
+    }
   }
 
-  scrub(timestamp){
-	switch (this.currentService) {
-		case "youtube":
-		  return youtubeservice.scrub(timestamp);
-		case "spotify":
-		  return spotifyservice.scrub(timestamp);
-	  }
-	}
+  scrub(timestamp) {
+    switch (this.currentService) {
+      case "youtube":
+        return youtubeservice.scrub(timestamp);
+      case "spotify":
+        return spotifyservice.scrub(timestamp);
+    }
+  }
 
   pause() {
-	state === "paused";
+    this.state = "paused";
     switch (this.currentService) {
       case "youtube":
         return youtubeservice.pause();
@@ -56,16 +60,16 @@ class Player {
     }
   }
 
-  stop(){
-	state === "stopped";
-	switch (this.currentService) {
-		case "youtube":
-		  return youtubeservice.stop();
-		case "spotify":
-		  return spotifyservice.stop();
-	  }
-	  this.currentlyPlaying = null;
-	  this.currentService = "";
+  stop() {
+    this.state = "stopped";
+    switch (this.currentService) {
+      case "youtube":
+        return youtubeservice.stop();
+      case "spotify":
+        return spotifyservice.stop();
+    }
+    this.currentlyPlaying = null;
+    this.currentService = "";
   }
 }
 
