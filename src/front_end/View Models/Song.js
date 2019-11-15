@@ -3,7 +3,7 @@ const YouTubeAdapter = song => ({
   ID: song.id,
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
-  Name: song.track || "Unknown",
+  Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
   Type: "youtube"
 });
@@ -12,7 +12,7 @@ const SpotifyAdapter = song => ({
   ID: song.id,
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
-  Name: song.track || "Unknown",
+  Name: song.title || "Unknown",
   Image: song.image || "https://placeimg.com/640/480/people",
   Type: "spotify"
 });
