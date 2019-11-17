@@ -89,8 +89,6 @@ const mpv = new mpvAPI({
 const play = async (videoId, timestampCallback) => {
   const url = `http://www.youtube.com/watch?v=${videoId}`;
   mpv.load(url, "replace");
-  timestamp = 0;
-  
   mpv.on('timeposition', timestampCallback);
 };
 
