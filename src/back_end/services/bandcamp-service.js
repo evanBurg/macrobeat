@@ -17,6 +17,11 @@ const search = (searchQuery, page) => {
         reject(error);
       } else {
           let allTracksFound = false;
+          
+          if(searchResults.length < 1){
+              allTracksFound = true;
+          }
+
           searchResults.forEach(item => {
               if(item.type === "track"){
                   tracks.push(item);
