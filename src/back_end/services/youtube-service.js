@@ -1,19 +1,8 @@
 require(`dotenv`).config();
 const ytsearch = require(`yt-search`);
-const stream = require(`youtube-audio-stream`);
-const decoder = require(`lame`).Decoder;
-const Speaker = require(`speaker`);
-const ffmpegPath = require(`@ffmpeg-installer/ffmpeg`).path;
-const ffmpeg = require(`fluent-ffmpeg`);
-ffmpeg.setFfmpegPath(ffmpegPath);
-
 const { preq } = require(`../utilities`);
-
-const speaker = new Speaker({
-  channels: 2, // 2 channels
-  bitDepth: 16, // 16-bit samples
-  sampleRate: 44100 // 44,100 Hz sample rate
-});
+const MPV_LOCATION = process.env.MPV_LOCATION || "e:/mpv/mpv.exe";
+const mpvAPI = require('node-mpv');
 
 const fallbackSearch = searchQuery => {
   const options = {
@@ -92,34 +81,29 @@ const formatResults = async res => {
   return songs;
 };
 
-let g_stream = null;
-// let g_videoId = null;
-// let g_timestamp = null;
-const play = async videoId => {
+const mpv = new mpvAPI({
+  audio_only: true,
+  binary: MPV_LOCATION
+});
+
+const play = async (videoId, timestampCallback) => {
   const url = `http://www.youtube.com/watch?v=${videoId}`;
-  g_stream = stream(url);
-  g_stream.pipe(decoder()).pipe(speaker);
+  mpv.load(url, "replace");
+  timestamp = 0;
+  
+  mpv.on('timeposition', timestampCallback);
 };
 
 const pause = async () => {
-  if (g_stream) {
-    g_stream.unpipe();
-    g_stream.pause();
-  }
+  mpv.pause()
 };
 
 const resume = async () => {
-  if (g_stream) {
-    g_stream.pipe(decoder()).pipe(speaker);
-    g_stream.resume();
-  }
+  mpv.resume()
 };
 
 const stop = async () => {
-  if (g_stream) {
-    g_stream.unpipe();
-    g_stream = null;
-  }
+ mpv.stop()
 };
 
 // const scrub = async () => {};

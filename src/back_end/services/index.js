@@ -5,6 +5,7 @@ class Player {
   constructor() {
     this.currentlyPlaying = null;
     this.currentService = "";
+    this.timestamp = 0;
     this.state = "constructed";
   }
 
@@ -21,7 +22,7 @@ class Player {
     this.currentService = Song.Type;
     switch (Song.Type) {
       case "youtube":
-        youtubeservice.play(Song.ID);
+        youtubeservice.play(Song.ID, this.updateTimestamp);
         this.state = "playing";
         break;
       case "spotify":
@@ -29,6 +30,10 @@ class Player {
         this.state = "playing";
         break;
     }
+  }
+
+  updateTimestamp(seconds){
+    this.timestamp = seconds;
   }
 
   resume() {
