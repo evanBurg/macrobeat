@@ -1,6 +1,6 @@
 require(`dotenv`).config();
 const BandcampSearch = require("bandcamp-scraper");
-const MPV_LOCATION = process.env.MPV_LOCATION || "e:/mpv/mpv.exe";
+const MPV_LOCATION = process.env.MPV_LOCATION;
 const mpvAPI = require("node-mpv");
 const MAX_RESULTS = parseInt(process.env.QUERY_LIMIT) || 10;
 const MAX_PAGE = parseInt(process.env.BANDCAMP_MAX_PAGE) || 7

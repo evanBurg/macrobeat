@@ -1,5 +1,5 @@
 require(`dotenv`).config();
-const MPV_LOCATION = process.env.MPV_LOCATION || "e:/mpv/mpv.exe";
+const MPV_LOCATION = process.env.MPV_LOCATION;
 const mpvAPI = require("node-mpv");
 const { preq } = require(`../utilities`);
 const CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID

@@ -1,7 +1,7 @@
 require(`dotenv`).config();
 const ytsearch = require(`yt-search`);
 const { preq } = require(`../utilities`);
-const MPV_LOCATION = process.env.MPV_LOCATION || "e:/mpv/mpv.exe";
+const MPV_LOCATION = process.env.MPV_LOCATION;
 const mpvAPI = require('node-mpv');
 
 const fallbackSearch = searchQuery => {
