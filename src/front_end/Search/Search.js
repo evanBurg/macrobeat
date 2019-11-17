@@ -133,7 +133,7 @@ class Search extends Component {
 
     clearTimeout(debounceTimer);
 
-    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 400), loading: true});
+    this.setState({debounceTimer: setTimeout(() => this.getResults(ctx), 800), loading: true});
   }
 
   handleSearchChange = ({value}, ctx) => {

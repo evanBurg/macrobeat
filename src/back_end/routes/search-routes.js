@@ -18,21 +18,21 @@ router.get(`/:searchQuery`, async (req, res) => {
     const searchQuery = util.encodeSpaces(req.params.searchQuery);
     let promises = [];
 
-    if(await spotifyservice.isLoggedIn()){
-      promises.push(spotifyservice.search(searchQuery));
-    }
+    promises.push(youtubeservice.search(searchQuery));
 
     if(soundcloudservice.isLoggedIn()){
       promises.push(soundcloudservice.search(searchQuery));
     }
 
-    promises.push(youtubeservice.search(searchQuery));
-
     promises.push(bandcampservice.search(decodeURIComponent(searchQuery)));
+
+    if(await spotifyservice.isLoggedIn()){
+      promises.push(spotifyservice.search(searchQuery));
+    }
 
     Promise.all(promises).then(results => {
       results = results.reduce((acc, items) => [...acc, ...items], []);
-      return res.send(shuffle(results));
+      return res.send(results);
     })
   } catch (err) {
     console.log(err.stack);

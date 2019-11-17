@@ -37,6 +37,8 @@ class Player {
         break;
       case "spotify":
         //spotifyservice.play(Song.ID);
+        //Just skip this until we can play
+        setTimeout(onFinished, 400);
         this.state = "playing";
         break;
     }
