@@ -86,15 +86,11 @@ const mpv = new mpvAPI({
   binary: MPV_LOCATION
 });
 
-let timeCallback, finishedCallback;
-
 const play = async (videoId, timestampCallback, onFinishedCallback) => {
   const url = `http://www.youtube.com/watch?v=${videoId}`;
   mpv.load(url, "replace");
-  timeCallback = timestampCallback;
-  finishedCallback = onFinishedCallback;
-  mpv.on('timeposition', timeCallback);
-  mpv.on('stopped', finishedCallback)
+  mpv.on('timeposition', timestampCallback);
+  mpv.on('stopped', onFinishedCallback)
 };
 
 const pause = async () => {
@@ -107,8 +103,6 @@ const resume = async () => {
 
 const stop = async () => {
  mpv.stop()
- mpv.removeEventListener('timeposition', timeCallback)
- mpv.removeEventListener('stopped', finishedCallback)
 };
 
 // const scrub = async () => {};
