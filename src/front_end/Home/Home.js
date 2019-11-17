@@ -57,7 +57,7 @@ class Home extends Component {
             </Row><Row style={{justifyContent: 'center', flexDirection: 'column'}}>
               <Heading size="xs">Songs</Heading>
               {context.Library && context.Library.Songs && context.Library.Songs.length > 0 ? (
-                <ItemGroup type="library" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
+                <ItemGroup type="song" items={context.Library ? context.Library.Songs : []} loading={context.loading}/>
               ) : (
                 <Empty loading={context.loading} />
               )}

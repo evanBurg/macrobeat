@@ -80,6 +80,7 @@ const Item = props => {
     <AppContext.Consumer>
       {ctx => (
         <div
+          key={props.item.Image}
           style={style}
           onClick={() => props.standalone ? ctx.openCollection(props.item, props.type) : ctx.openContextMenu(props.item, props.type) }
         >
@@ -120,7 +121,7 @@ class ItemGroup extends Component {
       <div style={{marginRight: 10}}>
         <div style={styles.innerContainer}>
           {Object.keys(items).map(key => (
-            <Item key={key} item={items[key]} wide={wide} type={type} />
+            <Item key={key} item={items[key]} wide={wide} type={type} standalone={type !== "song"} />
           ))}
         </div>
       </div>

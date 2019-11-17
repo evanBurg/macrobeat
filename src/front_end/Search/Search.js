@@ -88,7 +88,7 @@ class Search extends Component {
           <div
             key={`search-${idx}`}
             style={styles.resultRow}
-            onClick={() => context.openContextMenu(result, "song")}
+            onClick={() => context.openContextMenu(result, "searchSong")}
           >
             <div style={{ display: "flex" }}>
               <div
@@ -96,6 +96,7 @@ class Search extends Component {
                   ...styles.resultImage,
                   ...backgroundStyles
                 }}
+                key={result.Image}
               />
               <div style={styles.resultInfo}>
                 <Header

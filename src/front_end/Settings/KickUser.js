@@ -87,6 +87,8 @@ const variants = {
 };
 
 const ShortenName = Name => {
+  if(!Name) return "";
+
   if (Name.length > 12) {
     return Name.substr(0, 9) + "...";
   }

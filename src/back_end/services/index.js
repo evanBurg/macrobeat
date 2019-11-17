@@ -25,7 +25,7 @@ class Player {
         this.state = "playing";
         break;
       case "spotify":
-        spotifyservice.play(Song.ID);
+        //spotifyservice.play(Song.ID);
         this.state = "playing";
         break;
     }
@@ -37,7 +37,7 @@ class Player {
       case "youtube":
         return youtubeservice.resume();
       case "spotify":
-        return spotifyservice.resume();
+        //return spotifyservice.resume();
     }
   }
 
@@ -46,7 +46,7 @@ class Player {
       case "youtube":
         return youtubeservice.scrub(timestamp);
       case "spotify":
-        return spotifyservice.scrub(timestamp);
+        //return spotifyservice.scrub(timestamp);
     }
   }
 
@@ -56,7 +56,7 @@ class Player {
       case "youtube":
         return youtubeservice.pause();
       case "spotify":
-        return spotifyservice.pause();
+        //return spotifyservice.pause();
     }
   }
 
@@ -66,7 +66,7 @@ class Player {
       case "youtube":
         return youtubeservice.stop();
       case "spotify":
-        return spotifyservice.stop();
+        //return spotifyservice.stop();
     }
     this.currentlyPlaying = null;
     this.currentService = "";

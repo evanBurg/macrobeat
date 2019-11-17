@@ -31,6 +31,10 @@ const songSchema = new mongoose.Schema({
     type: String,
     enum: [`youtube`, `spotify`, `soundcloud`],
     required: true
+  },
+  artistImage: {
+    type: String,
+    required: false
   }
 });
 

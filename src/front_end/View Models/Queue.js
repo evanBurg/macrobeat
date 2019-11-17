@@ -84,6 +84,12 @@ class Queue {
   RemoveFromLibrary(Song){
     this._Socket.emit("removeFromLibrary", this.JSONCopy(Song));
   }
+  RemoveArtistFromLibrary(SongArray){
+    this._Socket.emit("removeArtistFromLibrary", SongArray.map(Song => this.JSONCopy(Song)));
+  }
+  RemoveAlbumFromLibrary(SongArray){
+    this._Socket.emit("removeAlbumFromLibrary", SongArray.map(Song => this.JSONCopy(Song)));
+  }
 }
 
 export default Queue;

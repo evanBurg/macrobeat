@@ -16,7 +16,11 @@ class Library {
         this._Artists[song.Artist].addSong(song);
       } else {
         artistExists = true;
-        this._Artists[song.Artist] = new Artist(song.Artist, [song]);
+        this._Artists[song.Artist] = new Artist(song.Artist, song.ArtistImage, [song]);
+      }
+
+      if(song.ArtistImage){
+        this._Artists[song.Artist].setImage(song.ArtistImage);
       }
 
       let albumExists = false;

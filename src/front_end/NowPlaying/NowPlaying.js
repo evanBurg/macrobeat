@@ -256,6 +256,7 @@ class Record extends Component {
           <div style={styles.recordCenter} />
         </Mask>
         <motion.div
+          key={this.props.image}
           style={{
             backgroundColor:"white",
             backgroundImage:`url(${this.props.image})`,

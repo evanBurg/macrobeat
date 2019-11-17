@@ -31,7 +31,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ContextMenu from "./Components/ContextMenu";
 import CollectionView from "./Components/CollectionView";
 import { Header } from "./Components/WrapperComponents";
-import {YouveBeenKicked } from './Settings/KickUser'
+import { YouveBeenKicked } from "./Settings/KickUser";
 import PlayingQueue from "./NowPlaying/PlayingQueueDragnDrop";
 import ScrollToTop from "./Components/ScrollToTop";
 import Settings from "./Settings/Settings";
@@ -205,24 +205,24 @@ class App extends Component {
     }
 
     //Attempt login
-    this.setState({userID})
+    this.setState({ userID });
     this.state.socket.emit("init", { id: userID });
 
     //Set up event listeners
     this.state.socket.on("update", this.update);
     this.state.socket.on("init", this.handleLogIn);
     this.state.socket.on("reloadLibrary", this.reloadLibrary);
-    this.state.socket.on('kicked', this.attemptKick);
+    this.state.socket.on("kicked", this.attemptKick);
   };
 
-  attemptKick = ({userKicked, Kicker}) => {
-    if (userKicked === this.state.userID){
+  attemptKick = ({ userKicked, Kicker }) => {
+    if (userKicked === this.state.userID) {
       this.setState({
         kicked: true,
         kickedBy: Kicker
       });
     }
-  }
+  };
 
   reloadLibrary = songs => {
     const library = new Library(songs, []);
@@ -236,9 +236,13 @@ class App extends Component {
       this.setState({
         User: data.User,
         firstLoginOpen: false,
-        Library: data.hasOwnProperty("library") ? new Library(data.library, []) : this.state.Library,
+        Library: data.hasOwnProperty("library")
+          ? new Library(data.library, [])
+          : this.state.Library,
         loading: false,
-        spotifyAccess: data.hasOwnProperty("spotify") ? data.spotify : this.state.spotifyAccess
+        spotifyAccess: data.hasOwnProperty("spotify")
+          ? data.spotify
+          : this.state.spotifyAccess
       });
     }
   };
@@ -273,7 +277,9 @@ class App extends Component {
   };
 
   reorderQueue = queue => {
-    this.state.socket.emit("reorder", queue);
+    this.setState({
+      Queue: new Queue(queue, this.state.Queue.CurrentSongIndex, this.state.socket)
+    }, () => this.state.socket.emit("reorder", queue));
   };
 
   toggleNowPlaying = () => {
@@ -357,7 +363,7 @@ class App extends Component {
   contextItems = type => {
     type = type.toLowerCase();
     switch (type) {
-      case "library":
+      case "song":
         return [
           {
             key: "next",
@@ -474,7 +480,7 @@ class App extends Component {
             icon: MdShareAlt
           }
         ];
-      case "song":
+      case "searchsong":
         return [
           {
             key: "next",
@@ -502,30 +508,6 @@ class App extends Component {
               this.closeContextMenu();
             },
             icon: IosAddCircleOutline
-          },
-          {
-            key: "artist",
-            title: "Go to artist",
-            onClick: item => {
-              this.openCollection(
-                this.state.Library.getArtist(item.Artist),
-                "artist"
-              );
-              this.closeContextMenu();
-            },
-            icon: MdMicrophone
-          },
-          {
-            key: "album",
-            title: "Go to album",
-            onClick: item => {
-              this.openCollection(
-                this.state.Library.getAlbum(item.Album),
-                "album"
-              );
-              this.closeContextMenu();
-            },
-            icon: MdDisc
           },
           {
             key: "share",
@@ -570,6 +552,17 @@ class App extends Component {
               this.closeContextMenu();
             },
             icon: MdMicrophone
+          },
+          {
+            key: "library",
+            title: "Remove album from library",
+            onClick: () => {
+              this.state.Queue.RemoveFromAlbumLibrary(
+                this.state.contextSelection
+              );
+              this.closeContextMenu();
+            },
+            icon: IosRemoveCircleOutline
           }
           // {
           //   key: "share",
@@ -599,7 +592,18 @@ class App extends Component {
               this.closeContextMenu();
             },
             icon: IosList
-          }
+          },
+          {
+            key: "library",
+            title: "Remove artist from library",
+            onClick: () => {
+              this.state.Queue.RemoveFromArtistLibrary(
+                this.state.contextSelection
+              );
+              this.closeContextMenu();
+            },
+            icon: IosRemoveCircleOutline
+          },
           // {
           //   key: "share",
           //   title: "Share",
@@ -660,6 +664,19 @@ class App extends Component {
     this.setState({ settingsOpen: state });
   };
 
+  setCollectionImage = (type, name, image) => {
+    const { socket } = this.state;
+
+    switch(type){
+      case "album":
+          socket.emit("setAlbumImage", ({name, image}))
+        break;
+      case "artist":
+          socket.emit("setArtistImage", ({name, image}))
+        break;
+    }
+  }
+
   render() {
     let {
       tab,
@@ -702,9 +719,8 @@ class App extends Component {
     return (
       <AppContext.Provider value={context}>
         {this.state.kicked && (
-          <YouveBeenKicked kickedBy={this.state.kickedBy}/>
+          <YouveBeenKicked kickedBy={this.state.kickedBy} />
         )}
-
 
         {!nowPlayingOpen && !collectionOpen && (
           <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
@@ -718,6 +734,7 @@ class App extends Component {
               item={collectionItem}
               close={this.closeCollection}
               type={collectionType}
+              setImage={this.setCollectionImage}
             />
           </AnimatePresence>
         )}

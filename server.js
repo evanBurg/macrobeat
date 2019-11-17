@@ -42,7 +42,6 @@ const io = socketIO(server);
 let users = [];
 let queue = [];
 let currentSong = 0;
-let playing = false;
 
 const updateClients = () => {
   io.emit(`update`, {
@@ -64,23 +63,25 @@ const getLibrary = () => {
   });
 };
 
-const bannedUsers = process.env.BANNED_USERS ? process.env.BANNED_USERS.split(",") : [];
+const bannedUsers = process.env.BANNED_USERS
+  ? process.env.BANNED_USERS.split(",")
+  : [];
 
 attemptCreateUser = data => {
   return new Promise(async (res, rej) => {
-    let user = await User.findOne({ uniqueId: data.id })
+    let user = await User.findOne({ uniqueId: data.id });
 
     if (!user) {
       await User.create({
         uniqueId: data.id,
         userName: data.user || " ",
         profilePicBase64: data.img || " "
-      })
-      user = await User.findOne({ uniqueId: data.id })
+      });
+      user = await User.findOne({ uniqueId: data.id });
     }
     res(user);
-  })
-}
+  });
+};
 
 io.on("connection", async socket => {
   updateClients();
@@ -95,7 +96,13 @@ io.on("connection", async socket => {
     //Create an empty row with only the ID
     let user = await attemptCreateUser({ id: data.id });
 
-    if (user && !!user.userName && !!user.profilePicBase64 && user.userName !== " " && user.profilePicBase64 !=+ " ") {
+    if (
+      user &&
+      !!user.userName &&
+      !!user.profilePicBase64 &&
+      user.userName !== " " &&
+      user.profilePicBase64 != +" "
+    ) {
       //check databse for user data
       //return user data
       users = users.filter(usr => usr.id !== data.id && !!usr.id);
@@ -147,7 +154,10 @@ io.on("connection", async socket => {
         id: data.id
       };
       users.push(userData);
-      await User.updateOne({ uniqueId: userData.id}, { userName: userData.user, profilePicBase64: userData.img })
+      await User.updateOne(
+        { uniqueId: userData.id },
+        { userName: userData.user, profilePicBase64: userData.img }
+      );
       //Also save in the database
       socket.username = data.username;
       socket.emit("init", {
@@ -187,7 +197,10 @@ io.on("connection", async socket => {
     if (songArray) {
       queue = [
         ...queue,
-        ...songArray.map((song, idx) => ({ ...song, Time: unixTimestamp()+idx }))
+        ...songArray.map((song, idx) => ({
+          ...song,
+          Time: unixTimestamp() + idx
+        }))
       ];
     } else {
       socket.emit("queueError");
@@ -201,7 +214,10 @@ io.on("connection", async socket => {
       queue.splice(
         currentSong + 1,
         0,
-        ...songArray.map((song, idx) => ({ ...song, Time: unixTimestamp()+idx }))
+        ...songArray.map((song, idx) => ({
+          ...song,
+          Time: unixTimestamp() + idx
+        }))
       );
     } else {
       socket.emit("playNextError");
@@ -275,18 +291,21 @@ io.on("connection", async socket => {
         //Attempt to get better album art
         if (await spotifyservice.isLoggedIn()) {
           let tracks = await spotifyservice.search(song.Name);
-          let trackNames = tracks.map(i => i.track);
-          let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
-          if (
-            tracks.length > ratings.bestMatchIndex &&
-            ratings.bestMatchIndex > -1
-          ) {
-            song.Album = tracks[ratings.bestMatchIndex].album;
-            song.Image = tracks[ratings.bestMatchIndex].image;
+          if (tracks.length > 0) {
+            let trackNames = tracks.map(i => i.track);
+            let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
+            if (
+              tracks.length > ratings.bestMatchIndex &&
+              ratings.bestMatchIndex > -1
+            ) {
+              song.Album = tracks[ratings.bestMatchIndex].album;
+              song.Image = tracks[ratings.bestMatchIndex].image;
+            }
           }
         }
       }
 
+      const artistImage = await spotifyservice.attemptFindArtistImage(song.Artist);
       //Add to users mongo library
       const newsong = new Song({
         id: song.ID,
@@ -295,7 +314,8 @@ io.on("connection", async socket => {
         lengthS: song.Length,
         album: song.Album,
         image: song.Image,
-        source: song.Type
+        source: song.Type,
+        artistImage: artistImage || undefined
       });
 
       newsong.save(async err => {
@@ -315,21 +335,69 @@ io.on("connection", async socket => {
   socket.on("removeFromLibrary", song => {
     if (song.Type && song.ID) {
       //Add to users mongo library
-      Song.deleteOne({ id: song.ID, source: song.Type }, (async err => {
+      Song.deleteOne({ id: song.ID, source: song.Type }, async err => {
         if (err) {
           console.log(err);
           socket.emit("removeFromLibraryError");
         } else {
           io.emit("reloadLibrary", await getLibrary());
         }
-      }));
+      });
     } else {
       socket.emit("removeFromLibraryError");
     }
     updateClients();
   });
 
-  socket.on("disconnect", function () {
+  socket.on("removeArtistFromLibrary", songArray => {
+    let ids = songArray.map(song => song.ID);
+
+    if (ids.length > 0) {
+      //Add to users mongo library
+      Song.deleteMany({ id: { $in: ids } }, async err => {
+        if (err) {
+          console.log(err);
+          socket.emit("removeFromLibraryError");
+        } else {
+          io.emit("reloadLibrary", await getLibrary());
+        }
+      });
+    } else {
+      socket.emit("removeFromLibraryError");
+    }
+    updateClients();
+  });
+
+  socket.on("removeAlbumFromLibrary", songArray => {
+    let ids = songArray.map(song => song.ID);
+
+    if (ids.length > 0) {
+      //Add to users mongo library
+      Song.deleteMany({ id: { $in: ids } }, async err => {
+        if (err) {
+          console.log(err);
+          socket.emit("removeFromLibraryError");
+        } else {
+          io.emit("reloadLibrary", await getLibrary());
+        }
+      });
+    } else {
+      socket.emit("removeFromLibraryError");
+    }
+    updateClients();
+  });
+
+  socket.on('setArtistImage', async ({name, image}) => {
+    await Song.updateMany({ artist: name }, { artistImage: image }).exec();
+    io.emit("reloadLibrary", await getLibrary());
+  })
+
+  socket.on('setAlbumImage', async ({name, image}) => {
+    await Song.updateMany({ album: name }, { image: image }).exec();
+    io.emit("reloadLibrary", await getLibrary());
+  })
+
+  socket.on("disconnect", function() {
     users = users.filter(usr => usr.id !== socket.userId && usr.id);
   });
 

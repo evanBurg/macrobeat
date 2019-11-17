@@ -65,7 +65,7 @@ const styles = {
     alignItems: "center",
     marginBottom: "0.2em",
     marginTop: "0.2em",
-    padding: 5,
+    padding: 5
   },
   songImage: {
     minHeight: 40,
@@ -79,19 +79,19 @@ const styles = {
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "flex-start",
-    wordBreak: 'break-all',
+    wordBreak: "break-all",
     padding: 10,
     width: "100%"
   },
   songTitle: {
     fontSize: "1em",
-    wordWrap: 'break-word',
+    wordWrap: "break-word",
     padding: 1,
     fontWeight: "500"
   },
   songArtist: {
     fontSize: "0.75em",
-    wordWrap: 'break-word',
+    wordWrap: "break-word",
     padding: 1,
     fontWeight: "500",
     fontColour: "#EEE"
@@ -107,22 +107,33 @@ const styles = {
 
 const Song = props => {
   let style = JSON.parse(JSON.stringify(styles.song));
-  if(props.playing === true) {style.background = "#EFEFEF";}
-  else {style.background = "#FFF";}
+  if (props.playing === true) {
+    style.background = "#EFEFEF";
+  } else {
+    style.background = props.isDragging ? "#edf6ff" : "#FFF";
+  }
 
   return (
     <AppContext.Consumer>
       {context => (
         <motion.div
-          style={{...props.style, ...style}}
+          style={{ ...props.style, ...style }}
           className={props.isDragging ? "dragging" : ""}
-          onClick={(e) => {e.stopPropagation(); context.openContextMenu(props.song, props.type || "song")}}
+          onClick={e => {
+            e.stopPropagation();
+            context.openContextMenu(props.song, props.type || "song");
+          }}
         >
           <div
             style={{
-              background: `url(${props.song.Image}) center no-repeat`,
-              ...styles.songImage
+              ...styles.songImage,
+              backgroundColor: "#EDEDED",
+              backgroundImage: `url(${props.song.Image})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat"
             }}
+            key={props.song.Image}
           />
           <div style={styles.songInfo}>
             <Header style={styles.songTitle}>{props.song.Name}</Header>
@@ -138,7 +149,9 @@ class CollectionView extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      image: null
+    };
   }
 
   variants = {
@@ -159,6 +172,33 @@ class CollectionView extends Component {
     }
   };
 
+  base64encode(file) {
+    return new Promise((res, rej) => {
+      var reader = new FileReader();
+      reader.onloadend = function() {
+        res(reader.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  componentDidMount() {
+    this.fileInput = document.getElementById("image-input");
+    const reactThis = this;
+    const { type, item, setImage } = this.props;
+    this.fileInput.addEventListener("change", async function() {
+      if (this.files && this.files[0]) {
+        const base64 = await reactThis.base64encode(this.files[0]);
+        reactThis.setState({
+          image: base64
+        });
+
+        setImage(type, item.Name, base64);
+      }
+    });
+    this.forceUpdate();
+  }
+
   render() {
     let { item, type, open, close } = this.props;
 
@@ -178,7 +218,13 @@ class CollectionView extends Component {
               <Loader type="ball-scale" color="black" />
             </div>
           ) : (
-            <motion.div style={styles.container} variants={this.variants} initial="hidden" animate="visible" exit="hidden">
+            <motion.div
+              style={styles.container}
+              variants={this.variants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
               <div style={styles.previewContainer}>
                 <div style={{ padding: "0.5em" }}>
                   <IosArrowLeft
@@ -189,17 +235,26 @@ class CollectionView extends Component {
                 </div>
                 <div style={styles.song}>
                   <div
+                  onClick={this.fileInput ? () => this.fileInput.click() : undefined}
                     style={{
                       ...styles.previewImage,
-                      background: `url(${item.Image}) center no-repeat`
+                      backgroundColor: "#EDEDED",
+                      backgroundImage: `url(${this.state.image || item.Image})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat"
                     }}
+                    key={this.state.image || item.Image}
                   />
                   <div style={styles.songInfo}>
                     <Header style={styles.previewTextHeader}>
                       {item.Name}
                     </Header>
                     <Header style={styles.previewTextSub}>{sub}</Header>
-                    <div style={styles.more} onClick={() => context.openContextMenu(item, type)}>
+                    <div
+                      style={styles.more}
+                      onClick={() => context.openContextMenu(item, type)}
+                    >
                       <IosMore
                         fontSize="1em"
                         color="black"
@@ -214,6 +269,11 @@ class CollectionView extends Component {
                   <Song key={index} song={song} />
                 ))}
               </div>
+              <input
+                  id="image-input"
+                  type="file"
+                  style={{ visibility: "hidden", width: 0 }}
+                />
             </motion.div>
           )
         }
@@ -222,5 +282,5 @@ class CollectionView extends Component {
   }
 }
 
-export {CollectionView, Song}
+export { CollectionView, Song };
 export default CollectionView;

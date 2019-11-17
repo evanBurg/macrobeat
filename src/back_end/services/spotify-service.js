@@ -1,7 +1,7 @@
 require(`dotenv`).config();
 
 const { preq } = require(`../utilities`);
-const { AuthToken } = require(`../models`);
+const { AuthToken, ArtistImage } = require(`../models`);
 
 const refreshToken = async () => {
   const doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
@@ -26,10 +26,10 @@ const refreshToken = async () => {
   ).exec();
 };
 
-const search = async searchQuery => {
+const search = async (searchQuery, searchType, format) => {
   let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
   let options = {
-    url: `${process.env.SPOTIFY_SEARCH_URI}?q=${searchQuery}&type=album,artist,track&limit=${process.env.QUERY_LIMIT}`,
+    url: `${process.env.SPOTIFY_SEARCH_URI}?q=${searchQuery}&type=${searchType || "album,artist,track"}&limit=${process.env.QUERY_LIMIT}`,
     headers: { Authorization: `Bearer ${doc.authToken}` },
     json: true
   };
@@ -44,11 +44,39 @@ const search = async searchQuery => {
     options.headers = { Authorization: `Bearer ${doc.authToken}` };
     body = await preq.get(options);
   }
+  if(format === false){
+    return body;
+  }
   return await formatResults(body);
 };
 
+const attemptFindArtistImage = async artist => {
+  let artists = (await search(artist, "artist", false)).artists;
+  let image = false;
+  if(artists.items.length > 0){
+    const spotifyArtist = artists.items[0];
+    image = (await ArtistImage.findOneAndUpdate({ spotifyId: spotifyArtist.id }, { spotifyId: spotifyArtist.id, stringName: artist, imageLink: spotifyArtist.images[0].url }, {upsert: true})).imageLink
+  }
+
+  return image;
+}
+
+const getArtistImage = async artist => {
+  const image = await ArtistImage.findOne({stringName: artist});
+  return image.imageLink;
+}
+
+const setAristImage = async (artist, spotifyId, imageLink) => {
+  await ArtistImage.create({
+    stringName: artist,
+    spotifyId,
+    imageLink
+  })
+}
+
 const formatResults = async res => {
   let songs = [];
+
   const rawSongs = res.tracks.items;
   for (let i = 0; i < rawSongs.length && i < process.env.QUERY_LIMIT; i++) {
     const id = rawSongs[i].id;
@@ -79,5 +107,8 @@ const isLoggedIn = async () => {
 
 module.exports = {
   search,
-  isLoggedIn
+  isLoggedIn,
+  attemptFindArtistImage,
+  getArtistImage,
+  setAristImage
 };
