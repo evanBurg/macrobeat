@@ -1,5 +1,6 @@
 const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
+const bandcampservice = require("./bandcamp-service");
 
 class Player {
   constructor() {
@@ -14,7 +15,7 @@ class Player {
       this.stop();
     }
 
-    if(!Song){
+    if (!Song) {
       return;
     }
 
@@ -25,6 +26,10 @@ class Player {
         youtubeservice.play(Song.ID, this.updateTimestamp);
         this.state = "playing";
         break;
+      case "bandcamp":
+        bandcampservice.play(Song.ID, this.updateTimestamp);
+        this.state = "playing";
+        break;
       case "spotify":
         //spotifyservice.play(Song.ID);
         this.state = "playing";
@@ -32,7 +37,7 @@ class Player {
     }
   }
 
-  updateTimestamp(seconds){
+  updateTimestamp(seconds) {
     this.timestamp = seconds;
   }
 
@@ -41,8 +46,10 @@ class Player {
     switch (this.currentService) {
       case "youtube":
         return youtubeservice.resume();
+      case "bandcamp":
+        return bandcampservice.resume();
       case "spotify":
-        //return spotifyservice.resume();
+      //return spotifyservice.resume();
     }
   }
 
@@ -50,8 +57,10 @@ class Player {
     switch (this.currentService) {
       case "youtube":
         return youtubeservice.scrub(timestamp);
+      case "bandcamp":
+        return bandcampservice.scrub(timestamp);
       case "spotify":
-        //return spotifyservice.scrub(timestamp);
+      //return spotifyservice.scrub(timestamp);
     }
   }
 
@@ -60,8 +69,10 @@ class Player {
     switch (this.currentService) {
       case "youtube":
         return youtubeservice.pause();
+      case "bandcamp":
+        return bandcampservice.pause();
       case "spotify":
-        //return spotifyservice.pause();
+      //return spotifyservice.pause();
     }
   }
 
@@ -70,8 +81,10 @@ class Player {
     switch (this.currentService) {
       case "youtube":
         return youtubeservice.stop();
+      case "bandcamp":
+        return bandcampservice.stop();
       case "spotify":
-        //return spotifyservice.stop();
+      //return spotifyservice.stop();
     }
     this.currentlyPlaying = null;
     this.currentService = "";
@@ -81,5 +94,6 @@ class Player {
 module.exports = {
   spotifyservice,
   youtubeservice,
+  bandcampservice,
   Player
 };

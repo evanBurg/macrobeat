@@ -3,8 +3,15 @@ const express = require(`express`);
 const router = express.Router();
 
 const { util } = require(`../utilities`);
-const { spotifyservice } = require(`../services`);
-const { youtubeservice } = require(`../services`);
+const { spotifyservice, youtubeservice, bandcampservice } = require(`../services`);
+
+const shuffle = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 router.get(`/:searchQuery`, async (req, res) => {
   try {
@@ -14,8 +21,9 @@ router.get(`/:searchQuery`, async (req, res) => {
       spotifyRes = await spotifyservice.search(searchQuery);
     }
     const youtubeRes = await youtubeservice.search(searchQuery);
+    const bandcampRes = await bandcampservice.search(decodeURIComponent(searchQuery));
     // TODO combine and jumble results into a single array to send to front-end
-    return res.send([...spotifyRes, ...youtubeRes]);
+    return res.send(shuffle([...spotifyRes, ...youtubeRes, ...bandcampRes]));
   } catch (err) {
     console.log(err.stack);
     return res.status(500).send(process.env.ERR_500);

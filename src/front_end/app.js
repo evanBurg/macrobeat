@@ -277,9 +277,16 @@ class App extends Component {
   };
 
   reorderQueue = queue => {
-    this.setState({
-      Queue: new Queue(queue, this.state.Queue.CurrentSongIndex, this.state.socket)
-    }, () => this.state.socket.emit("reorder", queue));
+    this.setState(
+      {
+        Queue: new Queue(
+          queue,
+          this.state.Queue.CurrentSongIndex,
+          this.state.socket
+        )
+      },
+      () => this.state.socket.emit("reorder", queue)
+    );
   };
 
   toggleNowPlaying = () => {
@@ -603,7 +610,7 @@ class App extends Component {
               this.closeContextMenu();
             },
             icon: IosRemoveCircleOutline
-          },
+          }
           // {
           //   key: "share",
           //   title: "Share",
@@ -667,15 +674,15 @@ class App extends Component {
   setCollectionImage = (type, name, image) => {
     const { socket } = this.state;
 
-    switch(type){
+    switch (type) {
       case "album":
-          socket.emit("setAlbumImage", ({name, image}))
+        socket.emit("setAlbumImage", { name, image });
         break;
       case "artist":
-          socket.emit("setArtistImage", ({name, image}))
+        socket.emit("setArtistImage", { name, image });
         break;
     }
-  }
+  };
 
   render() {
     let {
@@ -722,9 +729,7 @@ class App extends Component {
           <YouveBeenKicked kickedBy={this.state.kickedBy} />
         )}
 
-        {!nowPlayingOpen && !collectionOpen && (
-          <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
-        )}
+        <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
 
         {collectionOpen && (
           <AnimatePresence>

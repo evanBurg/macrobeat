@@ -29,6 +29,7 @@
   "homepage": "https://github.com/evanBurg/macrobeat#readme",
   "dependencies": {
     "async.parallel": "~0.5.2",
+    "bandcamp-scraper": "^1.2.4",
     "body-parser": "^1.19.0",
     "cheerio": "~0.22.0",
     "cookie-parser": "^1.4.4",
