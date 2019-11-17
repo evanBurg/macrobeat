@@ -16,15 +16,24 @@ const shuffle = (a) => {
 router.get(`/:searchQuery`, async (req, res) => {
   try {
     const searchQuery = util.encodeSpaces(req.params.searchQuery);
-    let spotifyRes = [];
+    let promises = [];
+
     if(await spotifyservice.isLoggedIn()){
-      spotifyRes = await spotifyservice.search(searchQuery);
+      promises.push(spotifyservice.search(searchQuery));
     }
-    const youtubeRes = await youtubeservice.search(searchQuery);
-    const bandcampRes = await bandcampservice.search(decodeURIComponent(searchQuery));
-    const soundcloudRes = await soundcloudservice.search(searchQuery);
-    // TODO combine and jumble results into a single array to send to front-end
-    return res.send(shuffle([...spotifyRes, ...youtubeRes, ...bandcampRes, ...soundcloudRes]));
+
+    if(soundcloudservice.isLoggedIn()){
+      promises.push(soundcloudservice.search(searchQuery));
+    }
+
+    promises.push(youtubeservice.search(searchQuery));
+
+    promises.push(bandcampservice.search(decodeURIComponent(searchQuery)));
+
+    Promise.all(promises).then(results => {
+      results = results.reduce((acc, items) => [...acc, ...items], []);
+      return res.send(shuffle(results));
+    })
   } catch (err) {
     console.log(err.stack);
     return res.status(500).send(process.env.ERR_500);

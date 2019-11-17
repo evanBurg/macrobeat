@@ -70,6 +70,10 @@ const stop = async () => {
   mpv.stop();
 };
 
+const isLoggedIn = () => {
+    return !!CLIENT_ID
+}
+
 // const scrub = async () => {};
 
 module.exports = {
@@ -77,6 +81,7 @@ module.exports = {
   play,
   pause,
   resume,
-  stop
+  stop,
+  isLoggedIn
   // scrub
 };
