@@ -1,6 +1,7 @@
 const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
+const soundcloudservice = require("./soundcloud-service");
 
 class Player {
   constructor() {
@@ -28,6 +29,10 @@ class Player {
         break;
       case "bandcamp":
         bandcampservice.play(Song.ID, this.updateTimestamp);
+        this.state = "playing";
+        break;
+      case "soundcloud":
+        soundcloudservice.play(Song.ID, this.updateTimestamp);
         this.state = "playing";
         break;
       case "spotify":
@@ -59,6 +64,8 @@ class Player {
         return youtubeservice.scrub(timestamp);
       case "bandcamp":
         return bandcampservice.scrub(timestamp);
+      case "soundcloud":
+        return bandcampservice.scrub(timestamp);
       case "spotify":
       //return spotifyservice.scrub(timestamp);
     }
@@ -70,6 +77,8 @@ class Player {
       case "youtube":
         return youtubeservice.pause();
       case "bandcamp":
+        return bandcampservice.pause();
+      case "soundcloud":
         return bandcampservice.pause();
       case "spotify":
       //return spotifyservice.pause();
@@ -83,6 +92,8 @@ class Player {
         return youtubeservice.stop();
       case "bandcamp":
         return bandcampservice.stop();
+      case "soundcloud":
+        return bandcampservice.stop();
       case "spotify":
       //return spotifyservice.stop();
     }
@@ -95,5 +106,6 @@ module.exports = {
   spotifyservice,
   youtubeservice,
   bandcampservice,
+  soundcloudservice,
   Player
 };

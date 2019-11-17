@@ -32,6 +32,17 @@ const BandcampAdapter = song => ({
   Type: song.source || "Unknown"
 });
 
+const SoundcloudAdapter = song => ({
+  ID: song.id || "Unknown",
+  Artist: song.artist || "Unknown",
+  Album: song.album || "Unknown",
+  Name: song.title || "Unknown",
+  Image: song.image || "https://placeimg.com/640/480/people",
+  Length: song.lengthS || 0,
+  ArtistImage: song.artistImage || "https://placeimg.com/640/480/people",
+  Type: song.source || "Unknown"
+});
+
 const DatabaseAdapter = song => ({
   ID: song.id || "Unknown",
   Artist: song.artist || "Unknown",
@@ -57,6 +68,9 @@ class Song {
         break;
       case "bandcamp":
         song = BandcampAdapter(SongJSON);
+        break;
+      case "soundcloud":
+        song = SoundcloudAdapter(SongJSON);
         break;
       case "database":
         song = DatabaseAdapter(SongJSON);
