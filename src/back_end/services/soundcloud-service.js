@@ -53,9 +53,10 @@ const mpv = new mpvAPI({
   binary: MPV_LOCATION
 });
 
-const play = async (url, timestampCallback) => {
+const play = async (url, timestampCallback, onFinishedCallback) => {
   mpv.load(url, "replace");
   mpv.on("timeposition", timestampCallback);
+  mpv.on("stopped ", onFinishedCallback);
 };
 
 const pause = async () => {

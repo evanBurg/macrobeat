@@ -83,6 +83,19 @@ attemptCreateUser = data => {
   });
 };
 
+playSong = (song) => {
+  if (song.Type && song.ID) {
+    //TODO: Call python to play the song
+    Player.play(song, () => {
+      currentSong += 1;
+      playSong(queue[currentSong]);
+    });
+  } else {
+    socket.emit("playError");
+  }
+  updateClients();
+}
+
 io.on("connection", async socket => {
   updateClients();
 
@@ -237,13 +250,7 @@ io.on("connection", async socket => {
 
   //Someone chose a song in the existing "Queue"
   socket.on("play", song => {
-    if (song.Type && song.ID) {
-      //TODO: Call python to play the song
-      Player.play(song);
-    } else {
-      socket.emit("playError");
-    }
-    updateClients();
+    playSong(song)
   });
 
   //Someone pressed the play pause
@@ -253,7 +260,7 @@ io.on("connection", async socket => {
     } else if (Player.state === "paused") {
       Player.resume();
     } else if (Player.state === "constructed") {
-      Player.play(queue[currentSong]);
+      playSong(queue[currentSong])
     }
     //Tell the python to stop or start
     updateClients();
@@ -263,14 +270,14 @@ io.on("connection", async socket => {
   socket.on("prevTrack", song => {
     currentSong -= 1;
     //Tell python to start the prev track
-    Player.play(queue[currentSong]);
+    playSong(queue[currentSong])
     updateClients();
   });
 
   //Someone hit the arrow for the next track
   socket.on("nextTrack", data => {
     currentSong += 1;
-    Player.play(queue[currentSong]);
+    playSong(queue[currentSong])
     updateClients();
   });
 

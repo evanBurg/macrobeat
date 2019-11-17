@@ -11,7 +11,7 @@ class Player {
     this.state = "constructed";
   }
 
-  play(Song) {
+  play(Song, onFinished) {
     if (this.state === "playing" || this.state === "paused") {
       this.stop();
     }
@@ -24,15 +24,15 @@ class Player {
     this.currentService = Song.Type;
     switch (Song.Type) {
       case "youtube":
-        youtubeservice.play(Song.ID, this.updateTimestamp);
+        youtubeservice.play(Song.ID, this.updateTimestamp, onFinished);
         this.state = "playing";
         break;
       case "bandcamp":
-        bandcampservice.play(Song.ID, this.updateTimestamp);
+        bandcampservice.play(Song.ID, this.updateTimestamp, onFinished);
         this.state = "playing";
         break;
       case "soundcloud":
-        soundcloudservice.play(Song.ID, this.updateTimestamp);
+        soundcloudservice.play(Song.ID, this.updateTimestamp, onFinished);
         this.state = "playing";
         break;
       case "spotify":
@@ -44,6 +44,10 @@ class Player {
 
   updateTimestamp(seconds) {
     this.timestamp = seconds;
+  }
+
+  statusChange(status) {
+    this.status = status;
   }
 
   resume() {

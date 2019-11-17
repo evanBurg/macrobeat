@@ -86,10 +86,11 @@ const mpv = new mpvAPI({
   binary: MPV_LOCATION
 });
 
-const play = async (videoId, timestampCallback) => {
+const play = async (videoId, timestampCallback, onFinishedCallback) => {
   const url = `http://www.youtube.com/watch?v=${videoId}`;
   mpv.load(url, "replace");
   mpv.on('timeposition', timestampCallback);
+  mpv.on('stopped', onFinishedCallback)
 };
 
 const pause = async () => {
