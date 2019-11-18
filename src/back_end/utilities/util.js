@@ -25,10 +25,34 @@ const encodeSpaces = uri => {
 
 const unixTimestamp = () => (new Date().getTime() / 1000) | 0;
 
+const shuffleArray = (a) => {
+  for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const mergeResults = results => {
+  const items = results.length;
+  const largestSize = results.reduce((max, items) => items.length > max ? items.length : max, 0);
+  let mergedArray = [];
+  for(let i = 0; i < largestSize; i++){
+    for(let j = 0; j < items; j++){
+      if(results[j].length > i){
+        mergedArray.push(results[j][i]);
+      }
+    }
+  }
+  return mergedArray;
+} 
+
 module.exports = {
   isUndefOrNull,
   isUndefOrNullOrWhiteSpace,
   generateRandomString,
   encodeSpaces,
-  unixTimestamp
+  unixTimestamp,
+  shuffleArray,
+  mergeResults
 };

@@ -2,9 +2,10 @@ const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
+const {util} = require('../utilities');
+const unixTimestamp = util.unixTimestamp;
 const MPV = require("node-mpv");
 const MPV_LOCATION = process.env.MPV_LOCATION;
-const unixTimestamp = () => (new Date().getTime() / 1000) | 0;
 
 class Player {
   constructor(notifyCallback) {
