@@ -9,6 +9,7 @@ import { AppContext } from "../app";
 import Loader from "react-loaders";
 import { motion } from "framer-motion";
 import { Header, Text, Mask } from "../Components/WrapperComponents";
+import TimeFormat from 'hh-mm-ss';
 
 const styles = {
   container: {
@@ -409,7 +410,7 @@ class NowPlaying extends Component {
                 </div>
                 <div style={styles.container}>
                   <div style={styles.infoContainer}>
-                    <Record key={this.props.playing} image={this.getImage(context)} playing={this.props.playing} />
+                    <Record key={this.props.playing} image={this.getImage(context)} playing={this.props.duration > 0 && this.props.playing} />
                     <Header style={styles.trackName}>
                       {this.getTitle(context)}
                     </Header>
@@ -421,9 +422,9 @@ class NowPlaying extends Component {
                       <div style={{ padding: "0.8em" }}>
                         <Text style={styles.timeText}>0:00</Text>
                       </div>
-                        <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.playing} />
+                        <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.duration > 0 && this.props.playing} />
                       <div style={{ padding: "0.8em" }}>
-                        <Text style={styles.timeText}>{new Date(this.props.duration * 1000).toISOString().substr(11, 8) || "4:52" }</Text>
+                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.duration), 'mm:ss') || "4:52" }</Text>
                       </div>
                     </div>
                   </div>

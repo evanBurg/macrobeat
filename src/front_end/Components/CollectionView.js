@@ -9,11 +9,14 @@ import { Header, Text, Mask } from "../Components/WrapperComponents";
 const styles = {
   container: {
     zIndex: 29,
+    position: 'fixed',
+    top: 0,
+    height: '100vh',
     backgroundColor: "white",
     display: "flex",
     flexDirection: "column",
     backgroundColor: "#fff",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "flex-start"
   },
   headingText: {
@@ -56,7 +59,9 @@ const styles = {
   },
   songsContainer: {
     marginBottom: "0.5em",
-    marginTop: "0.5em"
+    marginTop: "0.5em",
+    height: '100%',
+    overflowY: 'auto'
   },
   song: {
     display: "flex",

@@ -1,6 +1,6 @@
 require(`dotenv`).config();
 const ytsearch = require(`yt-search`);
-const { preq } = require(`../utilities`);
+const { preq } = require(`../utilities/`);
 
 const fallbackSearch = searchQuery => {
   const options = {

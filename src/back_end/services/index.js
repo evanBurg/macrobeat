@@ -108,13 +108,15 @@ class Player {
   play() {
     if (!this.callbacksSet) {
       this.mpv.on("timeposition", (e) => this.updateTimestamp(e, this));
-      this.mpv.on("stopped", this.onFinished);
+      this.mpv.on("stopped", (e) => this.onFinished(this));
       this.mpv.on("statuschange", (e) => this.onStatusChange(e, this));
     }
 
     let Song = this.queue[this.currentSong];
     if (this.state === "playing" || this.state === "paused") {
       this.stop();
+      this.duration = 0;
+      this.timestamp = 0;
     }
 
     if (!Song) {
@@ -148,8 +150,9 @@ class Player {
   }
 
   updateTimestamp(seconds, objectInstance) {
-    this.timestamp = seconds;
-    this.notify();
+    this.state = "playing";
+    objectInstance.timestamp = seconds;
+    objectInstance.notify();
   }
 
   onStatusChange(status, objectInstance) {
@@ -160,12 +163,12 @@ class Player {
     }
   }
 
-  onFinished() {
-    if (this.currentSong + 1 < this.queue.length) {
-      this.currentSong += 1;
-      this.play(this.queue[this.currentSong]);
+  onFinished(objectInstance) {
+    if (objectInstance.currentSong + 1 < objectInstance.queue.length) {
+      objectInstance.currentSong += 1;
+      objectInstance.play(objectInstance.queue[objectInstance.currentSong]);
     }
-    this.state = "finished";
+    objectInstance.state = "finished";
   }
 
   resume() {

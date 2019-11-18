@@ -39,6 +39,7 @@
     "express": "^4.16.3",
     "framer-motion": "^1.6.3",
     "gestalt": "^0.102.0",
+    "hh-mm-ss": "^1.2.0",
     "loaders.css": "^0.1.2",
     "minimist": "~1.2.0",
     "moment": "^2.24.0",
