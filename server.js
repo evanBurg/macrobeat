@@ -5,7 +5,6 @@ const express = require(`express`);
 const app = express();
 const http = require(`http`);
 const socketIO = require(`socket.io`);
-var stringSimilarity = require("string-similarity");
 const cors = require(`cors`);
 const port = process.env.PORT || 5000;
 const {
@@ -14,10 +13,9 @@ const {
   userroutes,
   youtuberoutes
 } = require(`./src/back_end/routes`);
+const { addSongToLibrary } = require("./src/back_end/utilities")
 const { Song, User } = require(`./src/back_end/models`);
-
 const { Player: plr, spotifyservice } = require(`./src/back_end/services`);
-const Player = new plr();
 
 app.use(cors()); // TODO remove in production, just for testing with postman
 
@@ -40,19 +38,21 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 let users = [];
-let queue = [];
-let currentSong = 0;
 
-const updateClients = () => {
+const updateClients = (err) => {
+  if(err){
+    io.emit(err);
+  }
+
   io.emit(`update`, {
-    queue,
-    currentSong,
+    queue: Player.queue,
+    currentSong: Player.currentSong,
     playing: Player.state === "playing",
-    users
+    users,
+    timestamp: Player.timestamp,
+    duration: Player.duration
   });
 };
-
-const unixTimestamp = () => (new Date().getTime() / 1000) | 0;
 
 const getLibrary = () => {
   return new Promise((res, rej) => {
@@ -62,10 +62,6 @@ const getLibrary = () => {
     });
   });
 };
-
-const bannedUsers = process.env.BANNED_USERS
-  ? process.env.BANNED_USERS.split(",")
-  : [];
 
 attemptCreateUser = data => {
   return new Promise(async (res, rej) => {
@@ -83,30 +79,12 @@ attemptCreateUser = data => {
   });
 };
 
-playSong = (song) => {
-  if (song.Type && song.ID) {
-    //TODO: Call python to play the song
-    Player.play(song, () => {
-      currentSong += 1;
-      playSong(queue[currentSong]);
-    });
-  } else {
-    socket.emit("playError");
-  }
-  updateClients();
-}
+const Player = new plr(updateClients);
 
 io.on("connection", async socket => {
   updateClients();
-
-  //On initial connection, check if the user already has their login stored
   socket.on("init", async data => {
     socket.userId = data.id;
-    if (bannedUsers.includes(data.id)) {
-      io.emit("kicked", { userKicked: data.id, Kicker: data.id });
-    }
-
-    //Create an empty row with only the ID
     let user = await attemptCreateUser({ id: data.id });
 
     if (
@@ -116,8 +94,6 @@ io.on("connection", async socket => {
       user.userName !== " " &&
       user.profilePicBase64 != +" "
     ) {
-      //check databse for user data
-      //return user data
       users = users.filter(usr => usr.id !== data.id && !!usr.id);
       let User = {
         user: user.username,
@@ -147,16 +123,7 @@ io.on("connection", async socket => {
     io.emit("kicked", { userKicked, Kicker });
   });
 
-  socket.on("reorder", newQueue => {
-    let { ID, Time } = queue[currentSong];
-    queue = newQueue;
-    newQueue.forEach((song, idx) => {
-      if (song.ID === ID && song.Time === Time) {
-        currentSong = idx;
-      }
-    });
-    updateClients();
-  });
+  socket.on("reorder", newQueue => Player.reorder(newQueue));
 
   socket.on("identify", async data => {
     if (data.username && data.icon) {
@@ -184,107 +151,35 @@ io.on("connection", async socket => {
     updateClients();
   });
 
-  socket.on("removeFromQueue", song => {
-    if (song.Type && song.ID && song.Time) {
-      queue = queue.filter(sng => {
-        return sng.ID !== song.ID && sng.Time !== song.Time;
-      });
-    } else {
-      socket.emit("queueError");
-    }
-    updateClients();
-  });
+  socket.on("removeFromQueue", song => Player.removeSongFromQueue(song));
 
-  //Someone pressed "Add to Queue"
-  socket.on("queue", song => {
-    if (song.Type && song.ID) {
-      song.Time = unixTimestamp();
-      queue.push(song);
-    } else {
-      socket.emit("queueError");
-    }
-    updateClients();
-  });
+  socket.on("queue", song => Player.addSongToQueue(song));
 
-  socket.on("queueMultiple", songArray => {
-    if (songArray) {
-      queue = [
-        ...queue,
-        ...songArray.map((song, idx) => ({
-          ...song,
-          Time: unixTimestamp() + idx
-        }))
-      ];
-    } else {
-      socket.emit("queueError");
-    }
-    updateClients();
-  });
+  socket.on("queueMultiple", songArray => Player.addMultipleSongsToQueue(songArray));
 
-  //Someone pressed "Play Next"
-  socket.on("playNextMultiple", songArray => {
-    if (songArray) {
-      queue.splice(
-        currentSong + 1,
-        0,
-        ...songArray.map((song, idx) => ({
-          ...song,
-          Time: unixTimestamp() + idx
-        }))
-      );
-    } else {
-      socket.emit("playNextError");
-    }
-    updateClients();
-  });
+  socket.on("playNextMultiple", songArray => Player.playMultipleSongsNext(songArray));
 
-  socket.on("playNext", song => {
-    if (song.Type && song.ID) {
-      song.Time = unixTimestamp();
-      queue.splice(currentSong + 1, 0, song);
-    } else {
-      socket.emit("playNextError");
-    }
-    updateClients();
-  });
+  socket.on("playNext", song => Player.playSongNext(song));
 
-  //Someone chose a song in the existing "Queue"
-  socket.on("play", song => {
-    playSong(song)
-  });
+  socket.on("play", song => Player.play(song));
 
-  //Someone pressed the play pause
   socket.on("playpause", song => {
     if (Player.state === "playing") {
       Player.pause();
     } else if (Player.state === "paused") {
       Player.resume();
     } else if (Player.state === "constructed") {
-      playSong(queue[currentSong])
+      Player.play()
     }
-    //Tell the python to stop or start
     updateClients();
   });
 
-  //Someone hit the arrow for the previous track
-  socket.on("prevTrack", song => {
-    currentSong -= 1;
-    //Tell python to start the prev track
-    playSong(queue[currentSong])
-    updateClients();
-  });
+  socket.on("prevTrack", song => Player.prevTrack());
 
-  //Someone hit the arrow for the next track
-  socket.on("nextTrack", data => {
-    currentSong += 1;
-    playSong(queue[currentSong])
-    updateClients();
-  });
+  socket.on("nextTrack", data => Player.nextTrack());
 
-  //Someone moved the slider and let go
   socket.on("scrub", data => {
     if (data.timestamp) {
-      //TODO: Call python to play the song from the specified time
       Player.scrub(data.timestamp);
     } else {
       socket.emit("scrubError");
@@ -294,38 +189,8 @@ io.on("connection", async socket => {
 
   socket.on("addToLibrary", async song => {
     if (song.Type && song.ID) {
-      if (song.Type === "youtube") {
-        //Attempt to get better album art
-        if (await spotifyservice.isLoggedIn()) {
-          let tracks = await spotifyservice.search(song.Name);
-          if (tracks.length > 0) {
-            let trackNames = tracks.map(i => i.track);
-            let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
-            if (
-              tracks.length > ratings.bestMatchIndex &&
-              ratings.bestMatchIndex > -1
-            ) {
-              song.Album = tracks[ratings.bestMatchIndex].album;
-              song.Image = tracks[ratings.bestMatchIndex].image;
-            }
-          }
-        }
-      }
-
-      const artistImage = await spotifyservice.attemptFindArtistImage(song.Artist);
-      //Add to users mongo library
-      const newsong = new Song({
-        id: song.ID,
-        title: song.Name,
-        artist: song.Artist,
-        lengthS: song.Length,
-        album: song.Album,
-        image: song.Image,
-        source: song.Type,
-        artistImage: artistImage || undefined
-      });
-
-      newsong.save(async err => {
+      let newSong = await addSongToLibrary(song);
+      newSong.save(async err => {
         if (err) {
           console.log(err);
           socket.emit("addToLibraryError");

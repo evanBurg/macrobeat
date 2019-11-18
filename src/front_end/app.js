@@ -151,7 +151,9 @@ class App extends Component {
       settingsOpen: false,
       users: [],
       userID: null,
-      kicked: false
+      kicked: false,
+      currentTimestamp: 0,
+      currentDuration: 0
     };
   }
 
@@ -268,11 +270,13 @@ class App extends Component {
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
   };
 
-  update = ({ queue, currentSong, playing, users }) => {
+  update = ({ queue, currentSong, playing, users, timestamp, duration }) => {
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
       playing: playing,
-      users
+      users,
+      currentTimestamp: timestamp,
+      currentDuration: duration
     });
   };
 
@@ -703,7 +707,9 @@ class App extends Component {
       queueOpen,
       spotifyAccess,
       userID,
-      users
+      users,
+      currentTimestamp,
+      currentDuration
     } = this.state;
 
     const context = {
@@ -720,7 +726,9 @@ class App extends Component {
       settingsOpen: this.setSettingsState,
       spotifyAccess,
       userID,
-      users
+      users,
+      currentTimestamp,
+      currentDuration
     };
 
     return (
@@ -783,6 +791,8 @@ class App extends Component {
                 {nowPlayingOpen ? (
                   <NowPlaying
                     playing={playing}
+                    timestamp={currentTimestamp}
+                    duration={currentDuration}
                     toggleNowPlaying={this.toggleNowPlaying}
                     key="open"
                   />

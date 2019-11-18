@@ -1,8 +1,6 @@
 require(`dotenv`).config();
 const ytsearch = require(`yt-search`);
 const { preq } = require(`../utilities`);
-const MPV_LOCATION = process.env.MPV_LOCATION;
-const mpvAPI = require('node-mpv');
 
 const fallbackSearch = searchQuery => {
   const options = {
@@ -81,37 +79,27 @@ const formatResults = async res => {
   return songs;
 };
 
-const mpv = new mpvAPI({
-  audio_only: true,
-  binary: MPV_LOCATION
-});
+class YouTubePlayer {
+  constructor(mpvInstance){
+    this.mpv = mpvInstance;
+  }
 
-const play = async (videoId, timestampCallback, onFinishedCallback) => {
-  const url = `http://www.youtube.com/watch?v=${videoId}`;
-  mpv.load(url, "replace");
-  mpv.on('timeposition', timestampCallback);
-  mpv.on('stopped', onFinishedCallback)
-};
-
-const pause = async () => {
-  mpv.pause()
-};
-
-const resume = async () => {
-  mpv.resume()
-};
-
-const stop = async () => {
- mpv.stop()
-};
+  play(song){
+    const url = `http://www.youtube.com/watch?v=${song.ID}`;
+    this.mpv.load(url, "replace");
+  };
+  
+  pause(){this.mpv.pause();}
+  
+  resume(){this.mpv.resume();}
+  
+  stop(){this.mpv.stop();}
+}
 
 // const scrub = async () => {};
 
 module.exports = {
   search,
-  play,
-  pause,
-  resume,
-  stop
+  YouTubePlayer
   // scrub
 };

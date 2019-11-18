@@ -2,16 +2,117 @@ const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
+const MPV = require("node-mpv");
+const MPV_LOCATION = process.env.MPV_LOCATION;
+const unixTimestamp = () => (new Date().getTime() / 1000) | 0;
 
 class Player {
-  constructor() {
+  constructor(notifyCallback) {
+    this.notify = notifyCallback;
+    this.queue = [];
+
+    this.currentSong = 0;
     this.currentlyPlaying = null;
     this.currentService = "";
     this.timestamp = 0;
+    this.duration = 0;
+
     this.state = "constructed";
+    this.mpv = new MPV({
+      audio_only: true,
+      binary: MPV_LOCATION
+    });
+
+    this.callbacksSet = false;
+
+    this.services = {
+      youtube: new youtubeservice.YouTubePlayer(this.mpv),
+      soundcloud: new soundcloudservice.SoundCloudPlayer(this.mpv),
+      bandcamp: new bandcampservice.BandcampPlayer(this.mpv)
+    };
   }
 
-  play(Song, onFinished) {
+  reorder(newQueue) {
+    let { ID, Time } = this.queue[this.currentSong];
+    this.queue = newQueue;
+    newQueue.forEach((song, idx) => {
+      if (song.ID === ID && song.Time === Time) {
+        currentSong = idx;
+      }
+    });
+    this.notify();
+  }
+
+  removeSongFromQueue(song) {
+    if (song.Type && song.ID && song.Time) {
+      this.queue = this.queue.filter(sng => {
+        return sng.ID !== song.ID && sng.Time !== song.Time;
+      });
+    } else {
+      this.notify("queueError");
+    }
+    this.notify();
+  }
+
+  addSongToQueue(song) {
+    if (song.Type && song.ID) {
+      song.Time = unixTimestamp();
+      this.queue.push(song);
+    } else {
+      this.notify("queueError");
+    }
+    this.notify();
+  }
+
+  addMultipleSongsToQueue(songArray) {
+    if (songArray) {
+      this.queue = [
+        ...this.queue,
+        ...songArray.map((song, idx) => ({
+          ...song,
+          Time: unixTimestamp() + idx
+        }))
+      ];
+    } else {
+      this.notify("queueError");
+    }
+    this.notify();
+  }
+
+  playSongNext(song) {
+    if (song.Type && song.ID) {
+      song.Time = unixTimestamp();
+      this.queue.splice(this.currentSong + 1, 0, song);
+    } else {
+      this.notify("playNextError");
+    }
+    this.notify();
+  }
+
+  playMultipleSongsNext(songArray) {
+    if (songArray) {
+      this.queue.splice(
+        this.currentSong + 1,
+        0,
+        ...songArray.map((song, idx) => ({
+          ...song,
+          Time: unixTimestamp() + idx
+        }))
+      );
+    } else {
+      this.notify("playNextError");
+    }
+    this.notify();
+  }
+
+  play() {
+    if (!this.callbacksSet) {
+      this.mpv.on("timeposition", (e) => this.updateTimestamp(e, this));
+      this.mpv.on("stopped", this.onFinished);
+      this.mpv.on("statuschange", (e) => this.onStatusChange(e, this));
+    }
+
+    let Song = this.queue[this.currentSong];
     if (this.state === "playing" || this.state === "paused") {
       this.stop();
     }
@@ -22,86 +123,91 @@ class Player {
 
     this.currentlyPlaying = Song;
     this.currentService = Song.Type;
+    this.state = "playing";
     switch (Song.Type) {
-      case "youtube":
-        youtubeservice.play(Song.ID, this.updateTimestamp, onFinished);
-        this.state = "playing";
-        break;
-      case "bandcamp":
-        bandcampservice.play(Song.ID, this.updateTimestamp, onFinished);
-        this.state = "playing";
-        break;
-      case "soundcloud":
-        soundcloudservice.play(Song.ID, this.updateTimestamp, onFinished);
-        this.state = "playing";
-        break;
       case "spotify":
-        //spotifyservice.play(Song.ID);
         //Just skip this until we can play
-        setTimeout(onFinished, 400);
-        this.state = "playing";
+        setTimeout(this.onFinished, 400);
+        break;
+      default:
+        this.services[Song.Type].play(Song);
         break;
     }
   }
 
-  updateTimestamp(seconds) {
-    this.timestamp = seconds;
+  prevTrack() {
+    this.currentSong -= 1;
+    this.play(this.queue[this.currentSong]);
+    this.notify();
   }
 
-  statusChange(status) {
-    this.status = status;
+  nextTrack() {
+    this.currentSong += 1;
+    this.play(this.queue[this.currentSong]);
+    this.notify();
+  }
+
+  updateTimestamp(seconds, objectInstance) {
+    this.timestamp = seconds;
+    this.notify();
+  }
+
+  onStatusChange(status, objectInstance) {
+    objectInstance.status = status;
+    if(status.duration){
+      objectInstance.duration = status.duration;
+      objectInstance.notify();
+    }
+  }
+
+  onFinished() {
+    if (this.currentSong + 1 < this.queue.length) {
+      this.currentSong += 1;
+      this.play(this.queue[this.currentSong]);
+    }
+    this.state = "finished";
   }
 
   resume() {
     this.state = "playing";
     switch (this.currentService) {
-      case "youtube":
-        return youtubeservice.resume();
-      case "bandcamp":
-        return bandcampservice.resume();
       case "spotify":
-      //return spotifyservice.resume();
+        break;
+      default:
+        this.services[this.currentService].resume();
+        break;
     }
   }
 
   scrub(timestamp) {
     switch (this.currentService) {
-      case "youtube":
-        return youtubeservice.scrub(timestamp);
-      case "bandcamp":
-        return bandcampservice.scrub(timestamp);
-      case "soundcloud":
-        return bandcampservice.scrub(timestamp);
       case "spotify":
-      //return spotifyservice.scrub(timestamp);
+        break;
+      default:
+        this.services[this.currentService].scrub(timestamp);
+        break;
     }
   }
 
   pause() {
     this.state = "paused";
     switch (this.currentService) {
-      case "youtube":
-        return youtubeservice.pause();
-      case "bandcamp":
-        return bandcampservice.pause();
-      case "soundcloud":
-        return bandcampservice.pause();
       case "spotify":
-      //return spotifyservice.pause();
+        break;
+      default:
+        this.services[this.currentService].pause();
+        break;
     }
   }
 
   stop() {
     this.state = "stopped";
     switch (this.currentService) {
-      case "youtube":
-        return youtubeservice.stop();
-      case "bandcamp":
-        return bandcampservice.stop();
-      case "soundcloud":
-        return bandcampservice.stop();
       case "spotify":
-      //return spotifyservice.stop();
+        break;
+      default:
+        this.services[this.currentService].stop();
+        break;
     }
     this.currentlyPlaying = null;
     this.currentService = "";
@@ -109,9 +215,9 @@ class Player {
 }
 
 module.exports = {
-  spotifyservice,
   youtubeservice,
-  bandcampservice,
   soundcloudservice,
+  bandcampservice,
+  spotifyservice,
   Player
 };

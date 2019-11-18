@@ -1,9 +1,7 @@
 require(`dotenv`).config();
 const BandcampSearch = require("bandcamp-scraper");
-const MPV_LOCATION = process.env.MPV_LOCATION;
-const mpvAPI = require("node-mpv");
 const MAX_RESULTS = parseInt(process.env.QUERY_LIMIT) || 10;
-const MAX_PAGE = parseInt(process.env.BANDCAMP_MAX_PAGE) || 7
+const MAX_PAGE = parseInt(process.env.BANDCAMP_MAX_PAGE) || 7;
 
 const search = (searchQuery, page) => {
   let params = {
@@ -16,25 +14,25 @@ const search = (searchQuery, page) => {
       if (error) {
         reject(error);
       } else {
-          let allTracksFound = false;
+        let allTracksFound = false;
 
-          if(searchResults.length < 1){
-              allTracksFound = true;
-          }
+        if (searchResults.length < 1) {
+          allTracksFound = true;
+        }
 
-          searchResults.forEach(item => {
-              if(item.type === "track"){
-                  tracks.push(item);
-              }
-              if(tracks.length === MAX_RESULTS){
-                allTracksFound = true;
-              }
-          })
-          if(allTracksFound || params.page > MAX_PAGE){
-            resolve(await formatResults(tracks))
-          }else{
-            resolve(await search(params.query, params.page + 1));
+        searchResults.forEach(item => {
+          if (item.type === "track") {
+            tracks.push(item);
           }
+          if (tracks.length === MAX_RESULTS) {
+            allTracksFound = true;
+          }
+        });
+        if (allTracksFound || params.page > MAX_PAGE) {
+          resolve(await formatResults(tracks));
+        } else {
+          resolve(await search(params.query, params.page + 1));
+        }
       }
     });
   });
@@ -63,36 +61,32 @@ const formatResults = async rawResults => {
   return songs;
 };
 
-const mpv = new mpvAPI({
-  audio_only: true,
-  binary: MPV_LOCATION
-});
-
-const play = async (url, timestampCallback, onFinishedCallback) => {
-  mpv.load(url, "replace");
-  mpv.on("timeposition", timestampCallback);
-  mpv.on("stopped ", onFinishedCallback);
-};
-
-const pause = async () => {
-  mpv.pause();
-};
-
-const resume = async () => {
-  mpv.resume();
-};
-
-const stop = async () => {
-  mpv.stop();
-};
-
 // const scrub = async () => {};
+
+class BandcampPlayer {
+  constructor(mpvInstance) {
+    this.mpv = mpvInstance;
+  }
+
+  play(song) {
+    this.mpv.load(song.ID, "replace");
+  }
+
+  pause() {
+    this.mpv.pause();
+  }
+
+  resume() {
+    this.mpv.resume();
+  }
+
+  stop() {
+    this.mpv.stop();
+  }
+}
 
 module.exports = {
   search,
-  play,
-  pause,
-  resume,
-  stop
+  BandcampPlayer
   // scrub
 };

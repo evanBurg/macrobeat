@@ -140,30 +140,41 @@ class WaveForm extends Component {
     animating: false
   };
 
+  normalize = (val, max, min) => ((val - min) / (max - min));
+
   getRandomHeight = () => Math.floor(Math.random() * 50) + 10;
+
+  getColour = (column) => {
+    const currentTimestamp = this.normalize(this.props.timestamp, this.props.duration, 0);
+    const currentColumn = this.normalize(column, this.props.columns, 0);
+    const colour = currentColumn <= currentTimestamp ? "#4174d0" : "#7b8494";
+    return colour;
+  }
 
   generatePoints = () => {
     let points = [];
-
     for (let i = 0; i < this.props.columns; i++) {
       points.push(
         <div
-          key={i}
+          key={i + this.getColour(middlePoint)}
           style={{
             height: `${this.getRandomHeight()}px`,
-            ...styles.waveFormPoint
+            ...styles.waveFormPoint,
+            backgroundColor: this.getColour(i)
           }}
         />
       );
     }
 
     //Always make sure there is one of the full height so that the container doesnt change size
-    points[Math.round(points.length / 2)] = (
+    let middlePoint = Math.round(points.length / 2);
+    points[middlePoint] = (
       <div
-        key={"tall"}
+        key={"tall" + this.getColour(middlePoint)}
         style={{
           height: `65px`,
-          ...styles.waveFormPoint
+          ...styles.waveFormPoint,
+          backgroundColor: this.getColour(middlePoint)
         }}
       />
     );
@@ -190,6 +201,14 @@ class WaveForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if(this.props.timestamp !== prevProps.timestamp){
+      this.generatePoints();
+    }
+
+    if(this.props.duration !== prevProps.duration){
+      this.generatePoints();
+    }
+
     if (prevProps.columns !== this.props.columns) {
       this.generatePoints();
     }
@@ -402,9 +421,9 @@ class NowPlaying extends Component {
                       <div style={{ padding: "0.8em" }}>
                         <Text style={styles.timeText}>0:00</Text>
                       </div>
-                      <WaveForm columns={Math.floor(width / 22)} playing={this.props.playing} />
+                        <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.playing} />
                       <div style={{ padding: "0.8em" }}>
-                        <Text style={styles.timeText}>4:52</Text>
+                        <Text style={styles.timeText}>{new Date(this.props.duration * 1000).toISOString().substr(11, 8) || "4:52" }</Text>
                       </div>
                     </div>
                   </div>

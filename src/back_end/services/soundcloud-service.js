@@ -1,28 +1,25 @@
 require(`dotenv`).config();
-const MPV_LOCATION = process.env.MPV_LOCATION;
-const mpvAPI = require("node-mpv");
 const { preq } = require(`../utilities`);
-const CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID
+const CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_ID;
 const URL = process.env.SOUNDCLOUD_API_URL;
 
-
 const search = async (searchQuery, format) => {
-    let options = {
-      url: `${URL}?q=${searchQuery}&client_id=${CLIENT_ID}`,
-      json: true
-    };
-    let body = await preq.get(options);
-    if (
-      body.error &&
-      (body.error.status === 401 ||
-        body.error.message === `The access token expired`)
-    ) {
-      return [];
-    }
-    if(format === false){
-      return body;
-    }
-    return await formatResults(body);
+  let options = {
+    url: `${URL}?q=${searchQuery}&client_id=${CLIENT_ID}`,
+    json: true
+  };
+  let body = await preq.get(options);
+  if (
+    body.error &&
+    (body.error.status === 401 ||
+      body.error.message === `The access token expired`)
+  ) {
+    return [];
+  }
+  if (format === false) {
+    return body;
+  }
+  return await formatResults(body);
 };
 
 const formatResults = async rawResults => {
@@ -48,41 +45,35 @@ const formatResults = async rawResults => {
   return songs;
 };
 
-const mpv = new mpvAPI({
-  audio_only: true,
-  binary: MPV_LOCATION
-});
-
-const play = async (url, timestampCallback, onFinishedCallback) => {
-  mpv.load(url, "replace");
-  mpv.on("timeposition", timestampCallback);
-  mpv.on("stopped ", onFinishedCallback);
-};
-
-const pause = async () => {
-  mpv.pause();
-};
-
-const resume = async () => {
-  mpv.resume();
-};
-
-const stop = async () => {
-  mpv.stop();
-};
-
 const isLoggedIn = () => {
-    return !!CLIENT_ID
-}
+  return !!CLIENT_ID;
+};
 
-// const scrub = async () => {};
+class SoundCloudPlayer {
+  constructor(mpvInstance) {
+    this.mpv = mpvInstance;
+  }
+
+  play(song) {
+    this.mpv.load(song.ID, "replace");
+  }
+
+  pause() {
+    this.mpv.pause();
+  }
+
+  resume() {
+    this.mpv.resume();
+  }
+
+  stop() {
+    this.mpv.stop();
+  }
+}
 
 module.exports = {
   search,
-  play,
-  pause,
-  resume,
-  stop,
+  SoundCloudPlayer,
   isLoggedIn
   // scrub
 };
