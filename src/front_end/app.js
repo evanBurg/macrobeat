@@ -153,7 +153,8 @@ class App extends Component {
       userID: null,
       kicked: false,
       currentTimestamp: 0,
-      currentDuration: 0
+      currentDuration: 0,
+      repeatState: false
     };
   }
 
@@ -270,13 +271,14 @@ class App extends Component {
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
   };
 
-  update = ({ queue, currentSong, playing, users, timestamp, duration }) => {
+  update = ({ queue, currentSong, playing, users, timestamp, duration, repeat }) => {
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
       playing: playing,
       users,
       currentTimestamp: timestamp,
-      currentDuration: duration
+      currentDuration: duration,
+      repeatState: repeat
     });
   };
 
@@ -709,7 +711,8 @@ class App extends Component {
       userID,
       users,
       currentTimestamp,
-      currentDuration
+      currentDuration,
+      repeatState
     } = this.state;
 
     const context = {
@@ -728,7 +731,8 @@ class App extends Component {
       userID,
       users,
       currentTimestamp,
-      currentDuration
+      currentDuration,
+      repeatState
     };
 
     return (

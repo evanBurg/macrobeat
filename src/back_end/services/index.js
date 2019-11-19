@@ -12,7 +12,8 @@ class Player {
     this.notify = notifyCallback;
     this.queue = [];
 
-    this.repeat = false
+    this.empty = true;
+    this.repeatState = false
 
     this.currentSong = 0;
     this.currentlyPlaying = null;
@@ -49,19 +50,22 @@ class Player {
   shuffle() {
     let curSong = this.queue[this.currentSong];
     this.queue = this.queue.filter((song) => song.ID !== curSong.ID && song.Time !== curSong.Time);
-    this.queue = shuffleArray(this.queue)
+    this.queue = util.shuffleArray(this.queue)
     this.queue = [curSong, ...this.queue];
     this.notify();
   }
 
   repeat() {
-    switch (this.repeat) {
+    switch (this.repeatState) {
       case false:
-        this.repeat = "queue"
+        this.repeatState = "queue"
+        break;
       case "queue":
-        this.repeat = "song"
+        this.repeatState = "song"
+        break;
       case "song":
-        this.repeat = false;
+        this.repeatState = false;
+        break;
     }
     this.notify()
   }
@@ -85,6 +89,11 @@ class Player {
       this.notify("queueError");
     }
     this.notify();
+
+    if (this.empty) {
+      this.empty = false;
+      this.play();
+    }
   }
 
   addMultipleSongsToQueue(songArray) {
@@ -100,6 +109,11 @@ class Player {
       this.notify("queueError");
     }
     this.notify();
+
+    if (this.empty) {
+      this.empty = false;
+      this.play();
+    }
   }
 
   playSongNext(song) {
@@ -110,6 +124,11 @@ class Player {
       this.notify("playNextError");
     }
     this.notify();
+
+    if (this.empty) {
+      this.empty = false;
+      this.play();
+    }
   }
 
   playMultipleSongsNext(songArray) {
@@ -126,6 +145,11 @@ class Player {
       this.notify("playNextError");
     }
     this.notify();
+
+    if (this.empty) {
+      this.empty = false;
+      this.play();
+    }
   }
 
   play() {
@@ -198,12 +222,35 @@ class Player {
 
   onFinished(objectInstance) {
     objectInstance.state = "finished";
+
+    switch (objectInstance.repeatState) {
+      case false:
+        return;
+      case "queue":
+        if (objectInstance.state !== "skipping" && !(objectInstance.currentSong + 1 < objectInstance.queue.length)) {
+          objectInstance.currentSong = 0;
+          this.duration = 0;
+          this.timestamp = 0;
+          this.notify();
+          objectInstance.play();
+          return;
+        }
+        break;
+      case "song":
+        this.duration = 0;
+        this.timestamp = 0;
+        this.notify();
+        objectInstance.play();
+        return;
+    }
+
+
     if (objectInstance.state !== "skipping" && (objectInstance.currentSong + 1 < objectInstance.queue.length)) {
       objectInstance.currentSong += 1;
       this.duration = 0;
       this.timestamp = 0;
       this.notify();
-      objectInstance.play(objectInstance.queue[objectInstance.currentSong]);
+      objectInstance.play();
     }
   }
 

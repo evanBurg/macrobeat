@@ -50,7 +50,7 @@ const updateClients = (err) => {
     users,
     timestamp: Player.timestamp,
     duration: Player.duration,
-    repeat: Player.repeat
+    repeat: Player.repeatState
   });
 };
 

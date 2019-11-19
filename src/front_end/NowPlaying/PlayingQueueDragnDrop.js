@@ -175,27 +175,37 @@ function App(props) {
           damping: 20
         }}
       >
-        <div style={styles.headerContainer} onClick={props.close}>
-          <Text style={styles.headerText}>Up Next</Text>
-          <div style={styles.headerIcons}>
-            <div style={styles.headerIcon}>
-              <MdRepeat fontSize="1.7em" color="black" />
+        <AppContext.Consumer>
+          {ctx => (
+            <div style={styles.headerContainer} onClick={props.close}>
+              <Text style={styles.headerText}>Up Next</Text>
+              <div style={styles.headerIcons}>
+                <div style={styles.headerIcon}>
+                  <MdRepeat fontSize="1.7em"  onClick={(e) => {
+                    e.stopPropagation();
+                    ctx.socket.emit('repeat')
+                  }} color={ctx.repeatState === false ? "#9a9a9a" : ctx.repeatState === "queue" ? "black" : "#4174d0"} />
+                </div>
+                <div style={styles.headerIcon}>
+                  <MdShuffle fontSize="1.7em" onClick={(e) => {
+                    e.stopPropagation();
+                    ctx.socket.emit('shuffle')
+                  }} fontSize="1.7em" color="black" />
+                </div>
+                <div style={styles.headerIcon}>
+                  <IosArrowDown fontSize="1.7em" color="black" />
+                </div>
+              </div>
             </div>
-            <div style={styles.headerIcon}>
-              <MdShuffle fontSize="1.7em" color="black" />
-            </div>
-            <div style={styles.headerIcon}>
-              <IosArrowDown fontSize="1.7em" color="black" />
-            </div>
-          </div>
-        </div>
-        <div style={{width: '100%'}}>
+          )}
+        </AppContext.Consumer>
+        <div style={{ width: '100%' }}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable
               droppableId="droppable"
               mode="list"
               renderClone={(provided, snapshot, rubric) => (
-                <AppContext.Consumer>
+                <AppContext.Consumer key={`${songs[rubric.source.index].ID} - ${songs[rubric.source.index].Time}`}>
                   {ctx => (
                     <div
                       style={styles.songWrapper}
@@ -221,10 +231,10 @@ function App(props) {
                   {ctx => (
                     <React.Fragment>
                       {ctx.Queue.Array ? (
-                        <div 
-                        {...droppableProvided.droppableProps}
-                        ref={droppableProvided.innerRef}
-                        style={{width: '100%', height: '50vh', overflowX: 'hidden', overflowY: 'auto'}}
+                        <div
+                          {...droppableProvided.droppableProps}
+                          ref={droppableProvided.innerRef}
+                          style={{ width: '100%', height: '50vh', overflowX: 'hidden', overflowY: 'auto' }}
                         >
                           {ctx.Queue.Array.map((song, idx) => {
                             return <Row
@@ -234,8 +244,8 @@ function App(props) {
                           })}
                         </div>
                       ) : (
-                        <React.Fragment />
-                      )}
+                          <React.Fragment />
+                        )}
                       {droppableProvided.placeholder}
                     </React.Fragment>
                   )}
