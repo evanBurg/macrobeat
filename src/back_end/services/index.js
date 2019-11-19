@@ -139,15 +139,25 @@ class Player {
   }
 
   prevTrack() {
-    this.currentSong -= 1;
-    this.play(this.queue[this.currentSong]);
-    this.notify();
+    if(this.currentSong - 1 > -1){
+      this.state = "skipping"
+      this.currentSong -= 1;
+      this.duration = 0;
+      this.timestamp = 0;
+      this.notify();
+      this.play();
+    }
   }
 
   nextTrack() {
-    this.currentSong += 1;
-    this.play(this.queue[this.currentSong]);
-    this.notify();
+    if(this.currentSong + 1 < this.queue.length){
+      this.state = "skipping"
+      this.currentSong += 1;
+      this.duration = 0;
+      this.timestamp = 0;
+      this.notify();
+      this.play();
+    }
   }
 
   updateTimestamp(seconds, objectInstance) {
@@ -165,11 +175,11 @@ class Player {
   }
 
   onFinished(objectInstance) {
-    if (objectInstance.currentSong + 1 < objectInstance.queue.length) {
+    objectInstance.state = "finished";
+    if (objectInstance.state !== "skipping" && (objectInstance.currentSong + 1 < objectInstance.queue.length)) {
       objectInstance.currentSong += 1;
       objectInstance.play(objectInstance.queue[objectInstance.currentSong]);
     }
-    objectInstance.state = "finished";
   }
 
   resume() {
