@@ -2,7 +2,7 @@ const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
-const {util} = require('../utilities');
+const { util } = require('../utilities');
 const unixTimestamp = util.unixTimestamp;
 const MPV = require("node-mpv");
 const MPV_LOCATION = process.env.MPV_LOCATION;
@@ -11,6 +11,8 @@ class Player {
   constructor(notifyCallback) {
     this.notify = notifyCallback;
     this.queue = [];
+
+    this.repeat = false
 
     this.currentSong = 0;
     this.currentlyPlaying = null;
@@ -42,6 +44,26 @@ class Player {
       }
     });
     this.notify();
+  }
+
+  shuffle() {
+    let curSong = this.queue[this.currentSong];
+    this.queue = this.queue.filter((song) => song.ID !== curSong.ID && song.Time !== curSong.Time);
+    this.queue = shuffleArray(this.queue)
+    this.queue = [curSong, ...this.queue];
+    this.notify();
+  }
+
+  repeat() {
+    switch (this.repeat) {
+      case false:
+        this.repeat = "queue"
+      case "queue":
+        this.repeat = "song"
+      case "song":
+        this.repeat = false;
+    }
+    this.notify()
   }
 
   removeSongFromQueue(song) {
@@ -139,7 +161,7 @@ class Player {
   }
 
   prevTrack() {
-    if(this.currentSong - 1 > -1){
+    if (this.currentSong - 1 > -1) {
       this.state = "skipping"
       this.currentSong -= 1;
       this.duration = 0;
@@ -150,7 +172,7 @@ class Player {
   }
 
   nextTrack() {
-    if(this.currentSong + 1 < this.queue.length){
+    if (this.currentSong + 1 < this.queue.length) {
       this.state = "skipping"
       this.currentSong += 1;
       this.duration = 0;
@@ -168,7 +190,7 @@ class Player {
 
   onStatusChange(status, objectInstance) {
     objectInstance.status = status;
-    if(status.duration){
+    if (status.duration) {
       objectInstance.duration = status.duration;
       objectInstance.notify();
     }

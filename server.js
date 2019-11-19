@@ -49,7 +49,8 @@ const updateClients = (err) => {
     playing: Player.state === "playing",
     users,
     timestamp: Player.timestamp,
-    duration: Player.duration
+    duration: Player.duration,
+    repeat: Player.repeat
   });
 };
 
@@ -190,6 +191,10 @@ io.on("connection", async socket => {
   });
 
   socket.on("removeFromQueue", song => Player.removeSongFromQueue(song));
+
+  socket.on("shuffle", () => Player.shuffle());
+
+  socket.on("repeat", () => Player.repeat());
 
   socket.on("queue", song => Player.addSongToQueue(song));
 
