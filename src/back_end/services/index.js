@@ -178,6 +178,9 @@ class Player {
     objectInstance.state = "finished";
     if (objectInstance.state !== "skipping" && (objectInstance.currentSong + 1 < objectInstance.queue.length)) {
       objectInstance.currentSong += 1;
+      this.duration = 0;
+      this.timestamp = 0;
+      this.notify();
       objectInstance.play(objectInstance.queue[objectInstance.currentSong]);
     }
   }

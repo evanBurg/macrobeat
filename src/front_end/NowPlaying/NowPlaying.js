@@ -5,6 +5,7 @@ import MdSkipForward from "react-ionicons/lib/MdSkipForward";
 import MdSkipBackward from "react-ionicons/lib/MdSkipBackward";
 import MdPlay from "react-ionicons/lib/MdPlay";
 import MdPause from "react-ionicons/lib/MdPause";
+import MdCloseCircle from "react-ionicons/lib/MdCloseCircle";
 import { AppContext } from "../app";
 import Loader from "react-loaders";
 import { motion } from "framer-motion";
@@ -435,17 +436,22 @@ class NowPlaying extends Component {
                         color="#B9C1D1"
                         onClick={() => context.Queue.LastTrack()}
                       />
-                      {this.props.playing ? (
+                      {(this.props.duration > 0 && this.props.playing) ? (
                         <MdPause
                           fontSize="4.75em"
                           color="#929CAF"
                           onClick={() => context.Queue.PlayPause()}
                         />
-                      ) : (
+                      ) : this.props.duration > 0 ? (
                           <MdPlay
                             fontSize="4.75em"
                             color="#929CAF"
                             onClick={() => context.Queue.PlayPause()}
+                          />
+                        ) : (
+                          <MdCloseCircle
+                            fontSize="4.75em"
+                            color="#929CAF"
                           />
                         )}
                       <MdSkipForward
