@@ -452,6 +452,7 @@ class NowPlaying extends Component {
                           <MdCloseCircle
                             fontSize="4.75em"
                             color="#929CAF"
+                            rotate
                           />
                         )}
                       <MdSkipForward

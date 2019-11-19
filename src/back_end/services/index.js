@@ -39,9 +39,10 @@ class Player {
   reorder(newQueue) {
     let { ID, Time } = this.queue[this.currentSong];
     this.queue = newQueue;
+    const playerThis = this;
     newQueue.forEach((song, idx) => {
       if (song.ID === ID && song.Time === Time) {
-        currentSong = idx;
+        playerThis.currentSong = idx;
       }
     });
     this.notify();
@@ -52,6 +53,7 @@ class Player {
     this.queue = this.queue.filter((song) => song.ID !== curSong.ID && song.Time !== curSong.Time);
     this.queue = util.shuffleArray(this.queue)
     this.queue = [curSong, ...this.queue];
+    this.currentSong = 0;
     this.notify();
   }
 
@@ -157,6 +159,7 @@ class Player {
       this.mpv.on("timeposition", (e) => this.updateTimestamp(e, this));
       this.mpv.on("stopped", (e) => this.onFinished(this));
       this.mpv.on("statuschange", (e) => this.onStatusChange(e, this));
+      this.callbacksSet = true;
     }
 
     let Song = this.queue[this.currentSong];
@@ -225,9 +228,10 @@ class Player {
 
     switch (objectInstance.repeatState) {
       case false:
-        return;
+        break;
       case "queue":
         if (objectInstance.state !== "skipping" && !(objectInstance.currentSong + 1 < objectInstance.queue.length)) {
+          objectInstance.state = "skipping"
           objectInstance.currentSong = 0;
           this.duration = 0;
           this.timestamp = 0;
@@ -237,6 +241,7 @@ class Player {
         }
         break;
       case "song":
+        objectInstance.state = "skipping"
         this.duration = 0;
         this.timestamp = 0;
         this.notify();
