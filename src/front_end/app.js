@@ -72,7 +72,7 @@ const styles = {
 };
 
 const uuidv4 = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
       v = c == "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -272,6 +272,7 @@ class App extends Component {
   };
 
   update = ({ queue, currentSong, playing, users, timestamp, duration, repeat }) => {
+
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
       playing: playing,
@@ -279,8 +280,44 @@ class App extends Component {
       currentTimestamp: timestamp,
       currentDuration: duration,
       repeatState: repeat
-    });
+    }, this.richMediaNotification);
   };
+
+  audioTag = null;
+  setActionHandlers = false
+  setUpNotification = () => {
+    if (!this.audioTag) {
+      this.audioTag = document.createElement('audio');
+      document.body.appendChild(this.audioTag);
+      this.audioTag.src = "https://raw.githubusercontent.com/anars/blank-audio/master/10-seconds-of-silence.mp3";
+      this.audioTag.loop = true;
+      this.audioTag.play();
+    }
+  }
+
+
+  richMediaNotification = () => {
+    if (this.audioTag) {
+
+      let { playing } = this.state;
+      let song = this.state.Queue.CurrentSong;
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.Name,
+        artist: song.Artist,
+        album: song.Album,
+        artwork: [{ src: song.Image }]
+      });
+
+      navigator.mediaSession.playbackState = playing ? "playing" : "paused"
+
+      navigator.mediaSession.setActionHandler('previoustrack', () => this.state.socket.emit("prevTrack"));
+      navigator.mediaSession.setActionHandler('nexttrack', () => this.state.socket.emit("nextTrack"));
+      navigator.mediaSession.setActionHandler('play', () => { this.audioTag.play(); this.state.socket.emit("playpause") });
+      navigator.mediaSession.setActionHandler('pause', () => { this.audioTag.pause(); this.state.socket.emit("playpause") });
+
+    }
+  }
 
   reorderQueue = queue => {
     this.setState(
@@ -636,7 +673,7 @@ class App extends Component {
 
     items = this.contextItems(type);
 
-    items.map(item => {});
+    items.map(item => { });
 
     this.setState({
       contextOpen: true,
@@ -736,108 +773,110 @@ class App extends Component {
     };
 
     return (
-      <AppContext.Provider value={context}>
-        {this.state.kicked && (
-          <YouveBeenKicked kickedBy={this.state.kickedBy} />
-        )}
-
-        <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
-
-        <AnimatePresence>
-          <CollectionView
-            key={JSON.stringify(collectionItem)}
-            open={collectionOpen}
-            item={collectionItem}
-            close={this.closeCollection}
-            type={collectionType}
-            setImage={this.setCollectionImage}
-          />
-        </AnimatePresence>
-
-        <ContextMenu
-          open={contextOpen}
-          items={contextItems}
-          close={this.closeContextMenu}
-          selected={contextSelection}
-          type={contextType}
-        />
-
-        <AnimatePresence>
-          {queueOpen && (
-            <PlayingQueue
-              key="queue"
-              close={this.closeQueue}
-              reorderQueue={this.reorderQueue}
-              queue={this.state.Queue}
-            />
+      <div onClick={this.setUpNotification}>
+        <AppContext.Provider value={context}>
+          {this.state.kicked && (
+            <YouveBeenKicked kickedBy={this.state.kickedBy} />
           )}
-        </AnimatePresence>
 
-        {!collectionOpen && (
-          <React.Fragment>
-            {Queue && Queue.Array.length > 0 && (
-              <motion.div
-                style={{
-                  ...styles.tabbar,
-                  ...styles.nowPlaying
-                }}
-                key="nowPlayingContainer"
-                initial={{
-                  zIndex: 20
-                }}
-                animate={{
-                  top: nowPlayingOpen ? 0 : "unset",
-                  zIndex: nowPlayingOpen ? 22 : 20
-                }}
-              >
-                {nowPlayingOpen ? (
-                  <NowPlaying
-                    playing={playing}
-                    timestamp={currentTimestamp}
-                    duration={currentDuration}
-                    toggleNowPlaying={this.toggleNowPlaying}
-                    key="open"
-                  />
-                ) : (
-                  <div
-                    onClick={this.toggleNowPlaying}
-                    key="closed"
-                    style={styles.nowPlayingClosed}
-                  >
-                    <Header style={styles.nowPlayingText}>Now Playing</Header>
-                    <IosArrowUp fontSize={"1em"} color={"black"} />
-                  </div>
-                )}
-              </motion.div>
+          <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
+
+          <AnimatePresence>
+            <CollectionView
+              key={JSON.stringify(collectionItem)}
+              open={collectionOpen}
+              item={collectionItem}
+              close={this.closeCollection}
+              type={collectionType}
+              setImage={this.setCollectionImage}
+            />
+          </AnimatePresence>
+
+          <ContextMenu
+            open={contextOpen}
+            items={contextItems}
+            close={this.closeContextMenu}
+            selected={contextSelection}
+            type={contextType}
+          />
+
+          <AnimatePresence>
+            {queueOpen && (
+              <PlayingQueue
+                key="queue"
+                close={this.closeQueue}
+                reorderQueue={this.reorderQueue}
+                queue={this.state.Queue}
+              />
             )}
-            <div style={styles.tabbar}>
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{
-                  scaleY: nowPlayingOpen ? 0 : 1,
-                  opacity: nowPlayingOpen ? 0 : 1
-                }}
-              >
-                <SegmentedControl
-                  items={this.navbarItems()}
-                  selectedItemIndex={tab}
-                  onChange={({ activeIndex }) => this.setTab(activeIndex)}
-                />
-              </motion.div>
-            </div>
-            <AnimatePresence>
-              {this.state.showScrollToTop && (
-                <ScrollToTop key={"scroller"} onClick={this.scrollToTop} />
-              )}
-            </AnimatePresence>
-          </React.Fragment>
-        )}
+          </AnimatePresence>
 
-        <AnimatePresence>
-          {this.state.settingsOpen && <Settings key="settings" />}
-          {this.state.firstLoginOpen && <NewUser key="welcom" />}
-        </AnimatePresence>
-      </AppContext.Provider>
+          {!collectionOpen && (
+            <React.Fragment>
+              {Queue && Queue.Array.length > 0 && (
+                <motion.div
+                  style={{
+                    ...styles.tabbar,
+                    ...styles.nowPlaying
+                  }}
+                  key="nowPlayingContainer"
+                  initial={{
+                    zIndex: 20
+                  }}
+                  animate={{
+                    top: nowPlayingOpen ? 0 : "unset",
+                    zIndex: nowPlayingOpen ? 22 : 20
+                  }}
+                >
+                  {nowPlayingOpen ? (
+                    <NowPlaying
+                      playing={playing}
+                      timestamp={currentTimestamp}
+                      duration={currentDuration}
+                      toggleNowPlaying={this.toggleNowPlaying}
+                      key="open"
+                    />
+                  ) : (
+                      <div
+                        onClick={this.toggleNowPlaying}
+                        key="closed"
+                        style={styles.nowPlayingClosed}
+                      >
+                        <Header style={styles.nowPlayingText}>Now Playing</Header>
+                        <IosArrowUp fontSize={"1em"} color={"black"} />
+                      </div>
+                    )}
+                </motion.div>
+              )}
+              <div style={styles.tabbar}>
+                <motion.div
+                  initial={{ scaleY: 0 }}
+                  animate={{
+                    scaleY: nowPlayingOpen ? 0 : 1,
+                    opacity: nowPlayingOpen ? 0 : 1
+                  }}
+                >
+                  <SegmentedControl
+                    items={this.navbarItems()}
+                    selectedItemIndex={tab}
+                    onChange={({ activeIndex }) => this.setTab(activeIndex)}
+                  />
+                </motion.div>
+              </div>
+              <AnimatePresence>
+                {this.state.showScrollToTop && (
+                  <ScrollToTop key={"scroller"} onClick={this.scrollToTop} />
+                )}
+              </AnimatePresence>
+            </React.Fragment>
+          )}
+
+          <AnimatePresence>
+            {this.state.settingsOpen && <Settings key="settings" />}
+            {this.state.firstLoginOpen && <NewUser key="welcom" />}
+          </AnimatePresence>
+        </AppContext.Provider>
+      </div>
     );
   }
 }

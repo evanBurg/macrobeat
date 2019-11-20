@@ -29,7 +29,7 @@ const songSchema = new mongoose.Schema({
   },
   source: {
     type: String,
-    enum: [`youtube`, `spotify`, `soundcloud`],
+    enum: [`youtube`, `spotify`, `soundcloud`, `bandcamp`],
     required: true
   },
   artistImage: {
