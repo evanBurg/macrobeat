@@ -1,5 +1,6 @@
 import React from "react";
 import { Header, Text, Button } from "../Components/WrapperComponents";
+import Modal from "../Components/Modal";
 import { motion } from "framer-motion";
 import { AppContext } from "../app";
 
@@ -87,7 +88,7 @@ const variants = {
 };
 
 const ShortenName = Name => {
-  if(!Name) return "";
+  if (!Name) return "";
 
   if (Name.length > 12) {
     return Name.substr(0, 9) + "...";
@@ -102,100 +103,102 @@ const kickUser = (ctx, userKicked, Kicker) => {
 
 const KickUser = props => {
   return (
-    <div style={style.container} onClick={props.close}>
-      <motion.div
-        style={style.modalTitle}
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        exit="initial"
-      >
-        <Header>Kick Users</Header>
-      </motion.div>
-      <motion.div
-        style={style.modalContainer}
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        exit="initial"
-      >
-        <AppContext.Consumer>
-          {ctx =>
-            ctx.users.map(({ user, img, id }) => (
+    <Modal title="Kick User" {...props}>
+      <AppContext.Consumer>
+        {ctx =>
+          ctx.users
+            .filter(u => u.id !== ctx.userID)
+            .map(({ user, img, id }) => (
               <div style={style.row} key={id}>
                 <div style={style.user}>
                   <img style={style.image} src={img} alt={user} />
                   <Text style={style.text}>{ShortenName(user)}</Text>
                 </div>
-                <Button style={style.buttons} onClick={() => kickUser(ctx, id, ctx.User.id)}>
+                <Button
+                  style={style.buttons}
+                  onClick={() => kickUser(ctx, id, ctx.User.id)}
+                >
                   Kick User
                 </Button>
               </div>
             ))
-          }
-        </AppContext.Consumer>
-      </motion.div>
-    </div>
+        }
+      </AppContext.Consumer>
+    </Modal>
   );
 };
 
 const KickedBy = (ctx, kickedBy) => {
   let user = ctx.users.find(usr => usr.id == kickedBy);
   return user.user;
-}
+};
 
 const YouveBeenKicked = props => {
   return (
     <div style={{ ...style.container, zIndex: 9999999 }}>
       <motion.div
-        style={style.modalTitle}
         variants={variants}
         initial="initial"
         animate="animate"
         exit="initial"
       >
-        <Header>You've Been Kicked</Header>
-      </motion.div>
-      <motion.div
-        style={style.modalContainer}
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        exit="initial"
-      >
-        <AppContext.Consumer>
-          {ctx =>
-            ctx.users.map(({ user, img, id }) => {
-              if(id !== ctx.userID){
-                return <React.Fragment key={id}/>
-              }
+        <div style={style.modalTitle}>
+          <Header>You've Been Kicked</Header>
+        </div>
+        <div style={style.modalContainer}>
+          <AppContext.Consumer>
+            {ctx =>
+              ctx.users.map(({ user, img, id }) => {
+                if (id !== ctx.userID) {
+                  return <React.Fragment key={id} />;
+                }
 
-              return (
-              <div
-                key={id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: 'center'
-                }}
-              >
-                <Text style={{ fontSize: "1.5rem", fontWeight: '500', textAlign: 'center', margin: "1rem" }}>
-                  {ShortenName(user)}
-                </Text>
-                <Text>You were kicked by {KickedBy(ctx, props.kickedBy)}</Text>
-                <Text style={{ fontSize: "1.2rem", textAlign: 'center', margin: "1rem" }}>
-                  Refresh to continue...
-                </Text>
-                <Button style={{...style.buttons, margin: '1rem'}} onClick={() => window.location.reload()}>
-                  Refresh
-                </Button>
-              </div>
-            )})
-          }
-        </AppContext.Consumer>
+                return (
+                  <div
+                    key={id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      textAlign: "center"
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: "1.5rem",
+                        fontWeight: "500",
+                        textAlign: "center",
+                        margin: "1rem"
+                      }}
+                    >
+                      {ShortenName(user)}
+                    </Text>
+                    <Text>
+                      You were kicked by {KickedBy(ctx, props.kickedBy)}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: "1.2rem",
+                        textAlign: "center",
+                        margin: "1rem"
+                      }}
+                    >
+                      Refresh to continue...
+                    </Text>
+                    <Button
+                      style={{ ...style.buttons, margin: "1rem" }}
+                      onClick={() => window.location.reload()}
+                    >
+                      Refresh
+                    </Button>
+                  </div>
+                );
+              })
+            }
+          </AppContext.Consumer>
+        </div>
       </motion.div>
     </div>
   );

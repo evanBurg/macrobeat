@@ -2,7 +2,7 @@ const spotifyservice = require(`./spotify-service`);
 const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
-const { util } = require('../utilities');
+const { util } = require("../utilities");
 const unixTimestamp = util.unixTimestamp;
 const MPV = require("node-mpv");
 const MPV_LOCATION = process.env.MPV_LOCATION;
@@ -13,7 +13,7 @@ class Player {
     this.queue = [];
 
     this.empty = true;
-    this.repeatState = false
+    this.repeatState = false;
 
     this.currentSong = 0;
     this.currentlyPlaying = null;
@@ -50,8 +50,10 @@ class Player {
 
   shuffle() {
     let curSong = this.queue[this.currentSong];
-    this.queue = this.queue.filter((song) => song.ID !== curSong.ID && song.Time !== curSong.Time);
-    this.queue = util.shuffleArray(this.queue)
+    this.queue = this.queue.filter(
+      song => song.ID !== curSong.ID && song.Time !== curSong.Time
+    );
+    this.queue = util.shuffleArray(this.queue);
     this.queue = [curSong, ...this.queue];
     this.currentSong = 0;
     this.notify();
@@ -60,16 +62,16 @@ class Player {
   repeat() {
     switch (this.repeatState) {
       case false:
-        this.repeatState = "queue"
+        this.repeatState = "queue";
         break;
       case "queue":
-        this.repeatState = "song"
+        this.repeatState = "song";
         break;
       case "song":
         this.repeatState = false;
         break;
     }
-    this.notify()
+    this.notify();
   }
 
   removeSongFromQueue(song) {
@@ -156,9 +158,9 @@ class Player {
 
   play() {
     if (!this.callbacksSet) {
-      this.mpv.on("timeposition", (e) => this.updateTimestamp(e, this));
-      this.mpv.on("stopped", (e) => this.onFinished(this));
-      this.mpv.on("statuschange", (e) => this.onStatusChange(e, this));
+      this.mpv.on("timeposition", e => this.updateTimestamp(e, this));
+      this.mpv.on("stopped", e => this.onFinished(this));
+      this.mpv.on("statuschange", e => this.onStatusChange(e, this));
       this.callbacksSet = true;
     }
 
@@ -181,6 +183,9 @@ class Player {
         //Just skip this until we can play
         setTimeout(this.onFinished, 400);
         break;
+      case "mpv":
+        this.mpv.load(Song.ID, "replace");
+        break;
       default:
         this.services[Song.Type].play(Song);
         break;
@@ -189,7 +194,7 @@ class Player {
 
   prevTrack() {
     if (this.currentSong - 1 > -1) {
-      this.state = "skipping"
+      this.state = "skipping";
       this.currentSong -= 1;
       this.duration = 0;
       this.timestamp = 0;
@@ -200,7 +205,7 @@ class Player {
 
   nextTrack() {
     if (this.currentSong + 1 < this.queue.length) {
-      this.state = "skipping"
+      this.state = "skipping";
       this.currentSong += 1;
       this.duration = 0;
       this.timestamp = 0;
@@ -230,8 +235,11 @@ class Player {
       case false:
         break;
       case "queue":
-        if (objectInstance.state !== "skipping" && !(objectInstance.currentSong + 1 < objectInstance.queue.length)) {
-          objectInstance.state = "skipping"
+        if (
+          objectInstance.state !== "skipping" &&
+          !(objectInstance.currentSong + 1 < objectInstance.queue.length)
+        ) {
+          objectInstance.state = "skipping";
           objectInstance.currentSong = 0;
           this.duration = 0;
           this.timestamp = 0;
@@ -241,7 +249,7 @@ class Player {
         }
         break;
       case "song":
-        objectInstance.state = "skipping"
+        objectInstance.state = "skipping";
         this.duration = 0;
         this.timestamp = 0;
         this.notify();
@@ -249,8 +257,10 @@ class Player {
         return;
     }
 
-
-    if (objectInstance.state !== "skipping" && (objectInstance.currentSong + 1 < objectInstance.queue.length)) {
+    if (
+      objectInstance.state !== "skipping" &&
+      objectInstance.currentSong + 1 < objectInstance.queue.length
+    ) {
       objectInstance.currentSong += 1;
       this.duration = 0;
       this.timestamp = 0;
@@ -264,6 +274,9 @@ class Player {
     switch (this.currentService) {
       case "spotify":
         break;
+      case "mpv":
+        this.mpv.resume();
+        break;
       default:
         this.services[this.currentService].resume();
         break;
@@ -273,6 +286,9 @@ class Player {
   scrub(timestamp) {
     switch (this.currentService) {
       case "spotify":
+        break;
+      case "mpv":
+        this.mpv.scrub();
         break;
       default:
         this.services[this.currentService].scrub(timestamp);
@@ -285,6 +301,9 @@ class Player {
     switch (this.currentService) {
       case "spotify":
         break;
+      case "mpv":
+        this.mpv.pause();
+        break;
       default:
         this.services[this.currentService].pause();
         break;
@@ -295,6 +314,9 @@ class Player {
     this.state = "stopped";
     switch (this.currentService) {
       case "spotify":
+        break;
+      case "mpv":
+        this.mpv.stop();
         break;
       default:
         this.services[this.currentService].stop();

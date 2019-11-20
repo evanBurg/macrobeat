@@ -117,9 +117,7 @@ class Settings extends Component {
               <Text style={styles.text}>Kick User</Text>
               <Button style={styles.buttons} onClick={this.kickUser}>Choose User</Button>
             </div>
-              <AnimatePresence>
-                {kickUserOpen && <KickUser key="kick" close={this.closeKickUser}/>}
-              </AnimatePresence>
+            <KickUser key="kick" toggleOpen={this.closeKickUser} open={kickUserOpen}/>
           </motion.div>
         )}
       </AppContext.Consumer>

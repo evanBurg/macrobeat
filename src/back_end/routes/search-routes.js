@@ -8,17 +8,24 @@ const { spotifyservice, youtubeservice, bandcampservice, soundcloudservice } = r
 router.get(`/:searchQuery`, async (req, res) => {
   try {
     const searchQuery = util.encodeSpaces(req.params.searchQuery);
+    const selectedServices = JSON.parse(decodeURIComponent(req.query.services))
+
     let promises = [];
 
-    promises.push(youtubeservice.search(searchQuery));
+    if(selectedServices.includes("youtube")){
+      promises.push(youtubeservice.search(searchQuery));
+    }
 
-    promises.push(bandcampservice.search(decodeURIComponent(searchQuery)));
+    if(selectedServices.includes("bandcamp")){
+      promises.push(bandcampservice.search(decodeURIComponent(searchQuery)));
+    }
 
-    if(soundcloudservice.isLoggedIn()){
+
+    if(selectedServices.includes("soundcloud") && soundcloudservice.isLoggedIn()){
       promises.push(soundcloudservice.search(searchQuery));
     }
 
-    if(await spotifyservice.isLoggedIn()){
+    if(selectedServices.includes("spotify") && await spotifyservice.isLoggedIn()){
       promises.push(spotifyservice.search(searchQuery));
     }
 

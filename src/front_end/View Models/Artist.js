@@ -1,7 +1,7 @@
 class Artist{
     constructor(Name, Image, SongArray){
         this._Name = Name;
-        this._Image = Image || "https://placeimg.com/640/480/people"
+        this._Image = Image || "/img/music_placeholder.png"
         this._Albums = {};
 
         this._Songs = SongArray.filter(Song => Song.Artist == this._Name);

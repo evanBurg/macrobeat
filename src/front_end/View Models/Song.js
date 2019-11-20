@@ -4,8 +4,8 @@ const YouTubeAdapter = song => ({
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
-  Image: song.image || "https://placeimg.com/640/480/people",
-  ArtistImage: "https://placeimg.com/640/480/people",
+  Image: song.image || "/img/music_placeholder.png",
+  ArtistImage: "/img/music_placeholder.png",
   Length: song.lengthS || 0,
   Type: "youtube"
 });
@@ -15,8 +15,8 @@ const SpotifyAdapter = song => ({
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
-  ArtistImage: "https://placeimg.com/640/480/people",
-  Image: song.image || "https://placeimg.com/640/480/people",
+  ArtistImage: "/img/music_placeholder.png",
+  Image: song.image || "/img/music_placeholder.png",
   Length: song.lengthS || 0,
   Type: "spotify"
 });
@@ -26,9 +26,9 @@ const BandcampAdapter = song => ({
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
-  Image: song.image || "https://placeimg.com/640/480/people",
+  Image: song.image || "/img/music_placeholder.png",
   Length: song.lengthS || 0,
-  ArtistImage: song.artistImage || "https://placeimg.com/640/480/people",
+  ArtistImage: song.artistImage || "/img/music_placeholder.png",
   Type: song.source || "Unknown"
 });
 
@@ -37,9 +37,9 @@ const SoundcloudAdapter = song => ({
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
-  Image: song.image || "https://placeimg.com/640/480/people",
+  Image: song.image || "/img/music_placeholder.png",
   Length: song.lengthS || 0,
-  ArtistImage: song.artistImage || "https://placeimg.com/640/480/people",
+  ArtistImage: song.artistImage || "/img/music_placeholder.png",
   Type: song.source || "Unknown"
 });
 
@@ -48,11 +48,22 @@ const DatabaseAdapter = song => ({
   Artist: song.artist || "Unknown",
   Album: song.album || "Unknown",
   Name: song.title || "Unknown",
-  Image: song.image || "https://placeimg.com/640/480/people",
+  Image: song.image || "/img/music_placeholder.png",
   Length: song.lengthS || 0,
-  ArtistImage: song.artistImage || "https://placeimg.com/640/480/people",
+  ArtistImage: song.artistImage || "/img/music_placeholder.png",
   Type: song.source || "Unknown"
 });
+
+const CustomSongAdapter = url => ({
+  ID: url,
+  Artist: "Unknown",
+  Album: "Unknown",
+  Name: url,
+  Image: "/img/music_placeholder.png",
+  Length: 0,
+  ArtistImage: "/img/music_placeholder.png",
+  Type: "mpv"
+})
 
 class Song {
   constructor(SongJSON, Source) {
@@ -74,6 +85,9 @@ class Song {
         break;
       case "database":
         song = DatabaseAdapter(SongJSON);
+        break;
+      case "custom":
+        song = CustomSongAdapter(SongJSON)
         break;
     }
 
