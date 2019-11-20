@@ -1,5 +1,5 @@
-const offlineUrl = "./offline.html";
-const logoUrl = "./img/logo/logoSquare-black.png"
+const offlineUrl = "./index.html";
+const logoUrl = "./img/logo/logo.png"
 this.addEventListener("install", event => {
   event.waitUntil(
     caches.open("offline-cache").then(function(cache) {

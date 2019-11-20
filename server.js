@@ -70,8 +70,6 @@ attemptCreateUser = data => {
     if (!user) {
       await User.create({
         uniqueId: data.id,
-        userName: data.user || " ",
-        profilePicBase64: data.img || " "
       });
       user = await User.findOne({ uniqueId: data.id });
     }
