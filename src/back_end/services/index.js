@@ -181,7 +181,7 @@ class Player {
     switch (Song.Type) {
       case "spotify":
         //Just skip this until we can play
-        setTimeout(this.onFinished, 400);
+        setTimeout(() => this.onFinished(this), 400);
         break;
       case "mpv":
         this.mpv.load(Song.ID, "replace");
