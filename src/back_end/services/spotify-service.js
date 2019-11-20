@@ -55,7 +55,8 @@ const attemptFindArtistImage = async artist => {
   let image = false;
   if(artists.items.length > 0){
     const spotifyArtist = artists.items[0];
-    image = (await ArtistImage.findOneAndUpdate({ spotifyId: spotifyArtist.id }, { spotifyId: spotifyArtist.id, stringName: artist, imageLink: spotifyArtist.images[0].url }, {upsert: true})).imageLink
+    ArtistImage.findOneAndUpdate({ spotifyId: spotifyArtist.id }, { spotifyId: spotifyArtist.id, stringName: artist, imageLink: spotifyArtist.images[0].url }, {upsert: true}).exec();
+    image = spotifyArtist.images[0].url;
   }
 
   return image;
