@@ -154,7 +154,8 @@ class App extends Component {
       kicked: false,
       currentTimestamp: 0,
       currentDuration: 0,
-      repeatState: false
+      repeatState: false,
+      volume: 100
     };
   }
 
@@ -271,15 +272,17 @@ class App extends Component {
     setTimeout(() => (document.body.style.overflow = "unset"), 500);
   };
 
-  update = ({ queue, currentSong, playing, users, timestamp, duration, repeat }) => {
+  update = ({ queue, currentSong, playing, users, timestamp, duration, repeat, volume }) => {
 
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
       playing,
       users,
+      volume,
       currentTimestamp: timestamp,
       currentDuration: duration,
-      repeatState: repeat
+      repeatState: repeat,
+      volume
     }, this.richMediaNotification);
   };
 
@@ -749,7 +752,8 @@ class App extends Component {
       users,
       currentTimestamp,
       currentDuration,
-      repeatState
+      repeatState,
+      volume
     } = this.state;
 
     const context = {
@@ -769,7 +773,8 @@ class App extends Component {
       users,
       currentTimestamp,
       currentDuration,
-      repeatState
+      repeatState,
+      volume
     };
 
     return (
@@ -830,6 +835,7 @@ class App extends Component {
                 >
                   {nowPlayingOpen ? (
                     <NowPlaying
+                      volume={volume}
                       playing={playing}
                       timestamp={currentTimestamp}
                       duration={currentDuration}

@@ -11,6 +11,7 @@ import Loader from "react-loaders";
 import { motion } from "framer-motion";
 import { Header, Text, Mask } from "../Components/WrapperComponents";
 import TimeFormat from 'hh-mm-ss';
+import "./Slider.css";
 
 const styles = {
   container: {
@@ -133,7 +134,50 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between"
   },
-  nextText: { color: "#3f4e75", fontWeight: "500", margin: "1em" }
+  nextText: { color: "#3f4e75", fontWeight: "500", margin: "1em" },
+  volumeContainer: {
+    position: 'relative',
+    margin: '1rem',
+    width: '100%'
+  },
+  volumeDownIcon: {
+    marginLeft: -8,
+    marginTop: -6,
+    position: 'absolute',
+    color: '#666'
+  },
+  volumeTrack: {
+    position: 'absolute',
+    left: 24,
+    margin: '0 auto',
+    height: 5,
+    width: '80vw',
+    background: '#555',
+    borderRadius: 15
+  },
+  volumeProgress: {
+    height: 5,
+    position: 'absolute',
+    border: 'none',
+    borderRadius: 10,
+    background: '#2ecc71',
+    outline: 'none'
+  },
+  slider: {
+    width: '80vw',
+    height: 5,
+    position: 'absolute',
+    border: 'none',
+    borderRadius: 10,
+    outline: 'none'
+  },
+  volumeUpIcon: {
+    marginRight: -8,
+    right: '1.9rem',
+    marginTop: -6,
+    position: 'absolute',
+    color: '#666'
+  }
 };
 
 class WaveForm extends Component {
@@ -203,11 +247,11 @@ class WaveForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if(this.props.timestamp !== prevProps.timestamp){
+    if (this.props.timestamp !== prevProps.timestamp) {
       this.generatePoints();
     }
 
-    if(this.props.duration !== prevProps.duration){
+    if (this.props.duration !== prevProps.duration) {
       this.generatePoints();
     }
 
@@ -279,11 +323,11 @@ class Record extends Component {
         <motion.div
           key={this.props.image}
           style={{
-            backgroundColor:"white",
-            backgroundImage:`url(${this.props.image})`,
-            backgroundPosition:"center",
-            backgroundSize:"cover",
-            backgroundRepeat:"no-repeat",
+            backgroundColor: "white",
+            backgroundImage: `url(${this.props.image})`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
             boxShadow: `rgba(0, 0, 0, 0.64) 0px 0px 30px 0px`,
             height: 175,
             width: 175,
@@ -307,6 +351,10 @@ class Record extends Component {
 class NowPlaying extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      volume: props.volume,
+    }
   }
 
   getImage = context => {
@@ -384,6 +432,25 @@ class NowPlaying extends Component {
     return { width: x, height: y };
   };
 
+  setVolume = e => {
+    this.setState({
+      volume: e.target.value
+    })
+  };
+
+  sendVolume = (ctx) => {
+    ctx.socket.emit('volume', this.state.volume)
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.volume !== this.props.volume) {
+      this.setState({
+        volume: this.props.volume
+      })
+    }
+  }
+
+
   render() {
     const { width, height } = this.getViewport();
 
@@ -421,11 +488,11 @@ class NowPlaying extends Component {
 
                     <div style={styles.scrubbingContainer}>
                       <div style={{ padding: "0.8em" }}>
-                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.timestamp), 'mm:ss') || "4:52" }</Text>
+                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.timestamp), 'mm:ss') || "4:52"}</Text>
                       </div>
-                        <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.duration > 0 && this.props.playing} />
+                      <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.duration > 0 && this.props.playing} />
                       <div style={{ padding: "0.8em" }}>
-                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.duration), 'mm:ss') || "4:52" }</Text>
+                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.duration), 'mm:ss') || "4:52"}</Text>
                       </div>
                     </div>
                   </div>
@@ -443,23 +510,47 @@ class NowPlaying extends Component {
                           onClick={() => context.Queue.PlayPause()}
                         />
                       ) : this.props.duration > 0 ? (
-                          <MdPlay
-                            fontSize="4.75em"
-                            color="#929CAF"
-                            onClick={() => context.Queue.PlayPause()}
-                          />
-                        ) : (
-                          <MdCloseCircle
-                            fontSize="4.75em"
-                            color="#929CAF"
-                            rotate
-                          />
-                        )}
+                        <MdPlay
+                          fontSize="4.75em"
+                          color="#929CAF"
+                          onClick={() => context.Queue.PlayPause()}
+                        />
+                      ) : (
+                            <MdCloseCircle
+                              fontSize="4.75em"
+                              color="#929CAF"
+                              rotate
+                            />
+                          )}
                       <MdSkipForward
                         fontSize="2.2em"
                         color="#B9C1D1"
                         onClick={() => context.Queue.SkipTrack()}
                       />
+                    </div>
+
+                    <div style={styles.volumeContainer}>
+                      <i style={styles.volumeDownIcon} className="fa fa-volume-down" />
+
+                      <div style={styles.volumeTrack}>
+                        <div style={{
+                          width: this.state.volume + '%',
+                          ...styles.volumeProgress
+                        }} />
+                        <input
+                          style={styles.slider}
+                          type="range"
+                          min={0} max={100}
+                          value={this.state.volume}
+                          step={1}
+                          onChange={this.setVolume}
+                          onTouchEnd={() => this.sendVolume(context)}
+                          onDragEnd={() => this.sendVolume(context)}
+                          onMouseUp={() => this.sendVolume(context)}
+                        />
+                      </div>
+
+                      <i style={styles.volumeUpIcon} class="fa fa-volume-up" />
                     </div>
                   </div>
                 </div>

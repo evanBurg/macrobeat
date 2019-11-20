@@ -21,12 +21,14 @@ class Player {
     this.currentService = "";
     this.timestamp = 0;
     this.duration = 0;
+    this.volumeLevel = 100;
 
     this.state = "constructed";
     this.mpv = new MPV({
       audio_only: true,
       binary: MPV_LOCATION
     });
+    this.mpv.volume(this.volumeLevel);
 
     this.callbacksSet = false;
 
@@ -35,6 +37,12 @@ class Player {
       soundcloud: new soundcloudservice.SoundCloudPlayer(this.mpv),
       bandcamp: new bandcampservice.BandcampPlayer(this.mpv)
     };
+  }
+
+  volume(level){
+    this.volumeLevel = level;
+    this.mpv.volume(this.volumeLevel);
+    this.notify()
   }
 
   reorder(newQueue) {

@@ -51,7 +51,8 @@ const updateClients = (err) => {
     users,
     timestamp: Player.timestamp,
     duration: Player.duration,
-    repeat: Player.repeatState
+    repeat: Player.repeatState,
+    volume: Player.volumeLevel
   });
 };
 
@@ -204,6 +205,8 @@ io.on("connection", async socket => {
   socket.on("playNext", song => Player.playSongNext(song));
 
   socket.on("play", song => Player.play(song));
+
+  socket.on("volume", volume => Player.volume(volume));
 
   socket.on("playpause", song => {
     if (Player.state === "playing") {

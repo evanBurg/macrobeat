@@ -1,0 +1,25 @@
+input[type=range] {
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    height:5px;
+    width:100%;
+    cursor: pointer;
+    background: none;
+    margin-bottom: 10px;
+  }
+  
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    height: 20px;
+    width: 20px;
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    margin-top: -4px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  }
+  
+  input[type=range]:focus {
+    outline: none;
+  }
