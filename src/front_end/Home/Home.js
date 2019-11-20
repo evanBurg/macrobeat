@@ -24,6 +24,7 @@ class Home extends Component {
               {context.Queue && !context.Queue.Empty && (
                 <SongGroup
                   label="Now playing"
+                  key="playing"
                   onClick={this.props.toggleNowPlaying}
                   songs={context.Queue.Array.slice(0, 5)}
                 />

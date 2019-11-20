@@ -20,6 +20,7 @@ export default props => {
         columns={2}
         height={300}
         width={300}
+        key={JSON.stringify(props.songs)}
         renderImage={({ index, width, height }) => {
           const { songs } = props;
           if (songs[index]) {
@@ -31,12 +32,14 @@ export default props => {
                 width={width - 10}
                 height={height - 10}
                 shape="rounded"
+                key={image}
               >
                 <Image
                   alt="collage image"
                   color={"#eee"}
                   fit="cover"
                   src={image}
+                  key={image}
                 >
                   {index == 0 && (
                     <h4

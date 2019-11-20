@@ -275,7 +275,7 @@ class App extends Component {
 
     this.setState({
       Queue: new Queue(queue, currentSong, this.state.socket),
-      playing: playing,
+      playing,
       users,
       currentTimestamp: timestamp,
       currentDuration: duration,
@@ -301,7 +301,7 @@ class App extends Component {
       playing ? this.audioTag.play() : this.audioTag.pause()
       let song = this.state.Queue.CurrentSong;
       
-      if (song) {
+      if (song && (!navigator.mediaSession.metadata || song.Name !== navigator.mediaSession.metadata.title)) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: song.Name,
           artist: song.Artist,
