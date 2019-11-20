@@ -9,9 +9,10 @@ import { Header, Text, Mask } from "../Components/WrapperComponents";
 const styles = {
   container: {
     zIndex: 29,
-    position: 'fixed',
+    position: "fixed",
     top: 0,
-    height: '100vh',
+    height: "100vh",
+    width: "100vw",
     backgroundColor: "white",
     display: "flex",
     flexDirection: "column",
@@ -60,8 +61,8 @@ const styles = {
   songsContainer: {
     marginBottom: "0.5em",
     marginTop: "0.5em",
-    height: '100%',
-    overflowY: 'auto'
+    height: "100%",
+    overflowY: "auto"
   },
   song: {
     display: "flex",
@@ -187,21 +188,34 @@ class CollectionView extends Component {
     });
   }
 
-  componentDidMount() {
-    this.fileInput = document.getElementById("image-input");
-    const reactThis = this;
-    const { type, item, setImage } = this.props;
-    this.fileInput.addEventListener("change", async function() {
-      if (this.files && this.files[0]) {
-        const base64 = await reactThis.base64encode(this.files[0]);
-        reactThis.setState({
-          image: base64
-        });
+  attachFileInput = () => {
+    if (!this.state.eventListenerAdded) {
+      this.fileInput = document.getElementById("image-input");
+      const reactThis = this;
+      const { type, item, setImage } = this.props;
+      if (this.fileInput) {
+        this.setState({ eventListenerAdded: true });
+        this.fileInput.addEventListener("change", async function() {
+          if (this.files && this.files[0]) {
+            const base64 = await reactThis.base64encode(this.files[0]);
+            reactThis.setState({
+              image: base64
+            });
 
-        setImage(type, item.Name, base64);
+            setImage(type, item.Name, base64);
+          }
+        });
+        this.forceUpdate();
       }
-    });
-    this.forceUpdate();
+    }
+  };
+
+  componentDidMount() {
+    this.attachFileInput();
+  }
+
+  componentDidUpdate() {
+    this.attachFileInput();
   }
 
   render() {
@@ -224,7 +238,10 @@ class CollectionView extends Component {
             </div>
           ) : (
             <motion.div
-              style={styles.container}
+              style={{
+                ...styles.container,
+                zIndex: open ? styles.container.zIndex : -1
+              }}
               variants={this.variants}
               initial="hidden"
               animate="visible"
@@ -240,7 +257,9 @@ class CollectionView extends Component {
                 </div>
                 <div style={styles.song}>
                   <div
-                  onClick={this.fileInput ? () => this.fileInput.click() : undefined}
+                    onClick={
+                      this.fileInput ? () => this.fileInput.click() : undefined
+                    }
                     style={{
                       ...styles.previewImage,
                       backgroundColor: "#EDEDED",
@@ -275,10 +294,10 @@ class CollectionView extends Component {
                 ))}
               </div>
               <input
-                  id="image-input"
-                  type="file"
-                  style={{ visibility: "hidden", width: 0 }}
-                />
+                id="image-input"
+                type="file"
+                style={{ visibility: "hidden", width: 0 }}
+              />
             </motion.div>
           )
         }

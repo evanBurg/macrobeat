@@ -743,18 +743,16 @@ class App extends Component {
 
         <AnimatePresence exitBeforeEnter>{this.getTab()}</AnimatePresence>
 
-        {collectionOpen && (
-          <AnimatePresence>
-            <CollectionView
-              key={JSON.stringify(collectionItem)}
-              open={collectionOpen}
-              item={collectionItem}
-              close={this.closeCollection}
-              type={collectionType}
-              setImage={this.setCollectionImage}
-            />
-          </AnimatePresence>
-        )}
+        <AnimatePresence>
+          <CollectionView
+            key={JSON.stringify(collectionItem)}
+            open={collectionOpen}
+            item={collectionItem}
+            close={this.closeCollection}
+            type={collectionType}
+            setImage={this.setCollectionImage}
+          />
+        </AnimatePresence>
 
         <ContextMenu
           open={contextOpen}
