@@ -4,6 +4,7 @@ const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
 const { util } = require("../utilities");
 const unixTimestamp = util.unixTimestamp;
+const cuid = require('cuid');
 const MPV = require("node-mpv");
 const MPV_LOCATION = process.env.MPV_LOCATION;
 
@@ -87,7 +88,7 @@ class Player {
 
   addSongToQueue(song) {
     if (song.Type && song.ID) {
-      song.Time = unixTimestamp();
+      song.Time = `${unixTimestamp()}-${cuid()}`;
       this.queue.push(song);
     } else {
       this.notify("queueError");
@@ -106,7 +107,7 @@ class Player {
         ...this.queue,
         ...songArray.map((song, idx) => ({
           ...song,
-          Time: unixTimestamp() + idx
+          Time: `${unixTimestamp()}-${cuid()}-${idx}`
         }))
       ];
     } else {
@@ -122,7 +123,7 @@ class Player {
 
   playSongNext(song) {
     if (song.Type && song.ID) {
-      song.Time = unixTimestamp();
+      song.Time = `${unixTimestamp()}-${cuid()}`;
       this.queue.splice(this.currentSong + 1, 0, song);
     } else {
       this.notify("playNextError");
@@ -142,7 +143,7 @@ class Player {
         0,
         ...songArray.map((song, idx) => ({
           ...song,
-          Time: unixTimestamp() + idx
+          Time: `${unixTimestamp()}-${cuid()}-${idx}`
         }))
       );
     } else {

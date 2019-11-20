@@ -50,7 +50,7 @@ class Queue {
 
   set SetTrack(index) {
     if (index >= 0 && index <= this._Queue.length) {
-      this._Socket.emit("play", this.JSONCopy(this._Queue[index]));
+      this._ActiveIndex = index;
     }
   }
 
