@@ -7,7 +7,7 @@ const http = require(`http`);
 const socketIO = require(`socket.io`);
 const cors = require(`cors`);
 const port = process.env.PORT || 5000;
-const stringSimilarity = require('string-similarity')
+const stringSimilarity = require("string-similarity");
 const {
   searchroutes,
   spotifyroutes,
@@ -39,8 +39,8 @@ const io = socketIO(server);
 
 let users = [];
 
-const updateClients = (err) => {
-  if(err){
+const updateClients = err => {
+  if (err) {
     io.emit(err);
   }
 
@@ -71,7 +71,7 @@ attemptCreateUser = data => {
 
     if (!user) {
       await User.create({
-        uniqueId: data.id,
+        uniqueId: data.id
       });
       user = await User.findOne({ uniqueId: data.id });
     }
@@ -80,43 +80,48 @@ attemptCreateUser = data => {
 };
 
 const addSongToLibrary = async song => {
-try {
-  if (song.Type === "youtube") {
-    //Attempt to get better album art
-    if (await spotifyservice.isLoggedIn()) {
-      let tracks = await spotifyservice.search(song.Name);
-      if (tracks.length > 0) {
-        let trackNames = tracks.map(i => i.track);
-        let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
-        if (
-          tracks.length > ratings.bestMatchIndex &&
-          ratings.bestMatchIndex > -1
-        ) {
-          song.Album = tracks[ratings.bestMatchIndex].album;
-          song.Image = tracks[ratings.bestMatchIndex].image;
+  try {
+    if (song.Type === "youtube") {
+      //Attempt to get better album art
+      if (await spotifyservice.isLoggedIn()) {
+        let tracks = await spotifyservice.search(song.Name);
+        if (tracks.length > 0) {
+          let trackNames = tracks.map(i => i.track);
+          let ratings = stringSimilarity.findBestMatch(song.Name, trackNames);
+          if (
+            tracks.length > ratings.bestMatchIndex &&
+            ratings.bestMatchIndex > -1
+          ) {
+            song.Album = tracks[ratings.bestMatchIndex].album;
+            song.Image = tracks[ratings.bestMatchIndex].image;
+          }
         }
       }
     }
+  } catch (e) {
+    console.log(e);
   }
-} catch (e) {
-  console.log(e);
-}
 
-const artistImage = await spotifyservice.attemptFindArtistImage(song.Artist);
-//Add to users mongo library
-const newsong = new Song({
-  id: song.ID,
-  title: song.Name,
-  artist: song.Artist,
-  lengthS: song.Length,
-  album: song.Album,
-  image: song.Image,
-  source: song.Type,
-  artistImage: artistImage || undefined
-});
+  let artistImage = undefined;
+  try {
+    artistImage = await spotifyservice.attemptFindArtistImage(song.Artist);
+  } catch (e) {
+    console.log(e);
+  }
+  //Add to users mongo library
+  const newsong = new Song({
+    id: song.ID,
+    title: song.Name,
+    artist: song.Artist,
+    lengthS: song.Length,
+    album: song.Album,
+    image: song.Image,
+    source: song.Type,
+    artistImage: artistImage || undefined
+  });
 
-return newsong;
-}
+  return newsong;
+};
 
 const Player = new plr(updateClients);
 
@@ -198,9 +203,13 @@ io.on("connection", async socket => {
 
   socket.on("queue", song => Player.addSongToQueue(song));
 
-  socket.on("queueMultiple", songArray => Player.addMultipleSongsToQueue(songArray));
+  socket.on("queueMultiple", songArray =>
+    Player.addMultipleSongsToQueue(songArray)
+  );
 
-  socket.on("playNextMultiple", songArray => Player.playMultipleSongsNext(songArray));
+  socket.on("playNextMultiple", songArray =>
+    Player.playMultipleSongsNext(songArray)
+  );
 
   socket.on("playNext", song => Player.playSongNext(song));
 
@@ -214,7 +223,7 @@ io.on("connection", async socket => {
     } else if (Player.state === "paused") {
       Player.resume();
     } else if (Player.state === "constructed") {
-      Player.play()
+      Player.play();
     }
     updateClients();
   });
@@ -304,15 +313,15 @@ io.on("connection", async socket => {
     updateClients();
   });
 
-  socket.on('setArtistImage', async ({name, image}) => {
+  socket.on("setArtistImage", async ({ name, image }) => {
     await Song.updateMany({ artist: name }, { artistImage: image }).exec();
     io.emit("reloadLibrary", await getLibrary());
-  })
+  });
 
-  socket.on('setAlbumImage', async ({name, image}) => {
+  socket.on("setAlbumImage", async ({ name, image }) => {
     await Song.updateMany({ album: name }, { image: image }).exec();
     io.emit("reloadLibrary", await getLibrary());
-  })
+  });
 
   socket.on("disconnect", function() {
     users = users.filter(usr => usr.id !== socket.userId && usr.id);

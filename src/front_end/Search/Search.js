@@ -254,7 +254,7 @@ class Search extends Component {
       selectedServices.push(service);
     }
 
-    this.setState({ selectedServices }, () => this.getResults(ctx));
+    this.setState({ selectedServices, resultItems: [], loading: true }, () => this.getResults(ctx));
   };
 
   addCustom = (playNext, url, ctx) => {

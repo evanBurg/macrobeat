@@ -224,7 +224,7 @@ class Player {
   }
 
   updateTimestamp(seconds, objectInstance) {
-    this.state = "playing";
+    objectInstance.state = "playing";
     objectInstance.timestamp = seconds;
     objectInstance.notify();
   }
@@ -250,31 +250,34 @@ class Player {
         ) {
           objectInstance.state = "skipping";
           objectInstance.currentSong = 0;
-          this.duration = 0;
-          this.timestamp = 0;
-          this.notify();
+          objectInstance.duration = 0;
+          objectInstance.timestamp = 0;
+          objectInstance.notify();
           objectInstance.play();
           return;
         }
         break;
       case "song":
         objectInstance.state = "skipping";
-        this.duration = 0;
-        this.timestamp = 0;
-        this.notify();
+        objectInstance.duration = 0;
+        objectInstance.timestamp = 0;
+        objectInstance.notify();
         objectInstance.play();
         return;
     }
 
-    if (
-      objectInstance.state !== "skipping" &&
-      objectInstance.currentSong + 1 < objectInstance.queue.length
-    ) {
-      objectInstance.currentSong += 1;
-      this.duration = 0;
-      this.timestamp = 0;
-      this.notify();
-      objectInstance.play();
+    if (objectInstance.state !== "skipping") {
+      if(objectInstance.currentSong + 1 < objectInstance.queue.length){
+        objectInstance.currentSong += 1;
+        objectInstance.duration = 0;
+        objectInstance.timestamp = 0;
+        objectInstance.notify();
+        objectInstance.play();
+      }else{
+        //Queue ended
+        objectInstance.state = "finished";
+        objectInstance.notify();
+      }
     }
   }
 

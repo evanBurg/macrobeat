@@ -10,10 +10,12 @@ const userSchema = new mongoose.Schema({
   userName: {
     type: String,
     required: false,
+    unique: false,
     maxlength: 100
   },
   profilePicBase64: {
     type: String,
+    unique: false,
     required: false
   },
   accountType: {
