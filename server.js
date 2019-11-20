@@ -7,6 +7,7 @@ const http = require(`http`);
 const socketIO = require(`socket.io`);
 const cors = require(`cors`);
 const port = process.env.PORT || 5000;
+const stringSimilarity = require('string-similarity')
 const {
   searchroutes,
   spotifyroutes,

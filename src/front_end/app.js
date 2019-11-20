@@ -284,7 +284,6 @@ class App extends Component {
   };
 
   audioTag = null;
-  setActionHandlers = false
   setUpNotification = () => {
     if (!this.audioTag) {
       this.audioTag = document.createElement('audio');
@@ -295,28 +294,28 @@ class App extends Component {
     }
   }
 
-
   richMediaNotification = () => {
     if (this.audioTag) {
 
       let { playing } = this.state;
-      let song = this.state.Queue.CurrentSong;
-
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: song.Name,
-        artist: song.Artist,
-        album: song.Album,
-        artwork: [{ src: song.Image }]
-      });
-
-      navigator.mediaSession.playbackState = playing ? "playing" : "paused"
       playing ? this.audioTag.play() : this.audioTag.pause()
+      let song = this.state.Queue.CurrentSong;
+      
+      if (song) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: song.Name,
+          artist: song.Artist,
+          album: song.Album,
+          artwork: [{ src: song.Image }]
+        });
 
-      navigator.mediaSession.setActionHandler('previoustrack', () => this.state.socket.emit("prevTrack"));
-      navigator.mediaSession.setActionHandler('nexttrack', () => this.state.socket.emit("nextTrack"));
-      navigator.mediaSession.setActionHandler('play', () => { this.audioTag.play(); this.state.socket.emit("playpause") });
-      navigator.mediaSession.setActionHandler('pause', () => { this.audioTag.pause(); this.state.socket.emit("playpause") });
+        navigator.mediaSession.playbackState = playing ? "playing" : "paused"
 
+        navigator.mediaSession.setActionHandler('previoustrack', () => this.state.socket.emit("prevTrack"));
+        navigator.mediaSession.setActionHandler('nexttrack', () => this.state.socket.emit("nextTrack"));
+        navigator.mediaSession.setActionHandler('play', () => { this.audioTag.play(); this.state.socket.emit("playpause") });
+        navigator.mediaSession.setActionHandler('pause', () => { this.audioTag.pause(); this.state.socket.emit("playpause") });
+      }
     }
   }
 
