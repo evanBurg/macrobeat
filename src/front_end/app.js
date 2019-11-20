@@ -179,8 +179,8 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     Library;
-    if (prevState.contextOpen !== this.state.contextOpen) {
-      if (this.state.contextOpen) {
+    if (prevState.contextOpen !== this.state.contextOpen || prevState.nowPlayingOpen !== this.state.nowPlayingOpen) {
+      if (this.state.contextOpen || this.state.nowPlayingOpen) {
         document.body.style.overflow = "hidden";
       } else {
         document.body.style.overflow = "unset";
@@ -310,6 +310,7 @@ class App extends Component {
       });
 
       navigator.mediaSession.playbackState = playing ? "playing" : "paused"
+      playing ? this.audioTag.play() : this.audioTag.pause()
 
       navigator.mediaSession.setActionHandler('previoustrack', () => this.state.socket.emit("prevTrack"));
       navigator.mediaSession.setActionHandler('nexttrack', () => this.state.socket.emit("nextTrack"));

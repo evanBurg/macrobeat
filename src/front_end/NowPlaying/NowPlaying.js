@@ -421,7 +421,7 @@ class NowPlaying extends Component {
 
                     <div style={styles.scrubbingContainer}>
                       <div style={{ padding: "0.8em" }}>
-                        <Text style={styles.timeText}>0:00</Text>
+                        <Text style={styles.timeText}>{TimeFormat.fromS(Math.floor(this.props.timestamp), 'mm:ss') || "4:52" }</Text>
                       </div>
                         <WaveForm columns={Math.floor(width / 22)} duration={this.props.duration} timestamp={this.props.timestamp} playing={this.props.duration > 0 && this.props.playing} />
                       <div style={{ padding: "0.8em" }}>
