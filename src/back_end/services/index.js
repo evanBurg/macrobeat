@@ -210,7 +210,7 @@ class Player {
     }
 
     let Song = this.queue[this.currentSong];
-    if (this.state === "playing" || this.state === "paused") {
+    if (this.state === "playing" || this.state === "paused" || this.state === "skipping") {
       this.stop();
       this.duration = 0;
       this.timestamp = 0;

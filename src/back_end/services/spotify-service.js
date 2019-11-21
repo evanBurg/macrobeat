@@ -136,7 +136,7 @@ class SpotifyPlayer {
     };
     let response = await preq.put(options);
 
-    if(response && response.error && response.error.status === 401){
+    if (response && response.error && response.error.status === 401) {
       await refreshToken();
       return this.play(song);
     }
@@ -163,7 +163,7 @@ class SpotifyPlayer {
         };
         let state = await preq.get(options);
 
-        if(state && state.error && state.error.status === 401){
+        if (state && state.error && state.error.status === 401) {
           await refreshToken();
           return objectThis.getState(objectThis);
         }
@@ -181,33 +181,37 @@ class SpotifyPlayer {
   }
 
   async pause() {
-    let token = this.token;
-    let options = {
-      url: `https://api.spotify.com/v1/me/player/pause?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
-      headers: { Authorization: `Bearer ${token.authToken}` }
-    };
-    let response = await preq.put(options);
+    if (this.playing) {
+      let token = this.token;
+      let options = {
+        url: `https://api.spotify.com/v1/me/player/pause?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+        headers: { Authorization: `Bearer ${token.authToken}` }
+      };
+      let response = await preq.put(options);
 
-    if(response && response.error && response.error.status === 401){
-      await refreshToken();
-      return this.pause();
+      if (response && response.error && response.error.status === 401) {
+        await refreshToken();
+        return this.pause();
+      }
+      this.playing = false;
     }
-    this.playing = false;
   }
 
   async resume() {
-    let token = this.token;
-    let options = {
-      url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
-      headers: { Authorization: `Bearer ${token.authToken}` }
-    };
-    let response = await preq.put(options);
+    if (!this.playing) {
+      let token = this.token;
+      let options = {
+        url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+        headers: { Authorization: `Bearer ${token.authToken}` }
+      };
+      let response = await preq.put(options);
 
-    if(response && response.error && response.error.status === 401){
-      await refreshToken();
-      return this.resume();
+      if (response && response.error && response.error.status === 401) {
+        await refreshToken();
+        return this.resume();
+      }
+      this.playing = true;
     }
-    this.playing = true;
   }
 
   stop() {
@@ -223,7 +227,7 @@ class SpotifyPlayer {
     };
     let response = await preq.put(options);
 
-    if(response && response.error && response.error.status === 401){
+    if (response && response.error && response.error.status === 401) {
       await refreshToken();
       return this.setVolume(volume);
     }
