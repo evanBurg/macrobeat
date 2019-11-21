@@ -134,14 +134,20 @@ class SpotifyPlayer {
       headers: { Authorization: `Bearer ${token.authToken}` },
       json: { uris: [`spotify:track:${song.ID}`] }
     };
-    await preq.put(options);
+    let response = await preq.put(options);
+
+    if(response && response.error && response.error.status === 401){
+      await refreshToken();
+      return this.play(song);
+    }
+
     this.playing = true;
     this.getState(this);
 
     if (!this.stateLoop) {
       const objectThis = this;
       this.stateLoop = setInterval(async function() {
-        await this.getState(objectThis);
+        await objectThis.getState(objectThis);
       }, 3000);
     }
   }
@@ -151,16 +157,21 @@ class SpotifyPlayer {
       try {
         let token = objectThis.token;
         let options = {
-          url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+          url: `https://api.spotify.com/v1/me/player/currently-playing`,
           headers: { Authorization: `Bearer ${token.authToken}` },
           json: true
         };
-        let state = await preq.put(options);
+        let state = await preq.get(options);
 
-        if (state.position && state.duration_ms) {
+        if(state && state.error && state.error.status === 401){
+          await refreshToken();
+          return objectThis.getState(objectThis);
+        }
+
+        if (state.progress_ms && state.item.duration_ms) {
           objectThis.updateStateCallback({
-            position: parseInt(state.position) / 1000,
-            duration: parseInt(state.duration_ms) / 1000
+            position: parseInt(state.progress_ms) / 1000,
+            duration: parseInt(state.item.duration_ms) / 1000
           });
         }
       } catch (e) {
@@ -175,7 +186,12 @@ class SpotifyPlayer {
       url: `https://api.spotify.com/v1/me/player/pause?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
       headers: { Authorization: `Bearer ${token.authToken}` }
     };
-    preq.put(options);
+    let response = await preq.put(options);
+
+    if(response && response.error && response.error.status === 401){
+      await refreshToken();
+      return this.pause();
+    }
     this.playing = false;
   }
 
@@ -185,7 +201,12 @@ class SpotifyPlayer {
       url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
       headers: { Authorization: `Bearer ${token.authToken}` }
     };
-    preq.put(options);
+    let response = await preq.put(options);
+
+    if(response && response.error && response.error.status === 401){
+      await refreshToken();
+      return this.resume();
+    }
     this.playing = true;
   }
 
@@ -200,7 +221,12 @@ class SpotifyPlayer {
       headers: { Authorization: `Bearer ${token.authToken}` },
       json: true
     };
-    preq.put(options);
+    let response = await preq.put(options);
+
+    if(response && response.error && response.error.status === 401){
+      await refreshToken();
+      return this.setVolume(volume);
+    }
   }
 }
 

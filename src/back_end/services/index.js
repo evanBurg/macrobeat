@@ -45,18 +45,18 @@ class Player {
   async checkForSpotify(){
     if(await spotifyservice.isLoggedIn()){
       this.spotifyToken = await AuthToken.findOne({ serviceName: `spotify` }).exec();
-      this.services["spotify"] = new spotifyservice.SpotifyPlayer(this.spotifyToken, this.onSpotifyStatusChange)
+      this.services["spotify"] = new spotifyservice.SpotifyPlayer(this.spotifyToken, (e) => this.onSpotifyStatusChange(this, e))
     }
   }
 
-  onSpotifyStatusChange(status) {
-    this.status = status;
+  onSpotifyStatusChange(objectInstance, status) {
+    objectInstance.status = status;
     if (status.duration) {
-      this.duration = status.duration;
+      objectInstance.duration = status.duration;
     }
 
     if(status.position){
-      this.timestamp = status.position;
+      objectInstance.timestamp = status.position;
     }
     
     objectInstance.notify();
