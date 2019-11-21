@@ -211,7 +211,7 @@ class Player {
 
     let Song = this.queue[this.currentSong];
     if (this.state === "playing" || this.state === "paused" || this.state === "skipping") {
-      this.stop();
+      this.pause();
       this.duration = 0;
       this.timestamp = 0;
     }
@@ -270,8 +270,6 @@ class Player {
   }
 
   onFinished(objectInstance) {
-    objectInstance.state = "finished";
-
     switch (objectInstance.repeatState) {
       case false:
         break;
