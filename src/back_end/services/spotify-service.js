@@ -1,7 +1,8 @@
 require(`dotenv`).config();
 
-const { preq } = require(`../utilities`);
+const { preq, util } = require(`../utilities`);
 const { AuthToken, ArtistImage } = require(`../models`);
+const Nightmare = require("nightmare");
 
 const refreshToken = async () => {
   const doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
@@ -29,7 +30,11 @@ const refreshToken = async () => {
 const search = async (searchQuery, searchType, format) => {
   let doc = await AuthToken.findOne({ serviceName: `spotify` }).exec();
   let options = {
-    url: `${process.env.SPOTIFY_SEARCH_URI}?q=${searchQuery}&type=${searchType || "album,artist,track"}&limit=${process.env.QUERY_LIMIT}`,
+    url: `${
+      process.env.SPOTIFY_SEARCH_URI
+    }?q=${searchQuery}&type=${searchType || "album,artist,track"}&limit=${
+      process.env.QUERY_LIMIT
+    }`,
     headers: { Authorization: `Bearer ${doc.authToken}` },
     json: true
   };
@@ -44,7 +49,7 @@ const search = async (searchQuery, searchType, format) => {
     options.headers = { Authorization: `Bearer ${doc.authToken}` };
     body = await preq.get(options);
   }
-  if(format === false){
+  if (format === false) {
     return body;
   }
   return await formatResults(body);
@@ -53,27 +58,35 @@ const search = async (searchQuery, searchType, format) => {
 const attemptFindArtistImage = async artist => {
   let artists = (await search(artist, "artist", false)).artists;
   let image = false;
-  if(artists.items.length > 0){
+  if (artists.items.length > 0) {
     const spotifyArtist = artists.items[0];
-    ArtistImage.findOneAndUpdate({ spotifyId: spotifyArtist.id }, { spotifyId: spotifyArtist.id, stringName: artist, imageLink: spotifyArtist.images[0].url }, {upsert: true}).exec();
+    ArtistImage.findOneAndUpdate(
+      { spotifyId: spotifyArtist.id },
+      {
+        spotifyId: spotifyArtist.id,
+        stringName: artist,
+        imageLink: spotifyArtist.images[0].url
+      },
+      { upsert: true }
+    ).exec();
     image = spotifyArtist.images[0].url;
   }
 
   return image;
-}
+};
 
 const getArtistImage = async artist => {
-  const image = await ArtistImage.findOne({stringName: artist});
+  const image = await ArtistImage.findOne({ stringName: artist });
   return image.imageLink;
-}
+};
 
 const setAristImage = async (artist, spotifyId, imageLink) => {
   await ArtistImage.create({
     stringName: artist,
     spotifyId,
     imageLink
-  })
-}
+  });
+};
 
 const formatResults = async res => {
   let songs = [];
@@ -106,10 +119,96 @@ const isLoggedIn = async () => {
   return token ? true : false;
 };
 
+class SpotifyPlayer {
+  constructor(token, updateStateCallback) {
+    this.updateStateCallback = updateStateCallback;
+    this.token = token;
+    this.playing = false;
+    this.stateLoop = false;
+  }
+
+  async play(song) {
+    let token = this.token;
+    let options = {
+      url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+      headers: { Authorization: `Bearer ${token.authToken}` },
+      json: { uris: [`spotify:track:${song.ID}`] }
+    };
+    await preq.put(options);
+    this.playing = true;
+    this.getState(this);
+
+    if (!this.stateLoop) {
+      const objectThis = this;
+      this.stateLoop = setInterval(async function() {
+        await this.getState(objectThis);
+      }, 3000);
+    }
+  }
+
+  async getState(objectThis) {
+    if (objectThis.playing) {
+      try {
+        let token = objectThis.token;
+        let options = {
+          url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+          headers: { Authorization: `Bearer ${token.authToken}` },
+          json: true
+        };
+        let state = await preq.put(options);
+
+        if (state.position && state.duration_ms) {
+          objectThis.updateStateCallback({
+            position: parseInt(state.position) / 1000,
+            duration: parseInt(state.duration_ms) / 1000
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
+  async pause() {
+    let token = this.token;
+    let options = {
+      url: `https://api.spotify.com/v1/me/player/pause?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+      headers: { Authorization: `Bearer ${token.authToken}` }
+    };
+    preq.put(options);
+    this.playing = false;
+  }
+
+  async resume() {
+    let token = this.token;
+    let options = {
+      url: `https://api.spotify.com/v1/me/player/play?device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+      headers: { Authorization: `Bearer ${token.authToken}` }
+    };
+    preq.put(options);
+    this.playing = true;
+  }
+
+  stop() {
+    this.pause();
+  }
+
+  async setVolume(volume) {
+    let token = this.token;
+    let options = {
+      url: `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}&device_id=${process.env.SPOTIFY_DEVICE_ID}`,
+      headers: { Authorization: `Bearer ${token.authToken}` },
+      json: true
+    };
+    preq.put(options);
+  }
+}
+
 module.exports = {
   search,
   isLoggedIn,
   attemptFindArtistImage,
   getArtistImage,
-  setAristImage
+  setAristImage,
+  SpotifyPlayer
 };

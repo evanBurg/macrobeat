@@ -47,6 +47,8 @@ const mergeResults = results => {
   return mergedArray;
 } 
 
+const normalize = (val, max, min) => { return (val - min) / (max - min); }
+
 module.exports = {
   isUndefOrNull,
   isUndefOrNullOrWhiteSpace,
@@ -54,5 +56,6 @@ module.exports = {
   encodeSpaces,
   unixTimestamp,
   shuffleArray,
-  mergeResults
+  mergeResults,
+  normalize
 };

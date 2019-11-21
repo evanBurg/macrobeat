@@ -3,6 +3,7 @@ const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
 const { util } = require("../utilities");
+const { AuthToken } = require("../models/")
 const unixTimestamp = util.unixTimestamp;
 const cuid = require('cuid');
 const MPV = require("node-mpv");
@@ -37,6 +38,28 @@ class Player {
       soundcloud: new soundcloudservice.SoundCloudPlayer(this.mpv),
       bandcamp: new bandcampservice.BandcampPlayer(this.mpv)
     };
+
+    this.checkForSpotify();
+  }
+
+  async checkForSpotify(){
+    if(await spotifyservice.isLoggedIn()){
+      this.spotifyToken = await AuthToken.findOne({ serviceName: `spotify` }).exec();
+      this.services["spotify"] = new spotifyservice.SpotifyPlayer(this.spotifyToken, this.onSpotifyStatusChange)
+    }
+  }
+
+  onSpotifyStatusChange(status) {
+    this.status = status;
+    if (status.duration) {
+      this.duration = status.duration;
+    }
+
+    if(status.position){
+      this.timestamp = status.position;
+    }
+    
+    objectInstance.notify();
   }
 
   volume(level){
@@ -190,7 +213,8 @@ class Player {
     switch (Song.Type) {
       case "spotify":
         //Just skip this until we can play
-        setTimeout(() => this.onFinished(this), 400);
+        //setTimeout(() => this.onFinished(this), 400);
+        this.services[Song.Type].play(Song);
         break;
       case "mpv":
         this.mpv.load(Song.ID, "replace");
@@ -285,6 +309,7 @@ class Player {
     this.state = "playing";
     switch (this.currentService) {
       case "spotify":
+          this.services[this.currentService].resume();
         break;
       case "mpv":
         this.mpv.resume();
@@ -312,6 +337,7 @@ class Player {
     this.state = "paused";
     switch (this.currentService) {
       case "spotify":
+          this.services[this.currentService].pause();
         break;
       case "mpv":
         this.mpv.pause();
@@ -326,6 +352,7 @@ class Player {
     this.state = "stopped";
     switch (this.currentService) {
       case "spotify":
+          this.services[this.currentService].stop();
         break;
       case "mpv":
         this.mpv.stop();
