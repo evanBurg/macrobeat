@@ -3,9 +3,9 @@ const youtubeservice = require(`./youtube-service`);
 const bandcampservice = require("./bandcamp-service");
 const soundcloudservice = require("./soundcloud-service");
 const { util } = require("../utilities");
-const { AuthToken } = require("../models/")
+const { AuthToken } = require("../models/");
 const unixTimestamp = util.unixTimestamp;
-const cuid = require('cuid');
+const cuid = require("cuid");
 const MPV = require("node-mpv");
 const MPV_LOCATION = process.env.MPV_LOCATION;
 
@@ -42,10 +42,16 @@ class Player {
     this.checkForSpotify();
   }
 
-  async checkForSpotify(){
-    if(await spotifyservice.isLoggedIn()){
-      this.spotifyToken = await AuthToken.findOne({ serviceName: `spotify` }).exec();
-      this.services["spotify"] = new spotifyservice.SpotifyPlayer(this.spotifyToken, (e) => this.onSpotifyStatusChange(this, e))
+  async checkForSpotify() {
+    if (await spotifyservice.isLoggedIn()) {
+      this.spotifyToken = await AuthToken.findOne({
+        serviceName: `spotify`
+      }).exec();
+      this.services[
+        "spotify"
+      ] = new spotifyservice.SpotifyPlayer(this.spotifyToken, e =>
+        this.onSpotifyStatusChange(this, e)
+      );
     }
   }
 
@@ -55,17 +61,24 @@ class Player {
       objectInstance.duration = status.duration;
     }
 
-    if(status.position){
+    if (status.position) {
       objectInstance.timestamp = status.position;
     }
-    
+
     objectInstance.notify();
   }
 
-  volume(level){
+  volume(level) {
     this.volumeLevel = level;
-    this.mpv.volume(this.volumeLevel);
-    this.notify()
+    switch (this.currentService) {
+      case "spotify":
+        this.services.spotify.setVolume(level);
+        break;
+      default:
+        this.mpv.volume(this.volumeLevel);
+        break;
+    }
+    this.notify();
   }
 
   reorder(newQueue) {
@@ -211,11 +224,6 @@ class Player {
     this.currentService = Song.Type;
     this.state = "playing";
     switch (Song.Type) {
-      case "spotify":
-        //Just skip this until we can play
-        //setTimeout(() => this.onFinished(this), 400);
-        this.services[Song.Type].play(Song);
-        break;
       case "mpv":
         this.mpv.load(Song.ID, "replace");
         break;
@@ -291,13 +299,13 @@ class Player {
     }
 
     if (objectInstance.state !== "skipping") {
-      if(objectInstance.currentSong + 1 < objectInstance.queue.length){
+      if (objectInstance.currentSong + 1 < objectInstance.queue.length) {
         objectInstance.currentSong += 1;
         objectInstance.duration = 0;
         objectInstance.timestamp = 0;
         objectInstance.notify();
         objectInstance.play();
-      }else{
+      } else {
         //Queue ended
         objectInstance.state = "finished";
         objectInstance.notify();
@@ -308,9 +316,6 @@ class Player {
   resume() {
     this.state = "playing";
     switch (this.currentService) {
-      case "spotify":
-          this.services[this.currentService].resume();
-        break;
       case "mpv":
         this.mpv.resume();
         break;
@@ -336,9 +341,6 @@ class Player {
   pause() {
     this.state = "paused";
     switch (this.currentService) {
-      case "spotify":
-          this.services[this.currentService].pause();
-        break;
       case "mpv":
         this.mpv.pause();
         break;
@@ -351,9 +353,6 @@ class Player {
   stop() {
     this.state = "stopped";
     switch (this.currentService) {
-      case "spotify":
-          this.services[this.currentService].stop();
-        break;
       case "mpv":
         this.mpv.stop();
         break;
