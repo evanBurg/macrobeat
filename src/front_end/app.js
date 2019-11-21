@@ -288,7 +288,7 @@ class App extends Component {
 
   audioTag = null;
   setUpNotification = () => {
-    if (!this.audioTag) {
+    if (!this.audioTag && navigator.mediaSession) {
       this.audioTag = document.createElement('audio');
       document.body.appendChild(this.audioTag);
       this.audioTag.src = "https://raw.githubusercontent.com/anars/blank-audio/master/10-seconds-of-silence.mp3";
@@ -298,7 +298,7 @@ class App extends Component {
   }
 
   richMediaNotification = () => {
-    if (this.audioTag) {
+    if (this.audioTag && navigator.mediaSession) {
 
       let { playing } = this.state;
       playing ? this.audioTag.play() : this.audioTag.pause()

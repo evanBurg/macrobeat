@@ -35,7 +35,7 @@ const styles = {
   headingText: {
     fontSize: "1.9em",
     fontWeight: "400",
-    color: "#000"
+    color: "#333"
   },
   infoContainer: {
     display: "flex",
@@ -108,17 +108,17 @@ const styles = {
     textAlign: "center",
     fontWeight: "500",
     padding: "0 0.8em 0.1em 0.8em",
-    color: "#000F45"
+    color: "#333"
   },
   artistName: {
     fontSize: "1.2em",
     fontWeight: "100",
-    color: "#8397C5",
+    color: "#333",
     textAlign: "center",
     padding: "0.3em"
   },
   timeText: {
-    color: "#c6cad4",
+    color: "#333",
     fontWeight: "500",
     fontSize: "1em"
   },
@@ -137,22 +137,23 @@ const styles = {
   nextText: { color: "#3f4e75", fontWeight: "500", margin: "1em" },
   volumeContainer: {
     position: 'relative',
-    margin: '1rem',
-    width: '100%'
+    width: '100%',
+    marginLeft: '0.2rem',
+    marginTop: 50
   },
   volumeDownIcon: {
-    marginLeft: -8,
+    marginLeft: 5,
     marginTop: -6,
     position: 'absolute',
-    color: '#666'
+    color: '#333'
   },
   volumeTrack: {
     position: 'absolute',
     left: 24,
     margin: '0 auto',
     height: 5,
-    width: '80vw',
-    background: '#555',
+    width: '85vw',
+    background: '#333',
     borderRadius: 15
   },
   volumeProgress: {
@@ -160,11 +161,11 @@ const styles = {
     position: 'absolute',
     border: 'none',
     borderRadius: 10,
-    background: '#2ecc71',
+    background: '#4174d0',
     outline: 'none'
   },
   slider: {
-    width: '80vw',
+    width: '85vw',
     height: 5,
     position: 'absolute',
     border: 'none',
@@ -172,11 +173,11 @@ const styles = {
     outline: 'none'
   },
   volumeUpIcon: {
-    marginRight: -8,
+    marginRight: -17,
     right: '1.9rem',
     marginTop: -6,
     position: 'absolute',
-    color: '#666'
+    color: '#333'
   }
 };
 
@@ -193,7 +194,7 @@ class WaveForm extends Component {
   getColour = (column) => {
     const currentTimestamp = this.normalize(this.props.timestamp, this.props.duration, 0);
     const currentColumn = this.normalize(column, this.props.columns, 0);
-    const colour = currentColumn <= currentTimestamp ? "#4174d0" : "#7b8494";
+    const colour = currentColumn <= currentTimestamp ? "#4174d0" : "#333";
     return colour;
   }
 
@@ -467,13 +468,13 @@ class NowPlaying extends Component {
                   <div style={{ padding: "0.5em" }}>
                     <IosArrowLeft
                       fontSize="1.75em"
-                      color="#000"
+                      color="#333"
                       onClick={this.props.toggleNowPlaying}
                     />
                   </div>
                   <Header style={styles.headingText}>Now Playing</Header>
                   <div style={{ padding: "0.5em" }}>
-                    <MdList fontSize="1.75em" color="#000" onClick={context.openQueue} />
+                    <MdList fontSize="1.75em" color="#333" onClick={context.openQueue} />
                   </div>
                 </div>
                 <div style={styles.container}>
@@ -500,19 +501,19 @@ class NowPlaying extends Component {
                     <div style={styles.controlsContainer}>
                       <MdSkipBackward
                         fontSize="2.2em"
-                        color="#B9C1D1"
+                        color="#333"
                         onClick={() => context.Queue.LastTrack()}
                       />
                       {(this.props.duration > 0 && this.props.playing) ? (
                         <MdPause
                           fontSize="4.75em"
-                          color="#929CAF"
+                          color="#333"
                           onClick={() => context.Queue.PlayPause()}
                         />
                       ) : this.props.duration > 0 ? (
                         <MdPlay
                           fontSize="4.75em"
-                          color="#929CAF"
+                          color="#333"
                           onClick={() => context.Queue.PlayPause()}
                         />
                       ) : (
@@ -524,7 +525,7 @@ class NowPlaying extends Component {
                           )}
                       <MdSkipForward
                         fontSize="2.2em"
-                        color="#B9C1D1"
+                        color="#333"
                         onClick={() => context.Queue.SkipTrack()}
                       />
                     </div>
@@ -550,7 +551,7 @@ class NowPlaying extends Component {
                         />
                       </div>
 
-                      <i style={styles.volumeUpIcon} class="fa fa-volume-up" />
+                      <i style={styles.volumeUpIcon} className="fa fa-volume-up" />
                     </div>
                   </div>
                 </div>
