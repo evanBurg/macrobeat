@@ -226,9 +226,11 @@ class Player {
     switch (Song.Type) {
       case "mpv":
         this.mpv.load(Song.ID, "replace");
+        this.mpv.play();
         break;
       default:
         this.services[Song.Type].play(Song);
+        this.services[Song.Type].resume();
         break;
     }
   }

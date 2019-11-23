@@ -119,12 +119,21 @@ const Song = props => {
     style.background = props.isDragging ? "#edf6ff" : "#FFF";
   }
 
+  let className = "";
+  if(props.isDragging){
+    className += "dragging "
+  }
+
+  if(props.playing){
+    className += "playing "
+  }
+
   return (
     <AppContext.Consumer>
       {context => (
         <motion.div
           style={{ ...props.style, ...style }}
-          className={props.isDragging ? "dragging" : ""}
+          className={className}
           onClick={e => {
             e.stopPropagation();
             context.openContextMenu(props.song, props.type || "song");
