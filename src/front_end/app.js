@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import "gestalt/dist/gestalt.css";
 import "loaders.css//loaders.css";
+import Dexie from 'dexie';
 import { SegmentedControl, Text } from "gestalt";
 import IconButton from "./Components/IconButton";
 import io from "socket.io-client";
