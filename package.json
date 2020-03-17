@@ -43,7 +43,7 @@
     "gestalt": "^0.102.0",
     "hh-mm-ss": "^1.2.0",
     "loaders.css": "^0.1.2",
-    "minimist": "~1.2.0",
+    "minimist": "~1.2.2",
     "moment": "^2.24.0",
     "mongodb": "^3.3.2",
     "mongoose": "^5.7.4",
