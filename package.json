@@ -44,7 +44,7 @@
     "hh-mm-ss": "^1.2.0",
     "loaders.css": "^0.1.2",
     "minimist": "~1.2.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mongodb": "^3.3.2",
     "mongoose": "^5.7.4",
     "node-mpv": "^1.4.3",
