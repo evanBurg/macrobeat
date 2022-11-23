@@ -56,7 +56,7 @@
     "react-loaders": "^3.0.1",
     "react-window": "^1.8.5",
     "request": "^2.88.0",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.5.0",
     "socket.io-client": "^2.2.0",
     "string-similarity": "^3.0.0",
     "yargs": "^14.2.0",
